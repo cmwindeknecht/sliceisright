@@ -1,24 +1,42 @@
+version: "3.9"
+
 services:
-  app:
+  # Backend (Quarkus)
+  backend:
+    image: sliceisright-backend
     build:
       context: .
       dockerfile: src/main/docker/Dockerfile.builder
     ports:
       - "8080:8080"
     environment:
-      - QUARKUS_PROFILE=${QUARKUS_PROFILE:-dev}
-      - QUARKUS_DATASOURCE_URL=${SUPABASE_DB_URL}
+      - QUARKUS_PROFILE=${QUARKUS_PROFILE:-local}
+      - QUARKUS_DATASOURCE_JDBC_URL=${SUPABASE_DB_URL}
       - QUARKUS_DATASOURCE_USERNAME=${SUPABASE_DB_USER}
       - QUARKUS_DATASOURCE_PASSWORD=${SUPABASE_DB_PASSWORD}
       - JAVA_OPTS_APPEND=-Dquarkus.http.host=0.0.0.0
     depends_on:
       - db
 
+  # Frontend (Next.js)
+  # frontend:
+  #   image: sliceisright-frontend
+  #   build:
+  #     context: ./frontend       # assumes your frontend lives in ./frontend
+  #     dockerfile: Dockerfile    # this Dockerfile will be inside frontend/
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - NEXT_PUBLIC_API_URL=http://localhost:8080
+  #   depends_on:
+  #     - backend
+
+  # Database (local Postgres)
   db:
     image: postgres:16
     container_name: slice-db
     env_file:
-      - .env.local       # only used for local dev
+      - .env.local              # local dev credentials only
     ports:
       - "5432:5432"
     volumes:
