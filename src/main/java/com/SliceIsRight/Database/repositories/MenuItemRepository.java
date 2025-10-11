@@ -9,12 +9,12 @@ import com.SliceIsRight.api.model.IngredientDTO.QuantityEnum;
 import com.SliceIsRight.database.entities.MenuItem;
 
 public class MenuItemRepository {
-    private static final MenuItemRepository INSTANCE = new MenuItemRepository();
+    public static final MenuItemRepository INSTANCE = new MenuItemRepository();
 
     public List<MenuItemDTO> getAllMenuItemsWithIngredients() {
     List<MenuItem> menuItems = MenuItem.find(
         "SELECT DISTINCT m FROM MenuItem m " +
-        "LEFT JOIN FETCH m.ingredients mii " +
+        "LEFT JOIN FETCH m.menuItemIngredients mii " +
         "LEFT JOIN FETCH mii.ingredient"
     ).list();
     

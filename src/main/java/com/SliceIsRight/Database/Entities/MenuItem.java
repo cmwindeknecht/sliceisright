@@ -2,7 +2,10 @@ package com.SliceIsRight.database.entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
@@ -25,7 +28,6 @@ import lombok.Builder;
  * }
  */
 @Entity
-@Builder
 public class MenuItem extends PanacheEntity {
     public float price;
     public String name;
@@ -33,7 +35,10 @@ public class MenuItem extends PanacheEntity {
     public String imageUrl;
 
     @OneToMany(mappedBy = "menuItem", fetch = FetchType.LAZY)
+    @JsonbTransient  // Ignore this field during deserialization
     public List<MenuItemIngredient> menuItemIngredients;
+
+    public MenuItem() {}
 
     public String getName() {
         return name;

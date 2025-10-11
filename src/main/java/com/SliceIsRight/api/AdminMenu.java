@@ -1,10 +1,7 @@
 package com.SliceIsRight.api;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
@@ -18,39 +15,44 @@ import com.SliceIsRight.database.entities.Ingredient;
 import com.SliceIsRight.database.entities.MenuItem;
 import com.SliceIsRight.database.entities.MenuItemIngredient;
 import com.SliceIsRight.database.DualCompositeKey;
-import com.SliceIsRight.api.responses.OkayResponse;
-import com.SliceIsRight.api.responses.ErrorResponse;
+import com.SliceIsRight.api.responses.ResponseFactory;
 
 @Path("/admin/menu")
 public class AdminMenu 
 {
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String getMenuItems() {
-        List<MenuItem> menuItems = MenuItem.listAll();
-        return menuItems.stream()
-                        .map(MenuItem::getName)
-                        .collect(Collectors.joining(", "));
-    }
-
     @POST
     @Path("/item")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    public String addMenuItem(MenuItem newItem) {
-        newItem.persist();
-        
-        return "Added: " + newItem.getName();
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response addMenuItem(MenuItem menuItem) {
+        try {
+            menuItem.persist();
+            MenuItem.flush();
+            return ResponseFactory.GetOkResponse(menuItem, String.format("Successfullly created MenuItem: %s", menuItem.toString()));
+        } catch (Exception e) {
+            return ResponseFactory.GetBadResponse(e, String.format("Failed to create MenuItem: %s", menuItem.toString()));
+        }
     }
 
     @POST
     @Path("/ingredient")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    public String addMenuItem(Ingredient ingredient) {
-        ingredient.persist();
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response addMenuItem(Ingredient ingredient) {
+        try {
+            ingredient.persist();
+            Ingredient.flush();
+            return ResponseFactory.GetOkResponse(ingredient, String.format("Successfullly created Ingredient: %s", ingredient.toString()));
+        } catch (Exception e) {
+            return ResponseFactory.GetBadResponse(e, String.format("Failed to create Ingredient: %s", ingredient.toString()));
+        }
+    }
 
-        return "Added: " + ingredient.getName();
+    public static class MenuItemIngredientRequest {
+        public long menuItemId;
+        public long ingredientId;
     }
 
     @POST
@@ -65,35 +67,20 @@ public class AdminMenu
             Ingredient ingredient = (Ingredient) Optional.ofNullable(Ingredient.findById(request.ingredientId))
                 .orElseThrow(() -> new WebApplicationException("Ingredient not found", 404));
 
-            MenuItemIngredient menuItemIngredient = MenuItemIngredient.builder()
-                .id(DualCompositeKey.builder()
-                    .primaryId(menuItem.id)
-                    .secondaryId(ingredient.id)
-                    .build())
-                .menuItem(menuItem)
-                .ingredient(ingredient)
-                .build();
+            DualCompositeKey dualCompositeKey = DualCompositeKey.builder()
+                    .menuItemId(menuItem.id)
+                    .ingredientId(ingredient.id)
+                    .build();
+            MenuItemIngredient menuItemIngredient = new MenuItemIngredient();
+            menuItemIngredient.id = dualCompositeKey;
+            menuItemIngredient.menuItem = menuItem;
+            menuItemIngredient.ingredient = ingredient;
             menuItemIngredient.persist();
-            
-            return Response.status(Response.Status.OK)
-                .entity(OkayResponse.builder()
-                    .response(String.format("Failed to create Menu Item Ingredient for request: %s", request.toString()))
-                    .entity(Optional.of(menuItemIngredient))
-                    .build())
-                .build();
+            MenuItemIngredient.flush();
+            return ResponseFactory.GetOkResponse(menuItemIngredient, String.format("Successfullly created MenuItemIngredient: %s", request.toString()));
         } catch (Exception e) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                .entity(ErrorResponse.builder()
-                    .errorResponse(String.format("Failed to create Menu Item Ingredient for request: %s", request.toString()))  // Add closing paren here
-                    .exception(e)
-                    .build())
-                .build();
+            return ResponseFactory.GetBadResponse(e, String.format("Failed to create MenuItemIngredient: %s", request.toString()));
         }
-    }
-
-    public static class MenuItemIngredientRequest {
-        public long menuItemId;
-        public long ingredientId;
     }
 }
 

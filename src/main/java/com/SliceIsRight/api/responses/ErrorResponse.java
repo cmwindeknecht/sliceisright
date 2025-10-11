@@ -5,5 +5,7 @@ import lombok.Builder;
 @Builder
 public class ErrorResponse {
     public String errorResponse;
-    public Exception exception;
+    public String exceptionMessage;
+    public String exceptionStackTrace;
+    public String exceptionType;
 }

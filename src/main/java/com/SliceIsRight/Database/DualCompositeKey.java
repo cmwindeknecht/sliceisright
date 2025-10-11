@@ -9,15 +9,15 @@ import lombok.Builder;
 @Builder
 @Embeddable
 public class DualCompositeKey implements Serializable {
-    public Long primaryId;
-    public Long secondaryId;
+    public Long menuItemId;
+    public Long ingredientId;
     
     // Constructor
     public DualCompositeKey() {}
     
     public DualCompositeKey(Long field1, Long field2) {
-        this.primaryId = field1;
-        this.secondaryId = field2;
+        this.menuItemId = field1;
+        this.ingredientId = field2;
     }
     
     @Override
@@ -28,12 +28,12 @@ public class DualCompositeKey implements Serializable {
         if (this.getClass() != other.getClass()) return false;
 
         DualCompositeKey that = (DualCompositeKey) other;
-        return Objects.equals(primaryId, that.primaryId) && 
-               Objects.equals(secondaryId, that.secondaryId);
+        return Objects.equals(menuItemId, that.menuItemId) && 
+               Objects.equals(ingredientId, that.ingredientId);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(primaryId, secondaryId);
+        return Objects.hash(menuItemId, ingredientId);
     }
 }
