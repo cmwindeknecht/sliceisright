@@ -1,0 +1,28 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.builder
+    ports:
+      - "8080:8080"
+    environment:
+      - QUARKUS_PROFILE=${QUARKUS_PROFILE:-dev}
+      - QUARKUS_DATASOURCE_URL=${SUPABASE_DB_URL}
+      - QUARKUS_DATASOURCE_USERNAME=${SUPABASE_DB_USER}
+      - QUARKUS_DATASOURCE_PASSWORD=${SUPABASE_DB_PASSWORD}
+      - JAVA_OPTS_APPEND=-Dquarkus.http.host=0.0.0.0
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    container_name: slice-db
+    env_file:
+      - .env.local       # only used for local dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
