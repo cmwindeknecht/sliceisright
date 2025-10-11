@@ -12,4 +12,12 @@ import jakarta.persistence.Entity;
 public class Ingredient extends PanacheEntity {
     public float price;
     public String name;
+
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
 }
