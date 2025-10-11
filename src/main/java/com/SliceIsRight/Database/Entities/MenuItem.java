@@ -2,43 +2,37 @@ package com.SliceIsRight.database.entities;
 
 import java.util.List;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.json.bind.annotation.JsonbTransient;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 /**
  * Entity for the table t_menu_item
  * 
  * Used to define menu items that can be ordered by customers
- * 
- * @code
- * {
- *     public void example() {
- *         MyEntity entity1 = new MyEntity();
- *         entity1.field = "field-1";
- *         entity1.persist();
- *
- *         List<MyEntity> entities = MyEntity.listAll();
- *     }
- * }
- */
+ **/
 @Entity
+@AllArgsConstructor   
+@NoArgsConstructor 
 public class MenuItem extends PanacheEntity {
-    public float price;
+    @Column(unique = true, nullable = false)
     public String name;
-    public String description;
+    
+    @Column(unique = true, nullable = false)
     public String imageUrl;
+
+    public String description;
+    public float price;
+    public Boolean isAvailable;
 
     @OneToMany(mappedBy = "menuItem", fetch = FetchType.LAZY)
     @JsonbTransient  // Ignore this field during deserialization
     public List<MenuItemIngredient> menuItemIngredients;
-
-    public MenuItem() {}
 
     public String getName() {
         return name;

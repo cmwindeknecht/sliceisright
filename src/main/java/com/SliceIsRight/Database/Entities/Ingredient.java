@@ -1,10 +1,10 @@
 package com.SliceIsRight.database.entities;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 /**
  * Entity for the table t_menu_item
@@ -12,13 +12,15 @@ import lombok.Builder;
  * Used to define ingredients that are used in menu items
  */
 @Entity
+@AllArgsConstructor   
+@NoArgsConstructor 
 public class Ingredient extends PanacheEntity {
-    public float price;
+    @Column(unique = true, nullable = false)
     public String name;
-    public boolean canBeRemoved;
-    public boolean canBeDoubled;
 
-    public Ingredient() {}
+    public float price;
+    public Boolean canBeRemoved;
+    public Boolean canBeDoubled;
 
     public String getName() {
         return name;

@@ -19,11 +19,14 @@ public class MenuItemRepository {
     ).list();
     
     return menuItems.stream()
-        .map(item -> MenuItemDTO.builder()
-            .id(item.id)
-            .name(item.name)
-            .price(item.price)
-            .ingredients(item.menuItemIngredients.stream()
+        .filter(menuItem -> menuItem.isAvailable)
+        .map(menuItem -> MenuItemDTO.builder()
+            .id(menuItem.id)
+            .name(menuItem.name)
+            .price(menuItem.price)
+            .description(menuItem.description)
+            .imageUrl(menuItem.imageUrl)
+            .ingredients(menuItem.menuItemIngredients.stream()
                 .map(menuItemIngredient ->
                     IngredientDTO.builder()
                         .id(menuItemIngredient.ingredient.id)

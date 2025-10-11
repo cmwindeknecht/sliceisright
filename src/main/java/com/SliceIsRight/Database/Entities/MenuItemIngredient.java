@@ -1,14 +1,14 @@
 package com.SliceIsRight.database.entities;
 
 import com.SliceIsRight.database.DualCompositeKey;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
 /**
@@ -17,11 +17,11 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
  * Used to define which ingredients are in which menu items
  */
 @Entity
+@AllArgsConstructor   
+@NoArgsConstructor 
 public class MenuItemIngredient extends PanacheEntityBase {
     @EmbeddedId
     public DualCompositeKey id;
-
-    public MenuItemIngredient() {}
 
     @ManyToOne
     @MapsId("menuItemId")  // Maps to the menuItemId in the composite key
