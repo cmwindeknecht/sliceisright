@@ -4,18 +4,20 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import jakarta.persistence.Embeddable;
+import lombok.Builder;
 
+@Builder
 @Embeddable
 public class DualCompositeKey implements Serializable {
-    public String field1;
-    public String field2;
+    public Long primaryId;
+    public Long secondaryId;
     
     // Constructor
     public DualCompositeKey() {}
     
-    public DualCompositeKey(String field1, String field2) {
-        this.field1 = field1;
-        this.field2 = field2;
+    public DualCompositeKey(Long field1, Long field2) {
+        this.primaryId = field1;
+        this.secondaryId = field2;
     }
     
     @Override
@@ -26,12 +28,12 @@ public class DualCompositeKey implements Serializable {
         if (this.getClass() != other.getClass()) return false;
 
         DualCompositeKey that = (DualCompositeKey) other;
-        return Objects.equals(field1, that.field1) && 
-               Objects.equals(field2, that.field2);
+        return Objects.equals(primaryId, that.primaryId) && 
+               Objects.equals(secondaryId, that.secondaryId);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(field1, field2);
+        return Objects.hash(primaryId, secondaryId);
     }
 }
