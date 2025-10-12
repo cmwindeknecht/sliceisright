@@ -1,7 +1,5 @@
 package com.SliceIsRight.database.entities;
 
-import com.SliceIsRight.database.DualCompositeKey;
-
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -10,6 +8,9 @@ import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+
+import com.SliceIsRight.database.DualCompositeKey;
+
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
 /**
