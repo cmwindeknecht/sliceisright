@@ -165,7 +165,7 @@ public class AdminMenu
     }
 
     @POST
-    @Path("/menuitemingredient")
+    @Path("/menuItemIngredient")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
@@ -197,7 +197,7 @@ public class AdminMenu
     }
 
     @DELETE
-    @Path("/menuitemingredient/{menuItemToDelete}/{ingredientToDelete}")
+    @Path("/menuItemIngredient/{menuItemToDelete}/{ingredientToDelete}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional

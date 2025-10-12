@@ -3,8 +3,6 @@ package org.acme.api;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.SliceIsRight.database.entities.Ingredient;
@@ -22,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class AdminMenuTest {
 
     private static String MENU_ITEM_URL = "/admin/menu/menuItem";
+    private static String INGREDIENT_URL = "/admin/menu/ingredient";
+    private static String MENU_ITEM_INGREDIENT_URL = "/admin/menu/menuItemIngredient";
     private static String DB_NAME = "name";
     private static String BODY_NAME = "entity.name";
     private static String BODY_PRICE = "entity.price";
@@ -35,6 +35,9 @@ public class AdminMenuTest {
         MenuItemIngredient.deleteAll();
     }
 
+    /*************
+     * MENU ITEM *
+     *************/
     @Test
     public void testAddMenuItem_Success() {
         MenuItem menuItem = APIFixtures.ValidMenuItem();
@@ -195,5 +198,170 @@ public class AdminMenuTest {
         .then()
             .statusCode(Response.Status.NOT_FOUND.getStatusCode())
             .body(containsString(String.format("MenuItem not found to delete with id %s", menuItemToUpdate.id)));
+    }
+
+    /**************
+     * INGREDIENT *
+     **************/
+    @Test
+    public void testAddIngredient_Success() {
+        Ingredient ingredient = APIFixtures.ValidIngredient();
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(ingredient)
+        .when()
+            .post(INGREDIENT_URL)
+        .then()
+            .log().body()
+            .statusCode(Response.Status.OK.getStatusCode())
+            .body(BODY_NAME, equalTo(ingredient.name))
+            .body(BODY_PRICE, equalTo(ingredient.price))
+            .body(BODY_ID, notNullValue());
+
+        Ingredient persisted = Ingredient.find(DB_NAME, ingredient.name).firstResult();
+        assertNotNull(persisted);
+        assertEquals(ingredient.name, persisted.name);
+        assertEquals(ingredient.price, persisted.price);
+    }
+
+    @Test
+    public void testAddIngredient_DuplicateName() {
+        Ingredient firstIngredient = APIFixtures.ValidIngredient();
+        Ingredient duplicateIngredient = APIFixtures.ValidIngredient();
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(firstIngredient)
+        .when()
+            .post(INGREDIENT_URL)
+        .then()
+            .statusCode(Response.Status.OK.getStatusCode());
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(duplicateIngredient)
+        .when()
+            .post(INGREDIENT_URL)
+        .then()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+            .body(containsString(String.format("Ingredient with name %s already exists", duplicateIngredient.name)));
+
+        assertEquals(1, Ingredient.count(DB_NAME, firstIngredient.name));
+    }
+
+    @Test
+    public void testAddIngredient_MissingRequiredFields() {
+        MenuItem invalidMenuItem = new MenuItem();
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(invalidMenuItem)
+        .when()
+            .post(INGREDIENT_URL)
+        .then()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testAddIngredient_InvalidJson() {
+        given()
+            .contentType(ContentType.JSON)
+            .body("{invalid json}")
+        .when()
+            .post(INGREDIENT_URL)
+        .then()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Transactional
+    public Ingredient createIngredient() {
+        Ingredient ingredient = APIFixtures.ValidIngredient();
+        ingredient.persist();
+        return ingredient;
+    }
+
+    @Test
+    public void testUpdateIngredient_Success() {
+        Ingredient ingredient = createIngredient();
+
+        Ingredient updatedIngredient = APIFixtures.ValidIngredient();
+        updatedIngredient.name = "updated";
+        updatedIngredient.price = 1.99f;
+        updatedIngredient.id = ingredient.id;
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(updatedIngredient)
+        .when()
+            .put(INGREDIENT_URL)
+        .then()
+            .log().body()
+            .statusCode(Response.Status.OK.getStatusCode())
+            .body(BODY_NAME, equalTo(updatedIngredient.name))
+            .body(BODY_PRICE, equalTo(updatedIngredient.price))
+            .body(BODY_ID, equalTo(ingredient.id.intValue()));
+
+        Ingredient persisted = Ingredient.find(DB_NAME, updatedIngredient.name).firstResult();
+        assertNotNull(persisted);
+        assertEquals(updatedIngredient.name, persisted.name);
+        assertEquals(updatedIngredient.price, persisted.price);
+    }
+
+    @Test
+    public void testUpdateIngredient_NotFound() {
+        Ingredient ingredientToUpdate = APIFixtures.ValidIngredient();
+        ingredientToUpdate.id = 1L;
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(ingredientToUpdate)
+        .when()
+            .put(INGREDIENT_URL)
+        .then()
+            .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+            .body(containsString(String.format("Ingredient not found to update with name %s", ingredientToUpdate.name)));
+    }
+
+    @Test
+    public void testUpdateIngredient_InvalidJson() {
+        given()
+            .contentType(ContentType.JSON)
+            .body("{invalid json}")
+        .when()
+            .put(INGREDIENT_URL)
+        .then()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testDeleteIngredient_Success() {
+        Ingredient ingredient = createIngredient();
+
+        given()
+        .when()
+            .delete(INGREDIENT_URL + "/" + ingredient.id)
+        .then()
+            .log().body()
+            .statusCode(Response.Status.OK.getStatusCode())
+            .body(BODY_NAME, equalTo(ingredient.name))
+            .body(BODY_PRICE, equalTo(ingredient.price))
+            .body(BODY_ID, equalTo(ingredient.id.intValue()));
+
+        Ingredient persisted = Ingredient.find(DB_NAME, ingredient.name).firstResult();
+        assertNull(persisted);
+    }
+
+    @Test
+    public void testDeleteIngredient_NotFound() {
+        Ingredient ingredientToDelete = APIFixtures.ValidIngredient();
+        ingredientToDelete.id = 1L;
+
+        given()
+        .when()
+            .delete(INGREDIENT_URL + "/" + ingredientToDelete.id)
+        .then()
+            .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+            .body(containsString(String.format("Ingredient not found to delete with id %s", ingredientToDelete.id)));
     }
 }
