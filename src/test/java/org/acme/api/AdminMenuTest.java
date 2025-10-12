@@ -35,78 +35,134 @@ public class AdminMenuTest {
         MenuItemIngredient.deleteAll();
     }
 
-    @Nested
-    @DisplayName("Add MenuItem")
-    class AddMenuItem {
-        @Test
-        public void testAddMenuItem_Success() {
-            MenuItem menuItem = APIFixtures.ValidMenuItem();
+    @Test
+    public void testAddMenuItem_Success() {
+        MenuItem menuItem = APIFixtures.ValidMenuItem();
 
-            given()
-                .contentType(ContentType.JSON)
-                .body(menuItem)
-            .when()
-                .post(MENU_ITEM_URL)
-            .then()
-                .log().body()
-                .statusCode(Response.Status.OK.getStatusCode())
-                .body(BODY_NAME, equalTo(menuItem.name))
-                .body(BODY_PRICE, equalTo(menuItem.price))
-                .body(BODY_ID, notNullValue());
+        given()
+            .contentType(ContentType.JSON)
+            .body(menuItem)
+        .when()
+            .post(MENU_ITEM_URL)
+        .then()
+            .log().body()
+            .statusCode(Response.Status.OK.getStatusCode())
+            .body(BODY_NAME, equalTo(menuItem.name))
+            .body(BODY_PRICE, equalTo(menuItem.price))
+            .body(BODY_ID, notNullValue());
 
-            MenuItem persisted = MenuItem.find(DB_NAME, menuItem.name).firstResult();
-            assertNotNull(persisted);
-            assertEquals(menuItem.name, persisted.name);
-            assertEquals(menuItem.price, persisted.price);
-        }
+        MenuItem persisted = MenuItem.find(DB_NAME, menuItem.name).firstResult();
+        assertNotNull(persisted);
+        assertEquals(menuItem.name, persisted.name);
+        assertEquals(menuItem.price, persisted.price);
+    }
 
-        @Test
-        public void testAddMenuItem_DuplicateName() {
-            MenuItem firstMenuItem = APIFixtures.ValidMenuItem();
-            MenuItem duplicateMenuItem = APIFixtures.ValidMenuItem();
+    @Test
+    public void testAddMenuItem_DuplicateName() {
+        MenuItem firstMenuItem = APIFixtures.ValidMenuItem();
+        MenuItem duplicateMenuItem = APIFixtures.ValidMenuItem();
 
-            given()
-                .contentType(ContentType.JSON)
-                .body(firstMenuItem)
-            .when()
-                .post(MENU_ITEM_URL)
-            .then()
-                .statusCode(Response.Status.OK.getStatusCode());
+        given()
+            .contentType(ContentType.JSON)
+            .body(firstMenuItem)
+        .when()
+            .post(MENU_ITEM_URL)
+        .then()
+            .statusCode(Response.Status.OK.getStatusCode());
 
-            given()
-                .contentType(ContentType.JSON)
-                .body(duplicateMenuItem)
-            .when()
-                .post(MENU_ITEM_URL)
-            .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
-                .body(containsString(String.format("MenuItem with name %s already exists", duplicateMenuItem.name)));
+        given()
+            .contentType(ContentType.JSON)
+            .body(duplicateMenuItem)
+        .when()
+            .post(MENU_ITEM_URL)
+        .then()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+            .body(containsString(String.format("MenuItem with name %s already exists", duplicateMenuItem.name)));
 
-            assertEquals(1, MenuItem.count(DB_NAME, firstMenuItem.name));
-        }
+        assertEquals(1, MenuItem.count(DB_NAME, firstMenuItem.name));
+    }
 
-        @Test
-        public void testAddMenuItem_MissingRequiredFields() {
-            MenuItem invalidItem = new MenuItem();
+    @Test
+    public void testAddMenuItem_MissingRequiredFields() {
+        MenuItem invalidItem = new MenuItem();
 
-            given()
-                .contentType(ContentType.JSON)
-                .body(invalidItem)
-            .when()
-                .post(MENU_ITEM_URL)
-            .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        given()
+            .contentType(ContentType.JSON)
+            .body(invalidItem)
+        .when()
+            .post(MENU_ITEM_URL)
+        .then()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+    }
 
-        @Test
-        public void testAddMenuItem_InvalidJson() {
-            given()
-                .contentType(ContentType.JSON)
-                .body("{invalid json}")
-            .when()
-                .post(MENU_ITEM_URL)
-            .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+    @Test
+    public void testAddMenuItem_InvalidJson() {
+        given()
+            .contentType(ContentType.JSON)
+            .body("{invalid json}")
+        .when()
+            .post(MENU_ITEM_URL)
+        .then()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Transactional
+    public MenuItem createMenuItem() {
+        MenuItem menuItem = APIFixtures.ValidMenuItem();
+        menuItem.persist();
+        return menuItem;
+    }
+
+    @Test
+    public void testUpdateMenuItem_Success() {
+        MenuItem menuItem = createMenuItem();
+
+        MenuItem updatedMenuItem = APIFixtures.ValidMenuItem();
+        updatedMenuItem.name = "updated";
+        updatedMenuItem.price = 1.99f;
+        updatedMenuItem.id = menuItem.id;
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(updatedMenuItem)
+        .when()
+            .put(MENU_ITEM_URL)
+        .then()
+            .log().body()
+            .statusCode(Response.Status.OK.getStatusCode())
+            .body(BODY_NAME, equalTo(updatedMenuItem.name))
+            .body(BODY_PRICE, equalTo(updatedMenuItem.price))
+            .body(BODY_ID, equalTo(menuItem.id.intValue()));
+
+        MenuItem persisted = MenuItem.find(DB_NAME, updatedMenuItem.name).firstResult();
+        assertNotNull(persisted);
+        assertEquals(updatedMenuItem.name, persisted.name);
+        assertEquals(updatedMenuItem.price, persisted.price);
+    }
+
+    @Test
+    public void testUpdateMenuItem_NotFound() {
+        MenuItem menuItemToUpdate = APIFixtures.ValidMenuItem();
+        menuItemToUpdate.id = 1L;
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(menuItemToUpdate)
+        .when()
+            .put(MENU_ITEM_URL)
+        .then()
+            .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+            .body(containsString(String.format("MenuItem not found to update with id %s", menuItemToUpdate.id)));
+    }
+
+    @Test
+    public void testUpdateMenuItem_InvalidJson() {
+        given()
+            .contentType(ContentType.JSON)
+            .body("{invalid json}")
+        .when()
+            .put(MENU_ITEM_URL)
+        .then()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
     }
 }
