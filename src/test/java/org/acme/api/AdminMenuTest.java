@@ -165,4 +165,35 @@ public class AdminMenuTest {
         .then()
             .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
     }
+
+    @Test
+    public void testDeleteMenuItem_Success() {
+        MenuItem menuItem = createMenuItem();
+
+        given()
+        .when()
+            .delete(MENU_ITEM_URL + "/" + menuItem.id)
+        .then()
+            .log().body()
+            .statusCode(Response.Status.OK.getStatusCode())
+            .body(BODY_NAME, equalTo(menuItem.name))
+            .body(BODY_PRICE, equalTo(menuItem.price))
+            .body(BODY_ID, equalTo(menuItem.id.intValue()));
+
+        MenuItem persisted = MenuItem.find(DB_NAME, menuItem.name).firstResult();
+        assertNull(persisted);
+    }
+
+    @Test
+    public void testDeleteMenuItem_NotFound() {
+        MenuItem menuItemToUpdate = APIFixtures.ValidMenuItem();
+        menuItemToUpdate.id = 1L;
+
+        given()
+        .when()
+            .delete(MENU_ITEM_URL + "/" + menuItemToUpdate.id)
+        .then()
+            .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+            .body(containsString(String.format("MenuItem not found to delete with id %s", menuItemToUpdate.id)));
+    }
 }
