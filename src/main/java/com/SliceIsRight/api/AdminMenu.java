@@ -33,15 +33,17 @@ public class AdminMenu
             Optional.ofNullable(MenuItem.find("name", menuItemToAdd.name)
                 .firstResult())
                 .ifPresent(existing -> {
-                    throw new WebApplicationException(String.format("MenuItem with name %s already exists", menuItemToAdd.name),Response.Status.BAD_GATEWAY);
+                    throw new WebApplicationException(String.format("MenuItem with name %s already exists", menuItemToAdd.name), Response.Status.BAD_REQUEST);
                 });
 
             menuItemToAdd.persist();
             MenuItem.flush();
             
-            return ResponseFactory.GetOkResponse(menuItemToAdd, String.format("Successfullly created MenuItem: %s", menuItemToAdd.toString()));
+            return ResponseFactory.GetOkResponse(menuItemToAdd, String.format("Successfullly created MenuItem: %s", menuItemToAdd.name));
+        } catch (WebApplicationException e) {
+            return ResponseFactory.GetWebExceptionResponse(e);
         } catch (Exception e) {
-            return ResponseFactory.GetBadResponse(e, String.format("Failed to create MenuItem: %s", menuItemToAdd.toString()));
+            return ResponseFactory.GetBadRequestResponse(e, String.format("Failed to create MenuItem: %s", menuItemToAdd.name));
         }
     }
 
@@ -53,7 +55,7 @@ public class AdminMenu
     public Response updateMenuItem(MenuItem menuItemToUpdate) {
         try {    
             MenuItem menuItem = (MenuItem) Optional.ofNullable(MenuItem.findById(menuItemToUpdate.id))
-                .orElseThrow(() -> new WebApplicationException(String.format("MenuItem not found to update with id %s", menuItemToUpdate.id), 404));        
+                .orElseThrow(() -> new WebApplicationException(String.format("MenuItem not found to update with id %s", menuItemToUpdate.id), Response.Status.NOT_FOUND));        
             
             menuItem.name = menuItemToUpdate.name;
             menuItem.description = menuItemToUpdate.description;
@@ -62,8 +64,10 @@ public class AdminMenu
             menuItem.isAvailable = menuItemToUpdate.isAvailable;
 
             return ResponseFactory.GetOkResponse(menuItem, String.format("Succesfully updated MenuItem with id %s", menuItemToUpdate.id));
+        } catch (WebApplicationException e) {
+            return ResponseFactory.GetWebExceptionResponse(e);
         } catch (Exception e) {
-            return ResponseFactory.GetBadResponse(e, String.format("Failed to update MenuItem with id %s", menuItemToUpdate.id));
+            return ResponseFactory.GetBadRequestResponse(e, String.format("Failed to update MenuItem with id %s", menuItemToUpdate.id));
         }
     }
 
@@ -75,14 +79,16 @@ public class AdminMenu
     public Response deleteMenuItem(@PathParam("menuItemToDelete") long menuItemToDelete) {
         try {
             MenuItem menuItem = (MenuItem) Optional.ofNullable(MenuItem.findById(menuItemToDelete))
-                .orElseThrow(() -> new WebApplicationException(String.format("MenuItem not found to delete with id %s", menuItemToDelete), 404));
+                .orElseThrow(() -> new WebApplicationException(String.format("MenuItem not found to delete with id %s", menuItemToDelete), Response.Status.NOT_FOUND));
             
             menuItem.delete();
             MenuItem.flush();
 
             return ResponseFactory.GetOkResponse(menuItem, String.format("Succesfully deleted MenuItem with id %s", menuItemToDelete));
+        } catch (WebApplicationException e) {
+            return ResponseFactory.GetWebExceptionResponse(e);
         } catch (Exception e) {
-            return ResponseFactory.GetBadResponse(e, String.format("Failed to deleted MenuItem with id %s", menuItemToDelete));
+            return ResponseFactory.GetBadRequestResponse(e, String.format("Failed to deleted MenuItem with id %s", menuItemToDelete));
         }
     }
 
@@ -96,14 +102,16 @@ public class AdminMenu
             Optional.ofNullable(Ingredient.find("name", ingredientToAdd.name)
                 .firstResult())
                 .ifPresent(existing -> {
-                    throw new WebApplicationException(String.format("Ingredient with name %s already exists", ingredientToAdd.name), 400);
+                    throw new WebApplicationException(String.format("Ingredient with name %s already exists", ingredientToAdd.name), Response.Status.BAD_REQUEST);
                 });
 
             ingredientToAdd.persist();
             Ingredient.flush();
             return ResponseFactory.GetOkResponse(ingredientToAdd, String.format("Successfullly created Ingredient: %s", ingredientToAdd.toString()));
+        } catch (WebApplicationException e) {
+            return ResponseFactory.GetWebExceptionResponse(e);
         } catch (Exception e) {
-            return ResponseFactory.GetBadResponse(e, String.format("Failed to create Ingredient: %s", ingredientToAdd.toString()));
+            return ResponseFactory.GetBadRequestResponse(e, String.format("Failed to create Ingredient: %s", ingredientToAdd.toString()));
         }
     }
 
@@ -115,7 +123,7 @@ public class AdminMenu
     public Response updateIngredient(Ingredient ingredientToUpdate) {
         try {
             Ingredient ingredient = (Ingredient) Optional.ofNullable(Ingredient.findById(ingredientToUpdate.id))
-                .orElseThrow(() -> new WebApplicationException(String.format("Ingredient not found to update with name %s", ingredientToUpdate.name), 404));
+                .orElseThrow(() -> new WebApplicationException(String.format("Ingredient not found to update with name %s", ingredientToUpdate.name), Response.Status.NOT_FOUND));
 
             ingredient.name = ingredientToUpdate.name;
             ingredient.price = ingredientToUpdate.price;
@@ -123,8 +131,10 @@ public class AdminMenu
             ingredient.canBeRemoved = ingredientToUpdate.canBeRemoved;
 
             return ResponseFactory.GetOkResponse(ingredient, String.format("Succesfully updated Ingredient with id %s", ingredientToUpdate.id));
+        } catch (WebApplicationException e) {
+            return ResponseFactory.GetWebExceptionResponse(e);
         } catch (Exception e) {
-            return ResponseFactory.GetBadResponse(e, String.format("Failed to update Ingredient with id %s", ingredientToUpdate.id));
+            return ResponseFactory.GetBadRequestResponse(e, String.format("Failed to update Ingredient with id %s", ingredientToUpdate.id));
         }
     }
 
@@ -136,14 +146,16 @@ public class AdminMenu
     public Response deleteIngredient(@PathParam("ingredientToDelete") long ingredientToDelete) {
         try {
             Ingredient menuItem = (Ingredient) Optional.ofNullable(Ingredient.findById(ingredientToDelete))
-                .orElseThrow(() -> new WebApplicationException(String.format("Ingredient not found to delete with id %s", ingredientToDelete), 404));
+                .orElseThrow(() -> new WebApplicationException(String.format("Ingredient not found to delete with id %s", ingredientToDelete), Response.Status.NOT_FOUND));
             
             menuItem.delete();
             MenuItem.flush();
 
             return ResponseFactory.GetOkResponse(menuItem, String.format("Succesfully updated Ingredient with id %s", ingredientToDelete));
+        } catch (WebApplicationException e) {
+            return ResponseFactory.GetWebExceptionResponse(e);
         } catch (Exception e) {
-            return ResponseFactory.GetBadResponse(e, String.format("Failed to update Ingredient with id %s", ingredientToDelete));
+            return ResponseFactory.GetBadRequestResponse(e, String.format("Failed to update Ingredient with id %s", ingredientToDelete));
         }
     }
 
@@ -160,9 +172,9 @@ public class AdminMenu
     public Response addMenuItemIngredient(MenuItemIngredientRequest request) {
         try {
             MenuItem menuItem = (MenuItem) Optional.ofNullable(MenuItem.findById(request.menuItemId))
-                .orElseThrow(() -> new WebApplicationException(String.format("MenuItem with id %s not found to link to Ingredient with id %s", request.menuItemId, request.ingredientId), 404));
+                .orElseThrow(() -> new WebApplicationException(String.format("MenuItem with id %s not found to link to Ingredient with id %s", request.menuItemId, request.ingredientId), Response.Status.NOT_FOUND));
             Ingredient ingredient = (Ingredient) Optional.ofNullable(Ingredient.findById(request.ingredientId))
-                .orElseThrow(() -> new WebApplicationException(String.format("Ingredient with id %s not found to link to MenuItem with id %s", request.ingredientId, request.menuItemId), 404));
+                .orElseThrow(() -> new WebApplicationException(String.format("Ingredient with id %s not found to link to MenuItem with id %s", request.ingredientId, request.menuItemId), Response.Status.NOT_FOUND));
 
             DualCompositeKey dualCompositeKey = DualCompositeKey.builder()
                     .menuItemId(menuItem.id)
@@ -177,8 +189,10 @@ public class AdminMenu
             menuItemIngredient.persist();
             MenuItemIngredient.flush();
             return ResponseFactory.GetOkResponse(menuItemIngredient, String.format("Successfullly created MenuItemIngredient: %s", request.toString()));
+        } catch (WebApplicationException e) {
+            return ResponseFactory.GetWebExceptionResponse(e);
         } catch (Exception e) {
-            return ResponseFactory.GetBadResponse(e, String.format("Failed to create MenuItemIngredient: %s", request.toString()));
+            return ResponseFactory.GetBadRequestResponse(e, String.format("Failed to create MenuItemIngredient: %s", request.toString()));
         }
     }
 
@@ -198,14 +212,16 @@ public class AdminMenu
             .build();
 
             MenuItemIngredient menuItemIngredient = (MenuItemIngredient) Optional.ofNullable(MenuItemIngredient.findById(dualCompositeKey))
-                .orElseThrow(() -> new WebApplicationException(String.format("MenuItemIngredient to delete not found with id %s", dualCompositeKey.toString()), 404));
+                .orElseThrow(() -> new WebApplicationException(String.format("MenuItemIngredient to delete not found with id %s", dualCompositeKey.toString()), Response.Status.NOT_FOUND));
 
             menuItemIngredient.delete();
             MenuItem.flush();
 
             return ResponseFactory.GetOkResponse(menuItemIngredient, String.format("Succesfully deleted MenuItemIngredient with id %s %s", menuItemToDelete, ingredientToDelete));
+        } catch (WebApplicationException e) {
+            return ResponseFactory.GetWebExceptionResponse(e);
         } catch (Exception e) {
-            return ResponseFactory.GetBadResponse(e, String.format("Failed to delete Ingredient with id %s %s", menuItemToDelete, ingredientToDelete));
+            return ResponseFactory.GetBadRequestResponse(e, String.format("Failed to delete Ingredient with id %s %s", menuItemToDelete, ingredientToDelete));
         }
     }
 }

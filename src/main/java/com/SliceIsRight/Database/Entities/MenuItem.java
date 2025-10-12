@@ -1,5 +1,6 @@
 package com.SliceIsRight.database.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
@@ -32,7 +33,7 @@ public class MenuItem extends PanacheEntity {
 
     @OneToMany(mappedBy = "menuItem", fetch = FetchType.LAZY)
     @JsonbTransient  // Ignore this field during deserialization
-    public List<MenuItemIngredient> menuItemIngredients;
+    public List<MenuItemIngredient> menuItemIngredients = new ArrayList<>();
 
     public String getName() {
         return name;

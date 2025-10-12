@@ -23,7 +23,7 @@ public class Menu {
             List<MenuItemDTO> menuItemDTOs = MenuItemRepository.INSTANCE.getAllMenuItemsWithIngredients();
             return ResponseFactory.GetOkResponse(menuItemDTOs, "Successfully retrieved menu items");
         } catch (Exception e) {
-            return ResponseFactory.GetBadResponse(e, "Failed to retrieved menu items");
+            return ResponseFactory.GetBadRequestResponse(e, "Failed to retrieved menu items");
         }
     }
 }

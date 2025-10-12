@@ -3,6 +3,8 @@ package org.acme.db.entities;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+
+import org.hibernate.Hibernate;
 import org.junit.jupiter.api.Test;
 
 import com.SliceIsRight.database.DualCompositeKey;
@@ -55,36 +57,33 @@ public class MenuItemTest {
         menuItem.price = 5.99f;
         menuItem.isAvailable = true;
         menuItem.persist();
-
+        
         Ingredient ingredient = new Ingredient();
         ingredient.name = "Cheese";
         ingredient.canBeDoubled = true;
         ingredient.canBeRemoved = true;
         ingredient.price = 2;
         ingredient.persist();
-
-        Ingredient loadedIngredient = Ingredient.findById(ingredient.id);
-        assertNotNull(loadedIngredient);
-
+        
         DualCompositeKey key = new DualCompositeKey();
         key.ingredientId = ingredient.id;
         key.menuItemId = menuItem.id;
-
+        
         MenuItemIngredient menuItemIngredient = new MenuItemIngredient();
         menuItemIngredient.id = key;
         menuItemIngredient.ingredient = ingredient;
-        menuItemIngredient.menuItem = menuItem;  // Link to MenuItem
+        menuItemIngredient.menuItem = menuItem;
         menuItemIngredient.persist();
-
-        MenuItemIngredient loadedMenuItemIngredient = MenuItemIngredient.findById(key);
-        assertNotNull(loadedMenuItemIngredient);
-
+        
+        // Force Hibernate to flush and clear the persistence context
+        MenuItem.flush();
+        MenuItem.getEntityManager().clear();
+        
+        // Now reload from database
         MenuItem loadedMenuItem = MenuItem.findById(menuItem.id);
         assertNotNull(loadedMenuItem);
-        loadedMenuItem.persistAndFlush(); // Force lazy load of ingredients
-
-        List<MenuItemIngredient> ingredients = loadedMenuItem.menuItemIngredients;
-        assertEquals(1, ingredients.size());
-        assertEquals("Cheese", ingredients.get(0).ingredient.name);
+        assertNotNull(loadedMenuItem.menuItemIngredients);
+        assertEquals(1, loadedMenuItem.menuItemIngredients.size());
+        assertEquals("Cheese", loadedMenuItem.menuItemIngredients.get(0).ingredient.name);
     }
 }
