@@ -3,37 +3,22 @@ package com.SliceIsRight.database;
 import java.io.Serializable;
 import java.util.Objects;
 
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
 import jakarta.persistence.Embeddable;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @Embeddable
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
 public class DualCompositeKey implements Serializable {
+    @Setter @Getter
     public Long menuItemId;
+    @Setter @Getter
     public Long ingredientId;
-    
-    // Constructor
-    public DualCompositeKey() {}
-    
-    public DualCompositeKey(Long field1, Long field2) {
-        this.menuItemId = field1;
-        this.ingredientId = field2;
-    }
-    
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-
-        if (other == null) return false;
-        if (this.getClass() != other.getClass()) return false;
-
-        DualCompositeKey that = (DualCompositeKey) other;
-        return Objects.equals(menuItemId, that.menuItemId) && 
-               Objects.equals(ingredientId, that.ingredientId);
-    }
-    
-    @Override
-    public int hashCode() {
-        return Objects.hash(menuItemId, ingredientId);
-    }
 }

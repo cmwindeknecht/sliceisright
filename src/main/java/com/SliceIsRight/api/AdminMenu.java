@@ -73,7 +73,6 @@ public class AdminMenu
 
     @DELETE
     @Path("/menuItem/{menuItemToDelete}")
-    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
     public Response deleteMenuItem(@PathParam("menuItemToDelete") long menuItemToDelete) {
@@ -140,7 +139,6 @@ public class AdminMenu
 
     @DELETE
     @Path("/ingredient/{ingredientToDelete}")
-    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
     public Response deleteIngredient(@PathParam("ingredientToDelete") long ingredientToDelete) {
@@ -176,10 +174,9 @@ public class AdminMenu
             Ingredient ingredient = (Ingredient) Optional.ofNullable(Ingredient.findById(request.ingredientId))
                 .orElseThrow(() -> new WebApplicationException(String.format("Ingredient with id %s not found to link to MenuItem with id %s", request.ingredientId, request.menuItemId), Response.Status.NOT_FOUND));
 
-            DualCompositeKey dualCompositeKey = DualCompositeKey.builder()
-                    .menuItemId(menuItem.id)
-                    .ingredientId(ingredient.id)
-                    .build();
+            DualCompositeKey dualCompositeKey = new DualCompositeKey();
+            dualCompositeKey.menuItemId = menuItem.id;
+            dualCompositeKey.ingredientId = ingredient.id;
 
             MenuItemIngredient menuItemIngredient = new MenuItemIngredient();
             menuItemIngredient.id = dualCompositeKey;
@@ -198,21 +195,19 @@ public class AdminMenu
 
     @DELETE
     @Path("/menuItemIngredient/{menuItemToDelete}/{ingredientToDelete}")
-    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
     public Response deleteMenuItemIngredient(
-        @PathParam("ingredientToDelete") long menuItemToDelete,
+        @PathParam("menuItemToDelete") long menuItemToDelete,
         @PathParam("ingredientToDelete") long ingredientToDelete
     ) {
         try {
-            DualCompositeKey dualCompositeKey = DualCompositeKey.builder()
-            .menuItemId(menuItemToDelete)
-            .ingredientId(ingredientToDelete)
-            .build();
+            DualCompositeKey dualCompositeKey = new DualCompositeKey();
+            dualCompositeKey.menuItemId = menuItemToDelete;
+            dualCompositeKey.ingredientId = ingredientToDelete;
 
             MenuItemIngredient menuItemIngredient = (MenuItemIngredient) Optional.ofNullable(MenuItemIngredient.findById(dualCompositeKey))
-                .orElseThrow(() -> new WebApplicationException(String.format("MenuItemIngredient to delete not found with id %s", dualCompositeKey.toString()), Response.Status.NOT_FOUND));
+                .orElseThrow(() -> new WebApplicationException(String.format("MenuItemIngredient to delete not found with menuItemId %s ingredientId %s", menuItemToDelete, ingredientToDelete), Response.Status.NOT_FOUND));
 
             menuItemIngredient.delete();
             MenuItem.flush();

@@ -5,6 +5,8 @@ import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.SliceIsRight.api.AdminMenu.MenuItemIngredientRequest;
+import com.SliceIsRight.database.DualCompositeKey;
 import com.SliceIsRight.database.entities.Ingredient;
 import com.SliceIsRight.database.entities.MenuItem;
 import com.SliceIsRight.database.entities.MenuItemIngredient;
@@ -23,6 +25,7 @@ public class AdminMenuTest {
     private static String INGREDIENT_URL = "/admin/menu/ingredient";
     private static String MENU_ITEM_INGREDIENT_URL = "/admin/menu/menuItemIngredient";
     private static String DB_NAME = "name";
+    private static String DB_ID = "id";
     private static String BODY_NAME = "entity.name";
     private static String BODY_PRICE = "entity.price";
     private static String BODY_ID = "entity.id";
@@ -30,14 +33,21 @@ public class AdminMenuTest {
     @BeforeEach
     @Transactional
     public void cleanup() {
+        MenuItemIngredient.deleteAll();
         MenuItem.deleteAll();
         Ingredient.deleteAll();
-        MenuItemIngredient.deleteAll();
     }
 
     /*************
      * MENU ITEM *
      *************/
+    @Transactional
+    public MenuItem CreateMenuItem() {
+        MenuItem menuItem = APIFixtures.ValidMenuItem();
+        menuItem.persist();
+        return menuItem;
+    }
+
     @Test
     public void testAddMenuItem_Success() {
         MenuItem menuItem = APIFixtures.ValidMenuItem();
@@ -109,16 +119,9 @@ public class AdminMenuTest {
             .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
-    @Transactional
-    public MenuItem createMenuItem() {
-        MenuItem menuItem = APIFixtures.ValidMenuItem();
-        menuItem.persist();
-        return menuItem;
-    }
-
     @Test
     public void testUpdateMenuItem_Success() {
-        MenuItem menuItem = createMenuItem();
+        MenuItem menuItem = CreateMenuItem();
 
         MenuItem updatedMenuItem = APIFixtures.ValidMenuItem();
         updatedMenuItem.name = "updated";
@@ -171,7 +174,7 @@ public class AdminMenuTest {
 
     @Test
     public void testDeleteMenuItem_Success() {
-        MenuItem menuItem = createMenuItem();
+        MenuItem menuItem = CreateMenuItem();
 
         given()
         .when()
@@ -203,6 +206,13 @@ public class AdminMenuTest {
     /**************
      * INGREDIENT *
      **************/
+    @Transactional
+    public Ingredient CreateIngredient() {
+        Ingredient ingredient = APIFixtures.ValidIngredient();
+        ingredient.persist();
+        return ingredient;
+    }
+
     @Test
     public void testAddIngredient_Success() {
         Ingredient ingredient = APIFixtures.ValidIngredient();
@@ -274,16 +284,9 @@ public class AdminMenuTest {
             .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
-    @Transactional
-    public Ingredient createIngredient() {
-        Ingredient ingredient = APIFixtures.ValidIngredient();
-        ingredient.persist();
-        return ingredient;
-    }
-
     @Test
     public void testUpdateIngredient_Success() {
-        Ingredient ingredient = createIngredient();
+        Ingredient ingredient = CreateIngredient();
 
         Ingredient updatedIngredient = APIFixtures.ValidIngredient();
         updatedIngredient.name = "updated";
@@ -336,7 +339,7 @@ public class AdminMenuTest {
 
     @Test
     public void testDeleteIngredient_Success() {
-        Ingredient ingredient = createIngredient();
+        Ingredient ingredient = CreateIngredient();
 
         given()
         .when()
@@ -363,5 +366,124 @@ public class AdminMenuTest {
         .then()
             .statusCode(Response.Status.NOT_FOUND.getStatusCode())
             .body(containsString(String.format("Ingredient not found to delete with id %s", ingredientToDelete.id)));
+    }
+
+    /************************
+     * MENU ITEM INGREDIENT *
+     ************************/
+    public static MenuItemIngredientRequest CreateMenuItemIngredientRequest(Long menuItemId, Long ingredientId) {
+        MenuItemIngredientRequest request = new MenuItemIngredientRequest();
+        request.menuItemId = menuItemId;
+        request.ingredientId = ingredientId;
+        return request;
+    }
+
+    public static DualCompositeKey CreateDualCompositeKey(Long menuItemId, Long ingredientId) {
+        DualCompositeKey key = new DualCompositeKey();
+        key.menuItemId = menuItemId;
+        key.ingredientId = ingredientId;
+        return key;
+    }
+
+    @Transactional
+    public static MenuItemIngredient CreateMenuItemIngredient(MenuItem menuItem, Ingredient ingredient) {
+        MenuItemIngredient menuItemIngredient = new MenuItemIngredient();
+        menuItemIngredient.id = CreateDualCompositeKey(menuItem.id, ingredient.id);
+        menuItemIngredient.ingredient = ingredient;
+        menuItemIngredient.menuItem = menuItem;
+
+        menuItemIngredient.persist();
+        return menuItemIngredient;
+    }
+
+    @Test
+    public void testAddMenuItemIngredient_Success() {
+        MenuItem menuItem = CreateMenuItem();
+        Ingredient ingredient = CreateIngredient();
+        MenuItemIngredientRequest request = CreateMenuItemIngredientRequest(menuItem.id, ingredient.id);
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(request)
+        .when()
+            .post(MENU_ITEM_INGREDIENT_URL)
+        .then()
+            .log().body()
+            .statusCode(Response.Status.OK.getStatusCode());
+
+        MenuItemIngredient persisted = MenuItemIngredient.findById(CreateDualCompositeKey(menuItem.id, ingredient.id));
+        assertNotNull(persisted);
+        assertEquals(ingredient.id, persisted.ingredient.id);
+        assertEquals(menuItem.id, persisted.menuItem.id);
+    }
+
+    @Test
+    public void testAddMenuItemIngredient_NoMenuItem() {
+        Ingredient ingredient = CreateIngredient();
+        MenuItemIngredientRequest request = CreateMenuItemIngredientRequest(43L, ingredient.id);
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(request)
+        .when()
+            .post(MENU_ITEM_INGREDIENT_URL)
+        .then()
+            .log().body()
+            .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+            .body(containsString(String.format("MenuItem with id %s not found to link to Ingredient with id %s", request.menuItemId, request.ingredientId)));
+    }
+
+        @Test
+    public void testAddMenuItemIngredient_NoIngredient() {
+        MenuItem menuItem = CreateMenuItem();
+        MenuItemIngredientRequest request = CreateMenuItemIngredientRequest(menuItem.id, 43L);
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(request)
+        .when()
+            .post(MENU_ITEM_INGREDIENT_URL)
+        .then()
+            .log().body()
+            .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+            .body(containsString(String.format("Ingredient with id %s not found to link to MenuItem with id %s", request.ingredientId, request.menuItemId)));
+    }
+
+    @Test
+    public void testAddMenuItemIngredient_InvalidJson() {
+        given()
+            .contentType(ContentType.JSON)
+            .body("{invalid json}")
+        .when()
+            .post(MENU_ITEM_INGREDIENT_URL)
+        .then()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testDeleteMenuItemIngredient_Success() {
+        MenuItem menuItem = CreateMenuItem();
+        Ingredient ingredient = CreateIngredient();
+        MenuItemIngredient menuItemIngredient = CreateMenuItemIngredient(menuItem, ingredient);
+
+        given()
+        .when()
+            .delete(MENU_ITEM_INGREDIENT_URL + "/" + menuItemIngredient.menuItem.id + "/" + menuItemIngredient.ingredient.id)
+        .then()
+            .log().body()
+            .statusCode(Response.Status.OK.getStatusCode());
+
+        MenuItemIngredient persisted = MenuItemIngredient.find(DB_ID, menuItemIngredient.id).firstResult();
+        assertNull(persisted);
+    }
+
+    @Test
+    public void testDeleteMenuItemIngredient_NotFound() {
+        given()
+        .when()
+            .delete(MENU_ITEM_INGREDIENT_URL + "/123/123")
+        .then()
+            .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+            .body(containsString(String.format("MenuItemIngredient to delete not found with menuItemId %s ingredientId %s", "123", "123")));
     }
 }

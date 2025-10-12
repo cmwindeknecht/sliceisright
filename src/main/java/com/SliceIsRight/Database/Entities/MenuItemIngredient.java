@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
@@ -17,19 +18,21 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
  * Used to define which ingredients are in which menu items
  */
 @Entity
-@AllArgsConstructor   
-@NoArgsConstructor 
+@Table(name = "menu_item_ingredient")
+@NoArgsConstructor
+@AllArgsConstructor
 public class MenuItemIngredient extends PanacheEntityBase {
+
     @EmbeddedId
-    public DualCompositeKey id;
+    public DualCompositeKey id = new DualCompositeKey();
 
     @ManyToOne
-    @MapsId("menuItemId")  // Maps to the menuItemId in the composite key
+    @MapsId("menuItemId")
     @JoinColumn(name = "menu_item_id")
     public MenuItem menuItem;
-    
+
     @ManyToOne
-    @MapsId("ingredientId")  // Maps to the ingredientId in the composite key
+    @MapsId("ingredientId")
     @JoinColumn(name = "ingredient_id")
     public Ingredient ingredient;
 }
