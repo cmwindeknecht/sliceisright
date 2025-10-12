@@ -1,4 +1,16 @@
 services:
+  db:
+    image: postgres:16
+    container_name: slice-db
+    environment:
+      - POSTGRES_USER=pizza
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=slice
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
   backend:
     image: sliceisright-backend
     build:
@@ -15,17 +27,17 @@ services:
     depends_on:
       - db
 
-  db:
-    image: postgres:16
-    container_name: slice-db
-    environment:
-      - POSTGRES_USER=pizza
-      - POSTGRES_PASSWORD=secret
-      - POSTGRES_DB=slice
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: docker/Dockerfile
     ports:
-      - "5432:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8080
+    depends_on:
+      - backend
+      - db
 
 volumes:
   db_data:
