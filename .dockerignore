@@ -1,4 +1,11 @@
+# Ignore everything
 *
+
+# Allow source code for in-container build
+!src/
+!pom.xml
+
+# Keep target runner artifacts
 !target/*-runner
 !target/*-runner.jar
 !target/lib/*

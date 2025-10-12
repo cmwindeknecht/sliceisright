@@ -78,6 +78,8 @@
 #   accessed directly. (example: "foo.example.com,bar.example.com")
 #
 ###
+
+# Using Red Hat’s Universal Base Image
 FROM registry.access.redhat.com/ubi9/openjdk-21:1.23
 
 ENV LANGUAGE='en_US:en'
@@ -90,9 +92,12 @@ COPY --chown=185 target/quarkus-app/app/ /deployments/app/
 COPY --chown=185 target/quarkus-app/quarkus/ /deployments/quarkus/
 
 EXPOSE 8080
+# Runs the container as a non-root user for security.
 USER 185
+# Configures Quarkus’ run-java.sh script to pass JVM options and locate the main JAR.
 ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
 
+# Uses the Red Hat-provided script to launch Java with sensible defaults
 ENTRYPOINT [ "/opt/jboss/container/java/run/run-java.sh" ]
 
