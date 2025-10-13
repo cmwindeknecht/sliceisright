@@ -18,11 +18,15 @@ services:
       dockerfile: src/main/docker/Dockerfile.builder
     ports:
       - "8080:8080"
+      - "8443:8443"
+    volumes:
+      - ./keystore.jks:/deployments/keystore.jks:ro 
     environment:
       - QUARKUS_PROFILE=local
       - QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://db:5432/slice
       - QUARKUS_DATASOURCE_USERNAME=pizza
       - QUARKUS_DATASOURCE_PASSWORD=secret
+      - KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
       - JAVA_OPTS_APPEND=-Dquarkus.http.host=0.0.0.0
     depends_on:
       - db
