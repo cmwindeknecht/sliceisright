@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor   
 @NoArgsConstructor 
-public class User extends PanacheEntity {
+public class UserAccount extends PanacheEntity {
     @Column(unique = true)
     public String email;
     public String hashedPassword;
