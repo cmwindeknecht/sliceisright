@@ -1,14 +1,11 @@
-FROM registry.access.redhat.com/ubi9/openjdk-21:1.23
-ENV LANGUAGE='en_US:en'
-# Copy Quarkus build artifacts
-COPY --chown=185 target/quarkus-app/lib/ /deployments/lib/
-COPY --chown=185 target/quarkus-app/*.jar /deployments/
-COPY --chown=185 target/quarkus-app/app/ /deployments/app/
-COPY --chown=185 target/quarkus-app/quarkus/ /deployments/quarkus/
-# Don't copy keystore - will be mounted via volume in docker-compose
-EXPOSE 8080 8443
-USER 185
-# Don't set KEYSTORE_PASSWORD here - will come from environment
-ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0"
-ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
-ENTRYPOINT [ "/opt/jboss/container/java/run/run-java.sh" ]
+FROM quay.io/quarkus/ubi-quarkus-native-image:22.3-java17 AS build
+WORKDIR /work/
+COPY pom.xml .
+COPY src ./src
+RUN ./mvnw package -DskipTests
+
+FROM registry.access.redhat.com/ubi8/ubi-minimal
+WORKDIR /work/
+COPY --from=build /work/target/*-runner.jar /work/application.jar
+EXPOSE 8080
+CMD ["java", "-jar", "/work/application.jar"]

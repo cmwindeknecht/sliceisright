@@ -59,7 +59,7 @@ public class AdminMenuTest {
             .post(MENU_ITEM_URL)
         .then()
             .log().body()
-            .statusCode(Response.Status.OK.getStatusCode())
+            .statusCode(Response.Status.CREATED.getStatusCode())
             .body(BODY_NAME, equalTo(menuItem.name))
             .body(BODY_PRICE, equalTo(menuItem.price))
             .body(BODY_ID, notNullValue());
@@ -224,7 +224,7 @@ public class AdminMenuTest {
             .post(INGREDIENT_URL)
         .then()
             .log().body()
-            .statusCode(Response.Status.OK.getStatusCode())
+            .statusCode(Response.Status.CREATED.getStatusCode())
             .body(BODY_NAME, equalTo(ingredient.name))
             .body(BODY_PRICE, equalTo(ingredient.price))
             .body(BODY_ID, notNullValue());
@@ -409,7 +409,7 @@ public class AdminMenuTest {
             .post(MENU_ITEM_INGREDIENT_URL)
         .then()
             .log().body()
-            .statusCode(Response.Status.OK.getStatusCode());
+            .statusCode(Response.Status.CREATED.getStatusCode());
 
         MenuItemIngredient persisted = MenuItemIngredient.findById(CreateDualCompositeKey(menuItem.id, ingredient.id));
         assertNotNull(persisted);

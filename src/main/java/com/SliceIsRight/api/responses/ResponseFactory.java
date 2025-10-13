@@ -16,6 +16,15 @@ public class ResponseFactory {
             .build();
     }
 
+        public static Response GetCreatedResponse(Object entity, String message) {
+        return Response.status(Response.Status.CREATED)
+            .entity(OkayResponse.builder()
+                .response(message)
+                .entity(Optional.ofNullable(entity))
+                .build())
+            .build();
+    }
+
     public static Response GetBadRequestResponse(Exception e, String message) {
         return Response.status(Response.Status.BAD_REQUEST)
             .entity(ErrorResponse.builder()

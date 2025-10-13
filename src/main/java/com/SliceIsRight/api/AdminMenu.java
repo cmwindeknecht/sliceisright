@@ -39,7 +39,7 @@ public class AdminMenu
             menuItemToAdd.persist();
             MenuItem.flush();
             
-            return ResponseFactory.GetOkResponse(menuItemToAdd, String.format("Successfullly created MenuItem: %s", menuItemToAdd.name));
+            return ResponseFactory.GetCreatedResponse(menuItemToAdd, String.format("Successfullly created MenuItem: %s", menuItemToAdd.name));
         } catch (WebApplicationException e) {
             return ResponseFactory.GetWebExceptionResponse(e);
         } catch (Exception e) {
@@ -106,7 +106,7 @@ public class AdminMenu
 
             ingredientToAdd.persist();
             Ingredient.flush();
-            return ResponseFactory.GetOkResponse(ingredientToAdd, String.format("Successfullly created Ingredient: %s", ingredientToAdd.toString()));
+            return ResponseFactory.GetCreatedResponse(ingredientToAdd, String.format("Successfullly created Ingredient: %s", ingredientToAdd.toString()));
         } catch (WebApplicationException e) {
             return ResponseFactory.GetWebExceptionResponse(e);
         } catch (Exception e) {
@@ -185,7 +185,7 @@ public class AdminMenu
 
             menuItemIngredient.persist();
             MenuItemIngredient.flush();
-            return ResponseFactory.GetOkResponse(menuItemIngredient, String.format("Successfullly created MenuItemIngredient: %s", request.toString()));
+            return ResponseFactory.GetCreatedResponse(menuItemIngredient, String.format("Successfullly created MenuItemIngredient: %s", request.toString()));
         } catch (WebApplicationException e) {
             return ResponseFactory.GetWebExceptionResponse(e);
         } catch (Exception e) {

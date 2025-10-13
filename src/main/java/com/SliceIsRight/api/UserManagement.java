@@ -2,15 +2,13 @@ package com.SliceIsRight.api;
 
 import java.util.Optional;
 
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.SliceIsRight.api.model.UserDTO;
 import com.SliceIsRight.api.responses.ResponseFactory;
-import com.SliceIsRight.database.entities.Ingredient;
-import com.SliceIsRight.database.entities.MenuItem;
 import com.SliceIsRight.database.entities.UserAccount;
 
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -33,6 +31,7 @@ public class UserManagement {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
     public Response Create(UserDataRequest request) {
         try {
             Optional.ofNullable(UserAccount.find("email", request.email)
@@ -42,7 +41,6 @@ public class UserManagement {
                 });
             UserAccount user = new UserAccount();
             user.email = request.email;
-
             user.hashedPassword = passwordEncoder.encode(request.password);
             user.persist();
 
@@ -50,7 +48,7 @@ public class UserManagement {
                 .email(user.email)
                 .build();
 
-            return ResponseFactory.GetOkResponse(userDTO, String.format("Succesfully created User Ingredient with email %s", request.email));
+            return ResponseFactory.GetCreatedResponse(userDTO, String.format("Succesfully created User Ingredient with email %s", request.email));
         } catch (WebApplicationException e) {
             return ResponseFactory.GetWebExceptionResponse(e);
         } catch (Exception e) {
@@ -58,7 +56,7 @@ public class UserManagement {
         }
     }
 
-    @Path("/EmailLogin")
+    @Path("/emailLogin")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

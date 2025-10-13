@@ -4,7 +4,9 @@ import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Entity for the table t_menu_item
@@ -16,17 +18,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor 
 public class Ingredient extends PanacheEntity {
     @Column(unique = true, nullable = false)
+    @Setter @Getter
     public String name;
 
     public float price;
     public Boolean canBeRemoved;
     public Boolean canBeDoubled;
-
-    public String getName() {
-        return name;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
-    }
 }

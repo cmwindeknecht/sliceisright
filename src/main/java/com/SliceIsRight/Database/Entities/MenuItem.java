@@ -10,7 +10,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Entity for the table t_menu_item
@@ -22,6 +24,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor 
 public class MenuItem extends PanacheEntity {
     @Column(unique = true, nullable = false)
+    @Setter @Getter
     public String name;
     
     @Column(unique = true, nullable = false)
@@ -34,12 +37,4 @@ public class MenuItem extends PanacheEntity {
     @OneToMany(mappedBy = "menuItem", fetch = FetchType.LAZY)
     @JsonbTransient  // Ignore this field during deserialization
     public List<MenuItemIngredient> menuItemIngredients = new ArrayList<>();
-
-    public String getName() {
-        return name;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
-    }
 }

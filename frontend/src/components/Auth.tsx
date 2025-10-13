@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react';
 
+export const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 // 👇 1. Define what your AuthContext will hold
 interface AuthContextType {
   user: any; // You can replace 'any' with your User type if you have one
@@ -25,7 +27,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const register = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const res = await fetch('https://localhost:8443/api/auth/register', {
+      const res = await fetch(`${apiUrl}/user/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
