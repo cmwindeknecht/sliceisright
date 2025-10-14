@@ -1,13 +1,18 @@
 package com.SliceIsRight.api;
 
+import java.time.Duration;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import com.SliceIsRight.Constants;
+import com.SliceIsRight.Helper;
 import com.SliceIsRight.api.model.UserDTO;
 import com.SliceIsRight.api.responses.ResponseFactory;
 import com.SliceIsRight.database.entities.UserAccount;
 
+import io.smallrye.jwt.build.Jwt;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -46,6 +51,7 @@ public class UserManagement {
 
             UserDTO userDTO = UserDTO.builder()
                 .email(user.email)
+                .jwtToken(Helper.GetJwtToken(user))
                 .build();
 
             return ResponseFactory.GetCreatedResponse(userDTO, String.format("Succesfully created User Ingredient with email %s", request.email));
@@ -71,6 +77,7 @@ public class UserManagement {
 
             UserDTO userDTO = UserDTO.builder()
                 .email(user.email)
+                .jwtToken(Helper.GetJwtToken(user))
                 .build();
 
             return ResponseFactory.GetOkResponse(userDTO, String.format("Succesfully logged in User with email %s", request.email));

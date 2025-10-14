@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -28,6 +29,7 @@ public class AdminMenu
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
+    @RolesAllowed({"Admin"})
     public Response addMenuItem(MenuItem menuItemToAdd) {
         try {
             Optional.ofNullable(MenuItem.find("name", menuItemToAdd.name)
@@ -52,6 +54,7 @@ public class AdminMenu
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
+    @RolesAllowed({"Admin"})
     public Response updateMenuItem(MenuItem menuItemToUpdate) {
         try {    
             MenuItem menuItem = (MenuItem) Optional.ofNullable(MenuItem.findById(menuItemToUpdate.id))
@@ -75,6 +78,7 @@ public class AdminMenu
     @Path("/menuItem/{menuItemToDelete}")
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
+    @RolesAllowed({"Admin"})
     public Response deleteMenuItem(@PathParam("menuItemToDelete") long menuItemToDelete) {
         try {
             MenuItem menuItem = (MenuItem) Optional.ofNullable(MenuItem.findById(menuItemToDelete))
@@ -96,6 +100,7 @@ public class AdminMenu
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
+    @RolesAllowed({"Admin"})
     public Response addIngredient(Ingredient ingredientToAdd) {
         try {
             Optional.ofNullable(Ingredient.find("name", ingredientToAdd.name)
@@ -119,6 +124,7 @@ public class AdminMenu
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
+    @RolesAllowed({"Admin"})
     public Response updateIngredient(Ingredient ingredientToUpdate) {
         try {
             Ingredient ingredient = (Ingredient) Optional.ofNullable(Ingredient.findById(ingredientToUpdate.id))
@@ -141,6 +147,7 @@ public class AdminMenu
     @Path("/ingredient/{ingredientToDelete}")
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
+    @RolesAllowed({"Admin"})
     public Response deleteIngredient(@PathParam("ingredientToDelete") long ingredientToDelete) {
         try {
             Ingredient menuItem = (Ingredient) Optional.ofNullable(Ingredient.findById(ingredientToDelete))
@@ -167,6 +174,7 @@ public class AdminMenu
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
+    @RolesAllowed({"Admin"})
     public Response addMenuItemIngredient(MenuItemIngredientRequest request) {
         try {
             MenuItem menuItem = (MenuItem) Optional.ofNullable(MenuItem.findById(request.menuItemId))
@@ -197,6 +205,7 @@ public class AdminMenu
     @Path("/menuItemIngredient/{menuItemToDelete}/{ingredientToDelete}")
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
+    @RolesAllowed({"Admin"})
     public Response deleteMenuItemIngredient(
         @PathParam("menuItemToDelete") long menuItemToDelete,
         @PathParam("ingredientToDelete") long ingredientToDelete

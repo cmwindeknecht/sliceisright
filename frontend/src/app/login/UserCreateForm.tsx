@@ -1,29 +1,53 @@
 "use client"
 
-import { useState } from 'react';
-import { useAuth } from '@/components/Auth';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/components/Auth";
+import { useRouter } from "next/navigation";
 
 const UserCreateForm = () => {
   const { register, loading } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [rememberEmail, setRememberEmail] = useState(false);
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+
+  // Load email from localStorage if it exists
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("savedEmail");
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberEmail(true);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setSuccess(false);
 
-    // Client-side validation
     if (!email || !password || !confirmPassword) {
-      setError('All fields are required.');
+      setError("All fields are required.");
+      return;
+    }
+
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError("Passwords do not match.");
       return;
     }
 
@@ -31,11 +55,20 @@ const UserCreateForm = () => {
 
     if (result.success) {
       setSuccess(true);
-      setEmail('');
-      setPassword('');
-      setConfirmPassword('');
+
+      if (rememberEmail) {
+        localStorage.setItem("savedEmail", email);
+      } else {
+        localStorage.removeItem("savedEmail");
+        setEmail("");
+      }
+
+      setPassword("");
+      setConfirmPassword("");
+
+      router.push("/menu");
     } else {
-      setError(result.error ?? 'Registration failed.');
+      setError(result.error ?? "Registration failed.");
     }
   };
 
@@ -50,6 +83,7 @@ const UserCreateForm = () => {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         disabled={loading}
+        autoComplete={rememberEmail ? "email" : "off"}
         required
       />
 
@@ -60,6 +94,7 @@ const UserCreateForm = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         disabled={loading}
+        autoComplete="new-password"
         required
       />
 
@@ -70,15 +105,26 @@ const UserCreateForm = () => {
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
         disabled={loading}
+        autoComplete="new-password"
         required
       />
+
+      <label className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={rememberEmail}
+          onChange={(e) => setRememberEmail(e.target.checked)}
+          disabled={loading}
+        />
+        Remember my email
+      </label>
 
       <button
         type="submit"
         disabled={loading}
         className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
       >
-        {loading ? 'Registering...' : 'Register'}
+        {loading ? "Registering..." : "Register"}
       </button>
 
       {error && <p className="text-red-500 text-sm text-center">{error}</p>}

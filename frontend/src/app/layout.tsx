@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "../style/globals.css";
+import "../style/globals.css";  // Ignore the "Can't Find Module" warning - it totally does
 
 import { AuthProvider } from '@/components/Auth';
 

@@ -9,5 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor 
 public class UserDTO {
     public String email;
+    public String jwtToken;
     // TODO add previous orders and whatever else makes sense
 }
