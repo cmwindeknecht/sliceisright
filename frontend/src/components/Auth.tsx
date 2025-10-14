@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { jwtDecode } from "jwt-decode";
-import { User } from '@/types/User';
+import { User, UserResponse } from '@/types/User';
 import { useRouter } from "next/navigation";
 
 export const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -14,7 +14,7 @@ interface AuthContext {
   register: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   loginByEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
-  updateUserData: (data: { user: User; token: string }) => void;
+  updateUserData: (data: UserResponse) => void;
 }
 
 const AuthContext = createContext<AuthContext | null>(null);
@@ -46,6 +46,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const savedToken = localStorage.getItem("token");
     if (savedToken) {
       try {
+        debugger;
         const decoded = jwtDecode<{ exp: number }>(savedToken);
         const now = Math.floor(Date.now() / 1000);
         if (decoded.exp < now) {
@@ -120,10 +121,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     router.push("/login");
   }
 
-  const updateUserData = (data: { user: User; token: string }) => {
-    setUser(data.user ?? null);
-    setJwtToken(data.token ?? null);
-    localStorage.setItem("token", data.token);
+  const updateUserData = (data: UserResponse) => {
+    if (data.entity) {
+        const { email, jwtToken } = data.entity;
+        setUser({ email, orders: [] });
+        setJwtToken(jwtToken ?? null);
+        if (jwtToken) localStorage.setItem("token", jwtToken);
+    }
+    debugger;
   };
 
   return (

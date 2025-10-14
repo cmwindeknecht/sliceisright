@@ -22,6 +22,7 @@ services:
       SUPABASE_DB_USER: pizza
       SUPABASE_DB_PASSWORD: secret
       FRONTEND_ORIGINS: http://localhost:3000
+      ADMIN_SETUP_TOKEN: "admintoken"
     depends_on:
       - db
 
