@@ -14,9 +14,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class Helper {
-    // TODO try setting this back to a static function
     public String getJwtToken(UserAccount user) {
-        String key = System.getenv("JWT_SIGNING_KEY");
+        String key = System.getenv(Constants.ENV_JWT_SIGNING_KEY);
         SecretKey secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
 
         Set<String> privileges = Set.of(Constants.USER_PRIVILEGES);

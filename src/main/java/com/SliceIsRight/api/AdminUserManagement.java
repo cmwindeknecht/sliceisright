@@ -14,11 +14,17 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import com.SliceIsRight.database.entities.UserAccount;
+
+import io.vertx.core.http.HttpServerRequest;
+
+import com.SliceIsRight.Constants;
 import com.SliceIsRight.Helper;
 import com.SliceIsRight.api.model.UserDTO;
 import com.SliceIsRight.api.responses.ResponseFactory;
@@ -28,24 +34,26 @@ public class AdminUserManagement
 {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final Helper helper = new Helper();
-
-    @ConfigProperty(name = "admin.setup.token")
-    String adminSetupToken;
     
     public static class UserDataRequest {
         public String email;
         public String password;
-        public String token;
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Response CreateAdminUser(@HeaderParam("X-Admin-Setup-Token") String token, UserDataRequest request) {
+    public Response CreateAdminUser(@Context HttpServerRequest req, UserDataRequest request) {        
         try {
-            if (token == null || !token.equals(adminSetupToken)) {
-                throw new WebApplicationException(String.format("Admin create user requires a token", request.email), Response.Status.UNAUTHORIZED);
+            String token = req.getHeader(Constants.HEADER_ADMIN_SETUP_TOKEN);
+            String adminSetupToken = System.getenv(Constants.ENV_ADMIN_SETUP_TOKEN);
+            if (token == null) {
+                throw new WebApplicationException(String.format("Admin create user %s requires a token and none was passed", request.email), Response.Status.UNAUTHORIZED);
+            }
+
+            if (!token.equals(adminSetupToken)) {
+                throw new WebApplicationException(String.format("Admin create user %s was passed the incorrect token of %s and not %s", request.email, token, adminSetupToken), Response.Status.UNAUTHORIZED);
             }
 
             Optional.ofNullable(UserAccount.find("email", request.email)

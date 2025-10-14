@@ -68,7 +68,8 @@ public class UserManagement {
     @Produces(MediaType.APPLICATION_JSON)
     public Response emailLogin(UserDataRequest request) {
         try {
-            UserAccount user = (UserAccount) Optional.ofNullable(UserAccount.find("email", request.email))
+            UserAccount user = (UserAccount) Optional.ofNullable(UserAccount.find("email", request.email)
+                .firstResult())
                 .orElseThrow(() -> new WebApplicationException(String.format("User not found with email %s", request.email), Response.Status.NOT_FOUND));
           
             if (!passwordEncoder.matches(request.password, user.hashedPassword)) {
