@@ -58,10 +58,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
       } catch (e) {
         console.error("Invalid token:", e);
-        // Clear bad token and DON'T redirect
-        localStorage.removeItem("token");
-        setJwtToken(null);
-        setUser(null);
+        logout();
       }
     }
   }, []);

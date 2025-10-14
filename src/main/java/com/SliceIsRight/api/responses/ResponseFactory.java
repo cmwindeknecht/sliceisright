@@ -1,5 +1,7 @@
 package com.SliceIsRight.api.responses;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Optional;
 
 import jakarta.ws.rs.WebApplicationException;
@@ -30,7 +32,7 @@ public class ResponseFactory {
             .entity(ErrorResponse.builder()
                 .errorResponse(message)
                 .exceptionMessage(e.getMessage())
-                .exceptionStackTrace(e.getStackTrace().toString())
+                .exceptionStackTrace(GetStackTrace(e))
                 .exceptionType(e.getClass().getSimpleName())
                 .build())
             .build();
@@ -41,9 +43,15 @@ public class ResponseFactory {
             .entity(ErrorResponse.builder()
                 .errorResponse(e.getMessage())
                 .exceptionMessage(e.getMessage())
-                .exceptionStackTrace(e.getStackTrace().toString())
+                .exceptionStackTrace(GetStackTrace(e))
                 .exceptionType(e.getClass().getSimpleName())
                 .build())
             .build();
     }
+
+    private static String GetStackTrace(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
+    } 
 }

@@ -27,6 +27,7 @@ import com.SliceIsRight.api.responses.ResponseFactory;
 public class AdminUserManagement 
 {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final Helper helper = new Helper();
 
     @ConfigProperty(name = "admin.setup.token")
     String adminSetupToken;
@@ -60,7 +61,7 @@ public class AdminUserManagement
 
             UserDTO userDTO = UserDTO.builder()
                 .email(user.email)
-                .jwtToken(Helper.GetJwtToken(user))
+                .jwtToken(helper.getJwtToken(user))
                 .build();
 
             return ResponseFactory.GetCreatedResponse(userDTO, String.format("Succesfully created User Ingredient with email %s", request.email));

@@ -23,6 +23,7 @@ services:
       SUPABASE_DB_PASSWORD: secret
       FRONTEND_ORIGINS: http://localhost:3000
       ADMIN_SETUP_TOKEN: "admintoken"
+      JWT_SIGNING_KEY: abcdefghijklmnopqrstuvwxyz123456
     depends_on:
       - db
 

@@ -1,10 +1,12 @@
 package org.acme.api;
 
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.SliceIsRight.Constants;
 import com.SliceIsRight.api.AdminMenu.MenuItemIngredientRequest;
 import com.SliceIsRight.database.DualCompositeKey;
 import com.SliceIsRight.database.entities.Ingredient;
@@ -49,6 +51,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testAddMenuItem_Success() {
         MenuItem menuItem = APIFixtures.ValidMenuItem();
 
@@ -71,6 +74,25 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.USER_PRIVILEGES})
+    public void testAddMenuItem_WrongUser() {
+        MenuItem menuItem = APIFixtures.ValidMenuItem();
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(menuItem)
+        .when()
+            .post(MENU_ITEM_URL)
+        .then()
+            .log().body()
+            .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+        MenuItem persisted = MenuItem.find(DB_NAME, menuItem.name).firstResult();
+        assertNull(persisted);
+    }
+
+    @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testAddMenuItem_DuplicateName() {
         MenuItem firstMenuItem = APIFixtures.ValidMenuItem();
         MenuItem duplicateMenuItem = APIFixtures.ValidMenuItem();
@@ -81,7 +103,7 @@ public class AdminMenuTest {
         .when()
             .post(MENU_ITEM_URL)
         .then()
-            .statusCode(Response.Status.OK.getStatusCode());
+            .statusCode(Response.Status.CREATED.getStatusCode());
 
         given()
             .contentType(ContentType.JSON)
@@ -96,6 +118,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testAddMenuItem_MissingRequiredFields() {
         MenuItem invalidItem = new MenuItem();
 
@@ -109,6 +132,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testAddMenuItem_InvalidJson() {
         given()
             .contentType(ContentType.JSON)
@@ -120,6 +144,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testUpdateMenuItem_Success() {
         MenuItem menuItem = CreateMenuItem();
 
@@ -147,6 +172,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testUpdateMenuItem_NotFound() {
         MenuItem menuItemToUpdate = APIFixtures.ValidMenuItem();
         menuItemToUpdate.id = 1L;
@@ -162,6 +188,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testUpdateMenuItem_InvalidJson() {
         given()
             .contentType(ContentType.JSON)
@@ -173,6 +200,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testDeleteMenuItem_Success() {
         MenuItem menuItem = CreateMenuItem();
 
@@ -191,6 +219,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testDeleteMenuItem_NotFound() {
         MenuItem menuItemToUpdate = APIFixtures.ValidMenuItem();
         menuItemToUpdate.id = 1L;
@@ -214,6 +243,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testAddIngredient_Success() {
         Ingredient ingredient = APIFixtures.ValidIngredient();
 
@@ -236,6 +266,25 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.USER_PRIVILEGES})
+    public void testAddIngredient_WrongUser() {
+        Ingredient ingredient = APIFixtures.ValidIngredient();
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(ingredient)
+        .when()
+            .post(INGREDIENT_URL)
+        .then()
+            .log().body()
+            .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+        Ingredient persisted = Ingredient.find(DB_NAME, ingredient.name).firstResult();
+        assertNull(persisted);
+    }
+
+    @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testAddIngredient_DuplicateName() {
         Ingredient firstIngredient = APIFixtures.ValidIngredient();
         Ingredient duplicateIngredient = APIFixtures.ValidIngredient();
@@ -246,7 +295,7 @@ public class AdminMenuTest {
         .when()
             .post(INGREDIENT_URL)
         .then()
-            .statusCode(Response.Status.OK.getStatusCode());
+            .statusCode(Response.Status.CREATED.getStatusCode());
 
         given()
             .contentType(ContentType.JSON)
@@ -261,6 +310,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testAddIngredient_MissingRequiredFields() {
         MenuItem invalidMenuItem = new MenuItem();
 
@@ -274,6 +324,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testAddIngredient_InvalidJson() {
         given()
             .contentType(ContentType.JSON)
@@ -285,6 +336,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testUpdateIngredient_Success() {
         Ingredient ingredient = CreateIngredient();
 
@@ -312,6 +364,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testUpdateIngredient_NotFound() {
         Ingredient ingredientToUpdate = APIFixtures.ValidIngredient();
         ingredientToUpdate.id = 1L;
@@ -327,6 +380,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testUpdateIngredient_InvalidJson() {
         given()
             .contentType(ContentType.JSON)
@@ -338,6 +392,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testDeleteIngredient_Success() {
         Ingredient ingredient = CreateIngredient();
 
@@ -356,6 +411,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testDeleteIngredient_NotFound() {
         Ingredient ingredientToDelete = APIFixtures.ValidIngredient();
         ingredientToDelete.id = 1L;
@@ -397,6 +453,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testAddMenuItemIngredient_Success() {
         MenuItem menuItem = CreateMenuItem();
         Ingredient ingredient = CreateIngredient();
@@ -418,6 +475,27 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.USER_PRIVILEGES})
+    public void testAddMenuItemIngredient_WrongUser() {
+        MenuItem menuItem = CreateMenuItem();
+        Ingredient ingredient = CreateIngredient();
+        MenuItemIngredientRequest request = CreateMenuItemIngredientRequest(menuItem.id, ingredient.id);
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(request)
+        .when()
+            .post(MENU_ITEM_INGREDIENT_URL)
+        .then()
+            .log().body()
+            .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+        MenuItemIngredient persisted = MenuItemIngredient.findById(CreateDualCompositeKey(menuItem.id, ingredient.id));
+        assertNull(persisted);
+    }
+
+    @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testAddMenuItemIngredient_NoMenuItem() {
         Ingredient ingredient = CreateIngredient();
         MenuItemIngredientRequest request = CreateMenuItemIngredientRequest(43L, ingredient.id);
@@ -433,7 +511,8 @@ public class AdminMenuTest {
             .body(containsString(String.format("MenuItem with id %s not found to link to Ingredient with id %s", request.menuItemId, request.ingredientId)));
     }
 
-        @Test
+    @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testAddMenuItemIngredient_NoIngredient() {
         MenuItem menuItem = CreateMenuItem();
         MenuItemIngredientRequest request = CreateMenuItemIngredientRequest(menuItem.id, 43L);
@@ -450,6 +529,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testAddMenuItemIngredient_InvalidJson() {
         given()
             .contentType(ContentType.JSON)
@@ -461,6 +541,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testDeleteMenuItemIngredient_Success() {
         MenuItem menuItem = CreateMenuItem();
         Ingredient ingredient = CreateIngredient();
@@ -478,6 +559,7 @@ public class AdminMenuTest {
     }
 
     @Test
+    @TestSecurity(user = "testuser", roles = {Constants.ADMIN_PRIVILEGES})
     public void testDeleteMenuItemIngredient_NotFound() {
         given()
         .when()

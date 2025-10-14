@@ -22,6 +22,7 @@ import jakarta.ws.rs.core.Response;
 public class UserManagement {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final Helper helper = new Helper();
     
     public static class UserDataRequest {
         public String email;
@@ -33,7 +34,7 @@ public class UserManagement {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Response Create(UserDataRequest request) {
+    public Response create(UserDataRequest request) {
         try {
             Optional.ofNullable(UserAccount.find("email", request.email)
                 .firstResult())
@@ -45,8 +46,7 @@ public class UserManagement {
             user.hashedPassword = passwordEncoder.encode(request.password);
             user.persist();
 
-
-            String token = Helper.GetJwtToken(user);
+            String token = helper.getJwtToken(user);
             System.out.println(String.format("Token created from helper function %s", token));
             UserDTO userDTO = UserDTO.builder()
                 .email(user.email)
@@ -66,7 +66,7 @@ public class UserManagement {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response EmailLogin(UserDataRequest request) {
+    public Response emailLogin(UserDataRequest request) {
         try {
             UserAccount user = (UserAccount) Optional.ofNullable(UserAccount.find("email", request.email))
                 .orElseThrow(() -> new WebApplicationException(String.format("User not found with email %s", request.email), Response.Status.NOT_FOUND));
@@ -77,7 +77,7 @@ public class UserManagement {
 
             UserDTO userDTO = UserDTO.builder()
                 .email(user.email)
-                .jwtToken(Helper.GetJwtToken(user))
+                .jwtToken(helper.getJwtToken(user))
                 .build();
 
             return ResponseFactory.GetOkResponse(userDTO, String.format("Succesfully logged in User with email %s", request.email));
