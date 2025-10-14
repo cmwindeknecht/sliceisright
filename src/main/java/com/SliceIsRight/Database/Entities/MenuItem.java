@@ -3,8 +3,9 @@ package com.SliceIsRight.database.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -35,6 +36,6 @@ public class MenuItem extends PanacheEntity {
     public Boolean isAvailable;
 
     @OneToMany(mappedBy = "menuItem", fetch = FetchType.LAZY)
-    @JsonbTransient  // Ignore this field during deserialization
+    @JsonIgnore  // Ignore this field during deserialization
     public List<MenuItemIngredient> menuItemIngredients = new ArrayList<>();
 }

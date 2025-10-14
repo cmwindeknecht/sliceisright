@@ -45,10 +45,14 @@ public class UserManagement {
             user.hashedPassword = passwordEncoder.encode(request.password);
             user.persist();
 
+
+            String token = Helper.GetJwtToken(user);
+            System.out.println(String.format("Token created from helper function %s", token));
             UserDTO userDTO = UserDTO.builder()
                 .email(user.email)
-                .jwtToken(Helper.GetJwtToken(user))
+                .jwtToken(token)
                 .build();
+            System.out.println(String.format("USer DTO created %s", userDTO));
 
             return ResponseFactory.GetCreatedResponse(userDTO, String.format("Succesfully created User Ingredient with email %s", request.email));
         } catch (WebApplicationException e) {
