@@ -51,10 +51,11 @@ public class UserManagement {
             UserDTO userDTO = UserDTO.builder()
                 .email(user.email)
                 .jwtToken(token)
+                .isAdmin(user.adminPriveleges)
                 .build();
             System.out.println(String.format("USer DTO created %s", userDTO));
 
-            return ResponseFactory.GetCreatedResponse(userDTO, String.format("Succesfully created User Ingredient with email %s", request.email));
+            return ResponseFactory.GetCreatedResponse(userDTO, String.format("Succesfully created User with email %s", request.email));
         } catch (WebApplicationException e) {
             return ResponseFactory.GetWebExceptionResponse(e);
         } catch (Exception e) {
@@ -79,6 +80,7 @@ public class UserManagement {
             UserDTO userDTO = UserDTO.builder()
                 .email(user.email)
                 .jwtToken(helper.getJwtToken(user))
+                .isAdmin(user.adminPriveleges)
                 .build();
 
             return ResponseFactory.GetOkResponse(userDTO, String.format("Succesfully logged in User with email %s", request.email));

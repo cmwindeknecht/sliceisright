@@ -65,11 +65,13 @@ public class AdminUserManagement
             UserAccount user = new UserAccount();
             user.email = request.email;
             user.hashedPassword = passwordEncoder.encode(request.password);
+            user.adminPriveleges = true;
             user.persist();
 
             UserDTO userDTO = UserDTO.builder()
                 .email(user.email)
                 .jwtToken(helper.getJwtToken(user))
+                .isAdmin(user.adminPriveleges)
                 .build();
 
             return ResponseFactory.GetCreatedResponse(userDTO, String.format("Succesfully created User Ingredient with email %s", request.email));

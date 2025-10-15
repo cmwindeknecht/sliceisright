@@ -4,15 +4,14 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/components/Auth";
 import { useRouter } from "next/navigation";
 
-const UserCreateForm = () => {
-  const { register, loading } = useAuth();
+const UserLoginForm = () => {
+  const { loginByEmail, loading, user } = useAuth();
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [email, setEmail] = useState<string | null>(null);
   const [rememberEmail, setRememberEmail] = useState(false);
-  const [error, setError] = useState("");
+  const [password, setPassword] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   // Load email from localStorage if it exists
@@ -29,43 +28,29 @@ const UserCreateForm = () => {
     setError("");
     setSuccess(false);
 
-    if (!email || !password || !confirmPassword) {
+    if (!email || !password) {
       setError("All fields are required.");
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters long.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-
-    const result = await register(email, password);
-
+    const result = await loginByEmail(email, password);
+    debugger;
     if (result.success) {
-      setSuccess(true);
+        if (result.data?.entity.isAdmin) {
+            router.push("/admin/menu");
+        } else {
+            router.back();
+        }
 
-      if (rememberEmail) {
-        localStorage.setItem("savedEmail", email);
-      } else {
-        localStorage.removeItem("savedEmail");
-        setEmail("");
-      }
+        setSuccess(true);
+        setPassword("");
 
-      setPassword("");
-      setConfirmPassword("");
-
-      router.push("/menu");
+        if (rememberEmail) {
+            localStorage.setItem("savedEmail", email);
+        } else {
+            localStorage.removeItem("savedEmail");
+            setEmail("");
+        }      
     } else {
       setError(result.error ?? "Registration failed.");
     }
@@ -73,13 +58,13 @@ const UserCreateForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-sm mx-auto p-4 border rounded-lg shadow">
-      <h2 className="text-xl font-semibold text-center">Create an Account</h2>
+      <h2 className="text-xl font-semibold text-center">Login</h2>
 
       <input
         type="email"
         placeholder="Email"
         className="border p-2 rounded"
-        value={email}
+        value={email ?? ""}
         onChange={(e) => setEmail(e.target.value)}
         disabled={loading}
         autoComplete={rememberEmail ? "email" : "off"}
@@ -90,19 +75,8 @@ const UserCreateForm = () => {
         type="password"
         placeholder="Password"
         className="border p-2 rounded"
-        value={password}
+        value={password ?? ""}
         onChange={(e) => setPassword(e.target.value)}
-        disabled={loading}
-        autoComplete="new-password"
-        required
-      />
-
-      <input
-        type="password"
-        placeholder="Confirm Password"
-        className="border p-2 rounded"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
         disabled={loading}
         autoComplete="new-password"
         required
@@ -121,15 +95,15 @@ const UserCreateForm = () => {
       <button
         type="submit"
         disabled={loading}
-        className="bg-orange-600 text-white py-2 rounded hover:bg-orange-700 disabled:opacity-50"
+        className="bg-red-600 text-white py-2 rounded hover:bg-red-700 disabled:opacity-50"
       >
-        {loading ? "Registering..." : "Register"}
+        {loading ? "Logging in..." : "Log in"}
       </button>
 
       {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-      {success && <p className="text-green-500 text-sm text-center">Registered successfully!</p>}
+      {success && <p className="text-green-500 text-sm text-center">Logged in successfully!</p>}
     </form>
   );
 };
 
-export default UserCreateForm;
+export default UserLoginForm;

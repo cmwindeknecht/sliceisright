@@ -2,6 +2,7 @@ package com.SliceIsRight;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.crypto.SecretKey;
@@ -18,7 +19,7 @@ public class Helper {
         String key = System.getenv(Constants.ENV_JWT_SIGNING_KEY);
         SecretKey secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
 
-        Set<String> privileges = Set.of(Constants.USER_PRIVILEGES);
+        Set<String> privileges = new HashSet<>(Set.of(Constants.USER_PRIVILEGES));
         Duration duration = Duration.ofMinutes(Constants.USER_TOKEN_DURATION);
         if (user.adminPriveleges) {
             privileges.add(Constants.ADMIN_PRIVILEGES);

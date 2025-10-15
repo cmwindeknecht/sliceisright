@@ -11,8 +11,8 @@ interface AuthContext {
   user: User | null;
   jwtToken: string | null;
   loading: boolean;
-  register: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  loginByEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (email: string, password: string) => Promise<{ success: boolean; data?: UserResponse; error?: string }>;
+  loginByEmail: (email: string, password: string) => Promise<{ success: boolean; data?: UserResponse; error?: string }>;
   logout: () => void;
   updateUserData: (data: UserResponse) => void;
 }
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       const data = await res.json();
       updateUserData(data);
-      return { success: true };
+      return { success: true, data};
     } catch (err: any) {
       return { success: false, error: err.message };
     } finally {
@@ -103,7 +103,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       const data = await res.json();
       updateUserData(data); 
-      return { success: true };
+      return { success: true, data };
     } catch (err: any) {
       return { success: false, error: err.message };
     } finally {
@@ -112,20 +112,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const logout = () => {
+    router.push("/login");
     localStorage.removeItem("token");
     setJwtToken(null);
     setUser(null);
-    router.push("/login");
   }
 
   const updateUserData = (data: UserResponse) => {
     if (data.entity) {
-        const { email, jwtToken } = data.entity;
-        setUser({ email, orders: [] });
+        const { email, jwtToken, isAdmin } = data.entity;
+        setUser({ email, orders: [], isAdmin });
         setJwtToken(jwtToken ?? null);
         if (jwtToken) localStorage.setItem("token", jwtToken);
     }
-    debugger;
   };
 
   return (
