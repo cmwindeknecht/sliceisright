@@ -26,6 +26,12 @@ export default function Header() {
           <Link href="/login" className={`${pathname === "/login" ? "underline" : ""} hover:font-bold`}>Login</Link>
         ) : (
           <>
+            {user.isAdmin && (
+              <>
+                <Link href="/admin/menu" className={`hover:font-bold ${mounted && pathname === "/" ? "underline" : ""}`}>Admin Menu</Link>
+                <Link href="/admin/order" className={`hover:font-bold ${mounted && pathname === "/" ? "underline" : ""}`}>Admin Orders</Link>
+              </>
+            )}
             <Link href="/account" className="hover:outline-1">
               <div className="flex items-center flex-col">
                 <div className="text-3xl">🍕</div>
