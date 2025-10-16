@@ -50,8 +50,8 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
       }
 
       const data = await res.json();
-      setMenuItems(data);
-      return { menuItems: data};
+      setMenuItems(data.entity);
+      return { menuItems: data.entity};
     } catch (err: any) {
       return { error: err.message };
     }
@@ -87,8 +87,8 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
       }
 
       const data = await res.json();
-      setIngredients(data);
-      return { ingredients: data};
+      setIngredients(data.entity);
+      return { ingredients: data.entity};
     } catch (err: any) {
       return { error: err.message };
     }
@@ -158,6 +158,6 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
 
 export const useMenu = () => {
   const context = useContext(MenuContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  if (!context) throw new Error('useMenu must be used within MenuProvider');
   return context;
 };
