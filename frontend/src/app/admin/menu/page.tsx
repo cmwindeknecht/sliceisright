@@ -31,10 +31,25 @@ export default function AdminMenuPage() {
       :
       <div>
         <h1 className="text-3xl font-bold">Admin Menu</h1>
-        <AddMenuItem availableIngredients={tempIngredients}/>
+        {/* TODO Dropdown to choose whether creating OR updating menu item, creating OR updating ingredient */}
+        <AddMenuItem availableIngredients={tempIngredients} setTempMenu={setTempMenu}/>
+        {tempMenu?.length && tempMenu.map(menuItem => 
+          <div>
+            {/* TODO Create MenuItem component that is the same as the one in the actual menu 
+            - or extends the actual menu and includes shit like can be modified, the menu item id, etc */}
+            {menuItem.name} 
+          </div>
+        )}
         <div>
-          <h2 className="text-2xl font-bold">Add/Update Ingredient</h2> 
+          <h2 className="text-2xl font-bold">Update Ingredient</h2> 
         </div>
+        {tempIngredients?.length && tempIngredients.map(ingredient => 
+          <div>
+            {/* TODO Create Ingredient component that is the same as the one in the actual menu 
+            - or extends the actual menu and includes shit like can be doubled, the ingredient id, etc */}
+            {ingredient.name}
+          </div>
+        )}
       </div>
       }
     </div>

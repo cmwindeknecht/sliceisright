@@ -1,13 +1,15 @@
 "use client"
 
 import { Ingredient } from "@/types/Ingredient";
+import { MenuItem } from "@/types/MenuItem";
 import { useState } from "react";
 
 interface AddMenuItemProps {
   availableIngredients: Ingredient[] | null;
+  setTempMenu: React.Dispatch<React.SetStateAction<MenuItem[] | null>>;
 }
 
-export default function AddMenuItem({ availableIngredients }: AddMenuItemProps) {
+export default function AddMenuItem({ availableIngredients, setTempMenu }: AddMenuItemProps) {
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
@@ -85,8 +87,7 @@ export default function AddMenuItem({ availableIngredients }: AddMenuItemProps) 
           />
           Can be customized by customer?
         </label>
-      </div>
-
+    </div>
         {availableIngredients != null && 
             <div>
                 <label className="block mb-1">Ingredients</label>
