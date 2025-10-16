@@ -47,13 +47,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (savedToken) {
       try {
         debugger;
-        const decoded = jwtDecode<{ exp: number }>(savedToken);
+        const decoded = jwtDecode<{ exp: number, upn: string, groups: string[] }>(savedToken);
         const now = Math.floor(Date.now() / 1000);
+        console.log("Token", decoded);
+        console.log("Token exp:", decoded.exp);
+        console.log("Current time:", now);
+        console.log("Time until expiry:", decoded.exp - now, "seconds");
+      
         if (decoded.exp < now) {
           console.warn("Token expired — logging out");
           logout();
         } else {
           // Token is valid, set it
+          console.log("Resetting user/token in useEffect");
+          if (user == null) {
+            const userFromToken: User = {email: decoded.upn, isAdmin: decoded.groups.includes("Admin"), orders: []}
+            setUser(userFromToken);
+          }
+          
           setJwtToken(savedToken);
         }
       } catch (e) {
@@ -112,6 +123,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const logout = () => {
+    console.warn("Loggin user out");
     router.push("/login");
     localStorage.removeItem("token");
     setJwtToken(null);
