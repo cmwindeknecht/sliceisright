@@ -58,7 +58,7 @@ export default function AddUpdateIngredient({ ingredients, setTempIngredients }:
       });
 
       const ingredient: Ingredient = {
-        id: null,
+        id: Math.random(),
         name,
         availableSizes,
         canBeDoubled, 

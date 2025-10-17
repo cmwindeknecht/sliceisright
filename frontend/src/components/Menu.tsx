@@ -19,6 +19,9 @@ interface MenuContext {
   createMenuItem: (menuItem: MenuItem) => Promise<{ success: boolean ; error?: string }>;
   createIngredient: (ingredient: Ingredient) => Promise<{ success: boolean ; error?: string }>;
   createMenuItemIngredient: (menuItem: MenuItem, ingredient: Ingredient) => Promise<{ success: boolean ; error?: string }>;
+  addOrderItem: (orderItem: OrderItem) => { success: boolean ; error?: string };
+  updateOrderItem: (orderItem: OrderItem) => { success: boolean ; error?: string };
+  deleteOrderItem: (orderItem: OrderItem) => { success: boolean ; error?: string };
 }
 
 const MenuContext = createContext<MenuContext | null>(null);
@@ -31,14 +34,6 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
   const [menuItems, setMenuItems] = useState<MenuItem[] | null>(null);
   const [ingredients, setIngredients] = useState<Ingredient[] | null>(null);
   const [currentOrder, setCurrentOrder] = useState<OrderItem[] | null>(null);
-
-  // On page renders, check the status of the token 
-  useEffect(() => {
-    (async () => {
-      await getMenuItems();
-      await getIngredients();
-    })();
-  }, []);
 
   const getMenuItems = async () => {
     try {
@@ -134,23 +129,42 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
     }
   }
 
-  const addOrderItem = (menuItem: MenuItem) => {
-    const orderItem = { ...menuItem, orderItemId: crypto.randomUUID() };
-    setCurrentOrder((prev) => prev ? [...prev, orderItem] : [orderItem]);
+  const addOrderItem = (orderItem: OrderItem) => {
+    try {
+      const orderItemWithId: OrderItem = { ...orderItem, orderItemId: crypto.randomUUID() };
+      setCurrentOrder((prev) => prev ? [...prev, orderItem] : [orderItem]);
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
   };
 
   const updateOrderItem = (orderItem: OrderItem) => {
-    setCurrentOrder((prev) => 
-      prev ? prev.map(item => item.orderItemId === orderItem.orderItemId ? { ...orderItem } : item ) : null
-    );
+    try {
+      setCurrentOrder((prev) => 
+        prev ? prev.map(item => item.orderItemId === orderItem.orderItemId ? { ...orderItem } : item ) : null
+      );
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
   };
 
-  const removeMenuItem = (orderItem: OrderItem) => {
-    setCurrentOrder((prev) => prev ? prev.filter(item => item.orderItemId !== orderItem.orderItemId) : null);
+  const deleteOrderItem = (orderItem: OrderItem) => {
+    try {
+      setCurrentOrder((prev) => prev ? prev.filter(item => item.orderItemId !== orderItem.orderItemId) : null);
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
   };
 
   return (
-    <MenuContext.Provider value={{ menuItems, ingredients, currentOrder, getMenuItems, getIngredients, createMenuItem, createIngredient, createMenuItemIngredient }}>
+    <MenuContext.Provider value={{ 
+      menuItems, ingredients, currentOrder, 
+      getMenuItems, getIngredients, createMenuItem, createIngredient, createMenuItemIngredient,
+      addOrderItem, updateOrderItem, deleteOrderItem
+    }}>
       {children}
     </MenuContext.Provider>
   );

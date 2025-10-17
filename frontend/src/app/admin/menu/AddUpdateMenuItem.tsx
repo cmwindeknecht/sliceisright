@@ -14,11 +14,13 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setTempMenuI
   const [imageUrl, setImageUrl] = useState<string>("");
   const [isCustomizable, setIsCustomizable] = useState<boolean>(false);
   const [defaultIngredients, setDefaultIngredients] = useState<Ingredient[]>([]);
+  const [category, setCategory] = useState< MenuItem["category"]>("Signature Pizza");
   
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean | null>(null);
   const [success, setSuccess] = useState(false);
 
+  const categoryOptions: MenuItem["category"][] = ["Signature Pizza", "Specialty Item", "Dessert", "Drink"];
   const sizeOptions: MenuItemSize["size"][] = ["None", "S", "M", "L", "XL"];
 
   const isUpdateMode = selectedMenuItemName !== "";
@@ -65,7 +67,7 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setTempMenuI
       });
 
       const menuItem: MenuItem = {
-        id: null,
+        id: Math.random(), // Override with proper id when creating in backend
         name,
         description,
         imageUrl,
@@ -73,6 +75,7 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setTempMenuI
         isCustomizable,
         defaultIngredients,
         availableSizes,
+        category
       };
 
       if (isUpdateMode) {
@@ -157,6 +160,22 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setTempMenuI
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
             />
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium">Category</label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value as MenuItem["category"])}
+              className="border p-2 rounded w-full"
+            >
+              <option value="">-- Select Category --</option>
+              {categoryOptions.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Sizes & Prices */}

@@ -7,6 +7,7 @@ import { MenuItem } from "@/types/MenuItem";
 import { useEffect, useState } from "react";
 import AddUpdateMenuItem from "./AddUpdateMenuItem";
 import AddUpdateIngredient from "./AddUpdateIngredient";
+import MenuItemAdmin from "@/components/MenuItemAdmin";
 
 export interface AdminMenuItemProps {
   ingredients: Ingredient[];
@@ -52,11 +53,7 @@ export default function AdminMenuPage() {
           <div>
           <h1 className="text-2x1 font-bold">Menu Items</h1>
           {tempMenuItems.map(menuItem => 
-          <div key={Math.random()}>
-            {/* TODO Create MenuItem component that is the same as the one in the actual menu 
-            - or extends the actual menu and includes shit like can be modified, the menu item id, etc */}
-            {menuItem.name} 
-          </div>
+            <MenuItemAdmin key={menuItem.id} menuItem={menuItem}/>
           )}
           </div>
         )}
