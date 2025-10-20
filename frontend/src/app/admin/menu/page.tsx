@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useAuth } from "@/components/Auth";
 import { useMenu } from "@/components/Menu";
@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import AddUpdateMenuItem from "./AddUpdateMenuItem";
 import AddUpdateIngredient from "./AddUpdateIngredient";
 import MenuItemAdmin from "@/components/MenuItemAdmin";
+import IngredientAdmin from "@/components/IngredientAdmin";
 
 export interface AdminMenuItemProps {
   ingredients: Ingredient[];
@@ -29,48 +30,59 @@ export default function AdminMenuPage() {
       if (menuResponse.menuItems != null) {
         setTempMenuItems(menuResponse.menuItems);
       }
-      
+
       const ingredientsResponse = await getIngredients();
       if (ingredientsResponse.ingredients != null) {
         setTempIngredients(ingredientsResponse.ingredients);
       }
     })();
   }, []);
-  
+
   return (
     <div>
-      {user == null || !user.isAdmin ? 
-      <h1> Forbidden</h1>
-      :
-      <div >
-        <h1 className="text-3xl font-bold text-center m-5">Admin Menu</h1>
-        {/* TODO Dropdown to choose whether creating OR updating menu item, creating OR updating ingredient */}
-        <div className="flex flex-row justify-between">
-          <AddUpdateMenuItem ingredients={tempIngredients} menuItems={tempMenuItems} setTempMenuItems={setTempMenuItems} setTempIngredients={setTempIngredients}/>
-          <AddUpdateIngredient ingredients={tempIngredients} menuItems={tempMenuItems} setTempMenuItems={setTempMenuItems} setTempIngredients={setTempIngredients}/>
+      {user == null || !user.isAdmin ? (
+        <h1> Forbidden</h1>
+      ) : (
+        <div>
+          <h1 className="text-3xl font-bold text-center m-5">Admin Menu</h1>
+          {/* TODO Dropdown to choose whether creating OR updating menu item, creating OR updating ingredient */}
+          <div className="flex flex-row justify-between">
+            <AddUpdateMenuItem
+              ingredients={tempIngredients}
+              menuItems={tempMenuItems}
+              setTempMenuItems={setTempMenuItems}
+              setTempIngredients={setTempIngredients}
+            />
+            <AddUpdateIngredient
+              ingredients={tempIngredients}
+              menuItems={tempMenuItems}
+              setTempMenuItems={setTempMenuItems}
+              setTempIngredients={setTempIngredients}
+            />
+          </div>
+          {/* Menu Items */}
+          {tempMenuItems && tempMenuItems.length > 0 && (
+            <div className="flex flex-col justify-center items-center">
+              <h1 className="text-2xl font-bold text-center mb-4">Menu Items</h1>
+              <div className="flex flex-wrap justify-between gap-4">
+                {tempMenuItems.map((menuItem) => (
+                  <MenuItemAdmin key={menuItem.id} menuItem={menuItem} />
+                ))}
+              </div>
+            </div>
+          )}
+          {tempIngredients && tempIngredients.length > 0 && (
+            <div className="flex flex-col justify-between">
+              <h1 className="text-2xl font-bold text-center mb-4">Ingredients</h1>
+              <div className="flex flex-wrap justify-between gap-4 m-5">
+                {tempIngredients.map((ingredient) => (
+                  <IngredientAdmin key={ingredient.id} ingredient={ingredient} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-        {tempMenuItems && tempMenuItems.length > 0 && (
-          <div>
-          <h1 className="text-2x1 font-bold">Menu Items</h1>
-          {tempMenuItems.map(menuItem => 
-            <MenuItemAdmin key={menuItem.id} menuItem={menuItem}/>
-          )}
-          </div>
-        )}
-        {tempIngredients && tempIngredients.length > 0 && (
-          <div>
-          <h1 className="text-2x1 font-bold">Ingredients</h1>
-          {tempIngredients.map(ingredient => 
-          <div key={Math.random()}>
-            {/* TODO Create MenuItem component that is the same as the one in the actual menu 
-            - or extends the actual menu and includes shit like can be modified, the menu item id, etc */}
-            {ingredient.name} 
-          </div>
-          )}
-          </div>
-        )}
-      </div>
-      }
+      )}
     </div>
   );
 }
