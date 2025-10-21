@@ -10,4 +10,39 @@ public class Constants {
     public static final String ENV_JWT_SIGNING_KEY = "JWT_SIGNING_KEY";
     
     public static final String HEADER_ADMIN_SETUP_TOKEN = "X-Admin-Setup-Token";
+
+    public enum Size {
+        NONE("None"),
+        S("Small"),
+        M("Medium"),
+        L("Large"),
+        XL("X-Large");
+        
+        private final String value;
+        
+        Size(String value) {
+            this.value = value;
+        }
+        
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public enum Category {
+        PIZZA("Signature Pizza"),
+        ITEMS("Specialty Items"),
+        DESSERTS("Desserts"),
+        BEVERAGES("Beverages");
+                
+        private final String value;
+        
+        Category(String value) {
+            this.value = value;
+        }
+        
+        public String getValue() {
+            return value;
+        }
+    }
 }

@@ -1,6 +1,11 @@
 package com.SliceIsRight.api;
 
+import java.util.Dictionary;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.mapstruct.Mapper;
 
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
@@ -17,8 +22,10 @@ import jakarta.ws.rs.core.Response;
 
 import com.SliceIsRight.database.entities.Ingredient;
 import com.SliceIsRight.database.entities.MenuItem;
-import com.SliceIsRight.database.entities.MenuItemIngredient;
+import com.SliceIsRight.database.entities.MenuItemSize;
 import com.SliceIsRight.database.DualCompositeKey;
+import com.SliceIsRight.api.model.IngredientDTO;
+import com.SliceIsRight.api.requests.AddMenuItemRequest;
 import com.SliceIsRight.api.responses.ResponseFactory;
 
 @Path("/admin/menu")
@@ -30,7 +37,7 @@ public class AdminMenu
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
     @RolesAllowed({"Admin"})
-    public Response addMenuItem(MenuItem menuItemToAdd) {
+    public Response addMenuItem(AddMenuItemRequest menuItemToAdd) {
         try {
             Optional.ofNullable(MenuItem.find("name", menuItemToAdd.name)
                 .firstResult())
@@ -38,7 +45,26 @@ public class AdminMenu
                     throw new WebApplicationException(String.format("MenuItem with name %s already exists", menuItemToAdd.name), Response.Status.BAD_REQUEST);
                 });
 
-            menuItemToAdd.persist();
+            MenuItem newMenuItem = new MenuItem();
+            newMenuItem.name = menuItemToAdd.name;
+            newMenuItem.description = menuItemToAdd.description;
+            newMenuItem.imageUrl = menuItemToAdd.imageUrl;
+            newMenuItem.category = menuItemToAdd.category;
+            newMenuItem.isAvailable = false; // Default to unavailable on creation so the menu can be verified
+            newMenuItem.isCustomizable = menuItemToAdd.isCustomizable;
+            newMenuItem.availableSizes = menuItemToAdd.availableSizes.stream().map(availableSizeDto -> {
+                MenuItemSize menuItemSize = new MenuItemSize();
+                menuItemSize.size = availableSizeDto.size;
+                menuItemSize.price = availableSizeDto.price;
+                menuItemSize.menuItem = newMenuItem;
+                return menuItemSize;
+            }).collect(Collectors.toList());
+            List<Long> ingredientIds = menuItemToAdd.ingredients.stream()
+                .map(IngredientDTO::getId)
+                .collect(Collectors.toList());
+            newMenuItem.ingredients = Ingredient.list("id in ?1", ingredientIds);
+
+            newMenuItem.persist();
             MenuItem.flush();
             
             return ResponseFactory.GetCreatedResponse(menuItemToAdd, String.format("Successfullly created MenuItem: %s", menuItemToAdd.name));
@@ -62,7 +88,6 @@ public class AdminMenu
             
             menuItem.name = menuItemToUpdate.name;
             menuItem.description = menuItemToUpdate.description;
-            menuItem.price = menuItemToUpdate.price;
             menuItem.imageUrl = menuItemToUpdate.imageUrl;
             menuItem.isAvailable = menuItemToUpdate.isAvailable;
 
@@ -131,7 +156,6 @@ public class AdminMenu
                 .orElseThrow(() -> new WebApplicationException(String.format("Ingredient not found to update with name %s", ingredientToUpdate.name), Response.Status.NOT_FOUND));
 
             ingredient.name = ingredientToUpdate.name;
-            ingredient.price = ingredientToUpdate.price;
             ingredient.canBeDoubled = ingredientToUpdate.canBeDoubled;
             ingredient.canBeRemoved = ingredientToUpdate.canBeRemoved;
 
@@ -161,71 +185,6 @@ public class AdminMenu
             return ResponseFactory.GetWebExceptionResponse(e);
         } catch (Exception e) {
             return ResponseFactory.GetBadRequestResponse(e, String.format("Failed to update Ingredient with id %s", ingredientToDelete));
-        }
-    }
-
-    public static class MenuItemIngredientRequest {
-        public long menuItemId;
-        public long ingredientId;
-    }
-
-    @POST
-    @Path("/menuItemIngredient")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Transactional
-    @RolesAllowed({"Admin"})
-    public Response addMenuItemIngredient(MenuItemIngredientRequest request) {
-        try {
-            MenuItem menuItem = (MenuItem) Optional.ofNullable(MenuItem.findById(request.menuItemId))
-                .orElseThrow(() -> new WebApplicationException(String.format("MenuItem with id %s not found to link to Ingredient with id %s", request.menuItemId, request.ingredientId), Response.Status.NOT_FOUND));
-            Ingredient ingredient = (Ingredient) Optional.ofNullable(Ingredient.findById(request.ingredientId))
-                .orElseThrow(() -> new WebApplicationException(String.format("Ingredient with id %s not found to link to MenuItem with id %s", request.ingredientId, request.menuItemId), Response.Status.NOT_FOUND));
-
-            DualCompositeKey dualCompositeKey = new DualCompositeKey();
-            dualCompositeKey.menuItemId = menuItem.id;
-            dualCompositeKey.ingredientId = ingredient.id;
-
-            MenuItemIngredient menuItemIngredient = new MenuItemIngredient();
-            menuItemIngredient.id = dualCompositeKey;
-            menuItemIngredient.menuItem = menuItem;
-            menuItemIngredient.ingredient = ingredient;
-
-            menuItemIngredient.persist();
-            MenuItemIngredient.flush();
-            return ResponseFactory.GetCreatedResponse(menuItemIngredient, String.format("Successfullly created MenuItemIngredient: %s", request.toString()));
-        } catch (WebApplicationException e) {
-            return ResponseFactory.GetWebExceptionResponse(e);
-        } catch (Exception e) {
-            return ResponseFactory.GetBadRequestResponse(e, String.format("Failed to create MenuItemIngredient: %s", request.toString()));
-        }
-    }
-
-    @DELETE
-    @Path("/menuItemIngredient/{menuItemToDelete}/{ingredientToDelete}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Transactional
-    @RolesAllowed({"Admin"})
-    public Response deleteMenuItemIngredient(
-        @PathParam("menuItemToDelete") long menuItemToDelete,
-        @PathParam("ingredientToDelete") long ingredientToDelete
-    ) {
-        try {
-            DualCompositeKey dualCompositeKey = new DualCompositeKey();
-            dualCompositeKey.menuItemId = menuItemToDelete;
-            dualCompositeKey.ingredientId = ingredientToDelete;
-
-            MenuItemIngredient menuItemIngredient = (MenuItemIngredient) Optional.ofNullable(MenuItemIngredient.findById(dualCompositeKey))
-                .orElseThrow(() -> new WebApplicationException(String.format("MenuItemIngredient to delete not found with menuItemId %s ingredientId %s", menuItemToDelete, ingredientToDelete), Response.Status.NOT_FOUND));
-
-            menuItemIngredient.delete();
-            MenuItem.flush();
-
-            return ResponseFactory.GetOkResponse(menuItemIngredient, String.format("Succesfully deleted MenuItemIngredient with id %s %s", menuItemToDelete, ingredientToDelete));
-        } catch (WebApplicationException e) {
-            return ResponseFactory.GetWebExceptionResponse(e);
-        } catch (Exception e) {
-            return ResponseFactory.GetBadRequestResponse(e, String.format("Failed to delete Ingredient with id %s %s", menuItemToDelete, ingredientToDelete));
         }
     }
 }

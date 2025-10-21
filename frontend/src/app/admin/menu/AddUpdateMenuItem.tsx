@@ -3,13 +3,16 @@
 import { Ingredient } from "@/types/Ingredient";
 import { MenuItem, MenuItemSize } from "@/types/MenuItem";
 import { useState, useEffect } from "react";
-import { AdminMenuItemProps } from "./page";
+import { UpdateMenuProps } from "./page";
+import { useMenu } from "@/components/Menu";
 
 export default function AddUpdateMenuItem({
   ingredients,
   menuItems,
   setTempMenuItems,
-}: AdminMenuItemProps) {
+}: UpdateMenuProps) {
+  const { createMenuItem } = useMenu();
+
   const [selectedMenuItemName, setSelectedMenuItemName] = useState<string>("");
 
   const [name, setName] = useState<string>("");
@@ -88,11 +91,13 @@ export default function AddUpdateMenuItem({
       };
 
       if (isUpdateMode) {
-        setTempMenuItems((prev) =>
-          prev.map((item) => (item.name?.toString() === selectedMenuItemName ? menuItem : item))
-        );
+        // TODO put request to update
+        // updateOrderItem();
+        // setTempMenuItems((prev) =>
+        //   prev.map((item) => (item.name?.toString() === selectedMenuItemName ? menuItem : item))
+        // );
       } else {
-        setTempMenuItems((prev) => [...(prev ?? []), menuItem]);
+        createMenuItem(menuItem);
       }
 
       setName("");

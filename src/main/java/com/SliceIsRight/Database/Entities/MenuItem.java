@@ -3,17 +3,20 @@ package com.SliceIsRight.database.entities;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.SliceIsRight.Constants.Category;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * Entity for the table t_menu_item
@@ -25,17 +28,25 @@ import lombok.Setter;
 @NoArgsConstructor 
 public class MenuItem extends PanacheEntity {
     @Column(unique = true, nullable = false)
-    @Setter @Getter
     public String name;
-    
-    @Column(unique = true, nullable = false)
+   
     public String imageUrl;
-
     public String description;
-    public float price;
-    public Boolean isAvailable;
 
-    @OneToMany(mappedBy = "menuItem", fetch = FetchType.LAZY)
-    @JsonIgnore  // Ignore this field during deserialization
-    public List<MenuItemIngredient> menuItemIngredients = new ArrayList<>();
+    @Enumerated(EnumType.STRING)
+    public Category category;
+
+    public Boolean isAvailable;
+    public Boolean isCustomizable;
+    
+    @OneToMany(mappedBy = "menuItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    public List<MenuItemSize> availableSizes = new ArrayList<>();
+    
+    @ManyToMany
+    @JoinTable(
+        name = "menu_item_ingredient",
+        joinColumns = @JoinColumn(name = "menu_item_id"),
+        inverseJoinColumns = @JoinColumn(name = "ingredient_id")
+    )
+    public List<Ingredient> ingredients = new ArrayList<>();
 }

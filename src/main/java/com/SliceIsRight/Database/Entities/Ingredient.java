@@ -1,8 +1,13 @@
 package com.SliceIsRight.database.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +26,9 @@ public class Ingredient extends PanacheEntity {
     @Setter @Getter
     public String name;
 
-    public float price;
+    @OneToMany(mappedBy = "ingredient", cascade = CascadeType.ALL, orphanRemoval = true)
+    public List<IngredientSize> availableSizes = new ArrayList<>();
+
     public Boolean canBeRemoved;
     public Boolean canBeDoubled;
 }

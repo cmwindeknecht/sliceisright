@@ -10,11 +10,12 @@ import AddUpdateIngredient from "./AddUpdateIngredient";
 import MenuItemAdmin from "@/components/MenuItemAdmin";
 import IngredientAdmin from "@/components/IngredientAdmin";
 
-export interface AdminMenuItemProps {
+export interface UpdateMenuProps {
   ingredients: Ingredient[];
   menuItems: MenuItem[];
   setTempMenuItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
   setTempIngredients: React.Dispatch<React.SetStateAction<Ingredient[]>>;
+  setShouldFetch: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function AdminMenuPage() {
@@ -23,6 +24,11 @@ export default function AdminMenuPage() {
 
   const [tempMenuItems, setTempMenuItems] = useState<MenuItem[]>([]);
   const [tempIngredients, setTempIngredients] = useState<Ingredient[]>([]);
+  const [shouldFetch, setShouldFetch] = useState<boolean>(false);
+
+  useEffect(() => {
+    setShouldFetch(true);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -36,7 +42,7 @@ export default function AdminMenuPage() {
         setTempIngredients(ingredientsResponse.ingredients);
       }
     })();
-  }, []);
+  }, [shouldFetch]);
 
   return (
     <div>
@@ -52,12 +58,14 @@ export default function AdminMenuPage() {
               menuItems={tempMenuItems}
               setTempMenuItems={setTempMenuItems}
               setTempIngredients={setTempIngredients}
+              setShouldFetch={setShouldFetch}
             />
             <AddUpdateIngredient
               ingredients={tempIngredients}
               menuItems={tempMenuItems}
               setTempMenuItems={setTempMenuItems}
               setTempIngredients={setTempIngredients}
+              setShouldFetch={setShouldFetch}
             />
           </div>
           {/* Menu Items */}

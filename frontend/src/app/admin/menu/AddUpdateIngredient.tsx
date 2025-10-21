@@ -3,12 +3,9 @@
 import { Ingredient } from "@/types/Ingredient";
 import { MenuItem, MenuItemSize } from "@/types/MenuItem";
 import { useState, useEffect } from "react";
-import { AdminMenuItemProps } from "./page";
+import { UpdateMenuProps } from "./page";
 
-export default function AddUpdateIngredient({
-  ingredients,
-  setTempIngredients,
-}: AdminMenuItemProps) {
+export default function AddUpdateIngredient({ ingredients, setTempIngredients }: UpdateMenuProps) {
   const [selectedIngredientName, setSelectedIngredientName] = useState<string>("");
 
   const [name, setName] = useState<string>("");
