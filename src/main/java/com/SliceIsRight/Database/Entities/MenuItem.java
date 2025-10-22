@@ -1,7 +1,9 @@
 package com.SliceIsRight.database.entities;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.SliceIsRight.Constants.Category;
 
@@ -40,7 +42,7 @@ public class MenuItem extends PanacheEntity {
     public Boolean isCustomizable;
     
     @OneToMany(mappedBy = "menuItem", cascade = CascadeType.ALL, orphanRemoval = true)
-    public List<MenuItemSize> availableSizes = new ArrayList<>();
+    public Set<MenuItemSize> sizes = new HashSet<>();
     
     @ManyToMany
     @JoinTable(
@@ -48,5 +50,5 @@ public class MenuItem extends PanacheEntity {
         joinColumns = @JoinColumn(name = "menu_item_id"),
         inverseJoinColumns = @JoinColumn(name = "ingredient_id")
     )
-    public List<Ingredient> ingredients = new ArrayList<>();
+    public Set<Ingredient> ingredients = new HashSet<>();
 }

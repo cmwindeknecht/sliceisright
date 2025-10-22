@@ -22,7 +22,7 @@ public class Menu {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMenuItems() {
         try {
-            List<MenuItemDTO> menuItemDTOs = MenuItemRepository.INSTANCE.getAllMenuItemsWithIngredients();
+            List<MenuItemDTO> menuItemDTOs = MenuItemRepository.INSTANCE.getAllMenuItems();
             return ResponseFactory.GetOkResponse(menuItemDTOs, "Successfully retrieved menu items");
         } catch (Exception e) {
             return ResponseFactory.GetBadRequestResponse(e, "Failed to retrieved menu items");
