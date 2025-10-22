@@ -8,6 +8,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ import lombok.Setter;
 @Entity
 @AllArgsConstructor   
 @NoArgsConstructor 
+@Table(name = "t_ingredient")
 public class Ingredient extends PanacheEntity {
     @Column(unique = true, nullable = false)
     @Setter @Getter

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/Auth";
@@ -36,28 +36,31 @@ const UserLoginForm = () => {
     const result = await loginByEmail(email, password);
     debugger;
     if (result.success) {
-        if (result.data?.entity.isAdmin) {
-            router.push("/admin/menu");
-        } else {
-            router.back();
-        }
+      if (result.data?.entity.isAdmin) {
+        router.push("/admin/order");
+      } else {
+        router.back();
+      }
 
-        setSuccess(true);
-        setPassword("");
+      setSuccess(true);
+      setPassword("");
 
-        if (rememberEmail) {
-            localStorage.setItem("savedEmail", email);
-        } else {
-            localStorage.removeItem("savedEmail");
-            setEmail("");
-        }      
+      if (rememberEmail) {
+        localStorage.setItem("savedEmail", email);
+      } else {
+        localStorage.removeItem("savedEmail");
+        setEmail("");
+      }
     } else {
       setError(result.error ?? "Registration failed.");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-sm mx-auto p-4 border rounded-lg shadow">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-4 max-w-sm mx-auto p-4 border rounded-lg shadow"
+    >
       <h2 className="text-xl font-semibold text-center">Login</h2>
 
       <input

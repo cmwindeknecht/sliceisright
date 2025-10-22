@@ -17,6 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
@@ -28,6 +29,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor   
 @NoArgsConstructor 
+@Table(name = "t_menu_item")
 public class MenuItem extends PanacheEntity {
     @Column(unique = true, nullable = false)
     public String name;
@@ -46,7 +48,7 @@ public class MenuItem extends PanacheEntity {
     
     @ManyToMany
     @JoinTable(
-        name = "menu_item_ingredient",
+        name = "t_menu_item_ingredient",
         joinColumns = @JoinColumn(name = "menu_item_id"),
         inverseJoinColumns = @JoinColumn(name = "ingredient_id")
     )

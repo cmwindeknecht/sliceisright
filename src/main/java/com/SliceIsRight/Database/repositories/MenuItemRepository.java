@@ -15,8 +15,7 @@ public class MenuItemRepository {
         List<MenuItem> menuItems = MenuItem.find(
             "SELECT DISTINCT m FROM MenuItem m " +
             "LEFT JOIN FETCH m.ingredients " +
-            "LEFT JOIN FETCH m.sizes " +
-            "WHERE m.isAvailable = true"
+            "LEFT JOIN FETCH m.sizes"
         ).list();
     
         return menuItems.stream()
