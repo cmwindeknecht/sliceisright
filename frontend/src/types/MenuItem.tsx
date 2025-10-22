@@ -7,8 +7,8 @@ export interface MenuItem {
   imageUrl: string;
   isAvailable: boolean;
   isCustomizable: boolean;
-  defaultIngredients: Ingredient[];
-  availableSizes: MenuItemSize[];
+  ingredients: Ingredient[];
+  sizes: MenuItemSize[];
   category: "Signature Pizza" | "Specialty Item" | "Dessert" | "Drink";
 }
 
@@ -20,5 +20,5 @@ export interface MenuItemSize {
 export interface OrderItem extends MenuItem {
   orderItemId: string | null;
   modifiedIngredients: Ingredient[];
-  chosenSize: MenuItem
+  chosenSize: MenuItem;
 }

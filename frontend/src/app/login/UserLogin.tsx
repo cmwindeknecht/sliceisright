@@ -34,7 +34,6 @@ const UserLoginForm = () => {
     }
 
     const result = await loginByEmail(email, password);
-    debugger;
     if (result.success) {
       if (result.data?.entity.isAdmin) {
         router.push("/admin/order");

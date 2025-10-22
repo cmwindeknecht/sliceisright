@@ -20,7 +20,7 @@ public class MenuItemDTO {
     public boolean isAvailable;
     public boolean isCustomizable;
     public List<IngredientDTO> ingredients;
-    public List<MenuItemSizeDTO> availableSizes;
+    public List<MenuItemSizeDTO> sizes;
     
     public Category category;
 }

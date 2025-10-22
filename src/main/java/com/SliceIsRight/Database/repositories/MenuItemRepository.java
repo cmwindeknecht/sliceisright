@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.SliceIsRight.api.model.IngredientDTO;
+import com.SliceIsRight.api.model.IngredientSizeDTO;
 import com.SliceIsRight.api.model.MenuItemDTO;
 import com.SliceIsRight.api.model.MenuItemSizeDTO;
 import com.SliceIsRight.database.entities.MenuItem;
+
+import jakarta.transaction.Transactional;
 
 public class MenuItemRepository {
     public static final MenuItemRepository INSTANCE = new MenuItemRepository();
@@ -18,26 +21,9 @@ public class MenuItemRepository {
             "LEFT JOIN FETCH m.sizes"
         ).list();
     
-        return menuItems.stream()
-            .map(menuItem -> MenuItemDTO.builder()
-                .id(menuItem.id)
-                .name(menuItem.name)
-                .description(menuItem.description)
-                .imageUrl(menuItem.imageUrl)
-                .category(menuItem.category)
-                .isCustomizable(menuItem.isCustomizable)
-                .availableSizes(menuItem.sizes.stream()
-                    .map(size -> new MenuItemSizeDTO(size.size, size.price))
-                    .collect(Collectors.toList()))
-                .ingredients(menuItem.ingredients.stream()
-                    .map(ingredient -> IngredientDTO.builder()
-                        .id(ingredient.id)
-                        .name(ingredient.name)
-                        .build())
-                    .collect(Collectors.toList()))
-                .build())
-            .collect(Collectors.toList());
-        }
+        List<MenuItemDTO> menuItemsDTOs = buildMenuItemDTOs(menuItems);
+        return menuItemsDTOs;
+    }
 
     public List<MenuItemDTO> getAvailableMenuItems() {
         List<MenuItem> menuItems = MenuItem.find(
@@ -46,7 +32,11 @@ public class MenuItemRepository {
             "LEFT JOIN FETCH m.sizes " +
             "WHERE m.isAvailable = true"
         ).list();
-    
+
+        List<MenuItemDTO> menuItemsDTOs = buildMenuItemDTOs(menuItems);
+        return menuItemsDTOs;
+    }
+    private List<MenuItemDTO> buildMenuItemDTOs(List<MenuItem> menuItems) {    
         return menuItems.stream()
             .map(menuItem -> MenuItemDTO.builder()
                 .id(menuItem.id)
@@ -55,16 +45,21 @@ public class MenuItemRepository {
                 .imageUrl(menuItem.imageUrl)
                 .category(menuItem.category)
                 .isCustomizable(menuItem.isCustomizable)
-                .availableSizes(menuItem.sizes.stream()
+                .sizes(menuItem.sizes.stream()
                     .map(size -> new MenuItemSizeDTO(size.size, size.price))
                     .collect(Collectors.toList()))
                 .ingredients(menuItem.ingredients.stream()
                     .map(ingredient -> IngredientDTO.builder()
                         .id(ingredient.id)
                         .name(ingredient.name)
+                        .canBeDoubled(ingredient.canBeDoubled)
+                        .canBeRemoved(ingredient.canBeRemoved)
+                        .sizes(ingredient.sizes.stream()
+                            .map(size -> new IngredientSizeDTO(size.size, size.price))
+                            .collect(Collectors.toList()))
                         .build())
                     .collect(Collectors.toList()))
                 .build())
             .collect(Collectors.toList());
-        }
+    }
 }

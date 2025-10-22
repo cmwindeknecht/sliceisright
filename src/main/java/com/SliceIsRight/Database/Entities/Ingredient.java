@@ -29,7 +29,7 @@ public class Ingredient extends PanacheEntity {
     public String name;
 
     @OneToMany(mappedBy = "ingredient", cascade = CascadeType.ALL, orphanRemoval = true)
-    public List<IngredientSize> availableSizes = new ArrayList<>();
+    public List<IngredientSize> sizes = new ArrayList<>();
 
     public Boolean canBeRemoved;
     public Boolean canBeDoubled;
