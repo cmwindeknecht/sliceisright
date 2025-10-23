@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/components/Auth";
+import { useAuth } from "@/components/context/Auth";
 import { useRouter } from "next/navigation";
 
 const UserCreateForm = () => {
@@ -72,7 +72,10 @@ const UserCreateForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-sm mx-auto p-4 border rounded-lg shadow">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-4 max-w-sm mx-auto p-4 border rounded-lg shadow"
+    >
       <h2 className="text-xl font-semibold text-center">Create an Account</h2>
 
       <input

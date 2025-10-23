@@ -2,7 +2,7 @@ package com.SliceIsRight.api.model;
 
 import java.util.List;
 
-import com.SliceIsRight.Constants.Category;
+import com.SliceIsRight.Constants.MenuItemCategory;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +22,7 @@ public class MenuItemDTO {
     public List<IngredientDTO> ingredients;
     public List<MenuItemSizeDTO> sizes;
     
-    public Category category;
+    public MenuItemCategory category;
 }
 
     

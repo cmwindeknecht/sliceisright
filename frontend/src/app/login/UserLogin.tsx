@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/components/Auth";
+import { useAuth } from "@/components/context/Auth";
 import { useRouter } from "next/navigation";
 
 const UserLoginForm = () => {

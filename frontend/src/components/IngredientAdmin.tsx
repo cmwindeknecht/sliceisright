@@ -29,11 +29,11 @@ export default function IngredientAdmin({ ingredient }: IngredientAdminProps) {
           {/* Available Sizes and Ingredients - Side by Side */}
           <div className="flex gap-4">
             {/* Available Sizes */}
-            {ingredient.availableSizes && ingredient.availableSizes.length > 0 && (
+            {ingredient.sizes && ingredient.sizes.length > 0 && (
               <div className="flex-1">
                 <div className="text-sm font-medium mb-2">Available Sizes:</div>
                 <div className="flex flex-wrap gap-2">
-                  {ingredient.availableSizes.map((size) => (
+                  {ingredient.sizes.map((size) => (
                     <button
                       key={size.size}
                       type="button"

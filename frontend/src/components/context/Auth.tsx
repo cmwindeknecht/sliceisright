@@ -31,17 +31,6 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
-  /** 
-  TODO send this token to the backend like this - quarkus automatically checks and throws a 401 if invalid
-  
-  fetch(`${API_URL}/orders`, {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json"
-    }
-  });
-  */
   const [jwtToken, setJwtToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 

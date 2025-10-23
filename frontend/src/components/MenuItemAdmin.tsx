@@ -53,11 +53,11 @@ export default function MenuItemAdmin({ menuItem }: MenuItemAdminProps) {
           {/* Available Sizes and Ingredients - Side by Side */}
           <div className="flex gap-4">
             {/* Available Sizes */}
-            {menuItem.availableSizes && menuItem.availableSizes.length > 0 && (
+            {menuItem.sizes && menuItem.sizes.length > 0 && (
               <div className="flex-1">
                 <div className="text-sm font-medium mb-2">Available Sizes:</div>
                 <div className="flex flex-wrap gap-2">
-                  {menuItem.availableSizes.map((size) => (
+                  {menuItem.sizes.map((size) => (
                     <button
                       key={size.size}
                       type="button"
@@ -72,7 +72,7 @@ export default function MenuItemAdmin({ menuItem }: MenuItemAdminProps) {
             )}
 
             {/* Default Ingredients */}
-            {menuItem.defaultIngredients && menuItem.defaultIngredients.length > 0 && (
+            {menuItem.ingredients && menuItem.ingredients.length > 0 && (
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="text-sm font-medium">Ingredients:</div>
@@ -82,13 +82,13 @@ export default function MenuItemAdmin({ menuItem }: MenuItemAdminProps) {
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
-                  {menuItem.defaultIngredients.map((ingredient) => (
+                  {menuItem.ingredients.map((ingredient) => (
                     <div key={ingredient.id} className="text-sm text-gray-700">
                       <span className="font-medium">{ingredient.name}</span>
-                      {ingredient.availableSizes && ingredient.availableSizes.length > 0 && (
+                      {ingredient.sizes && ingredient.sizes.length > 0 && (
                         <span className="ml-2 text-gray-500">
                           (
-                          {ingredient.availableSizes
+                          {ingredient.sizes
                             .map((size) => `${size.size}: ${size.price.toFixed(2)}`)
                             .join(", ")}
                           )

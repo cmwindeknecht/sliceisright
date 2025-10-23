@@ -1,11 +1,9 @@
 package com.SliceIsRight.database.entities;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import com.SliceIsRight.Constants.Category;
+import com.SliceIsRight.Constants.MenuItemCategory;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.CascadeType;
@@ -38,7 +36,7 @@ public class MenuItem extends PanacheEntity {
     public String description;
 
     @Enumerated(EnumType.STRING)
-    public Category category;
+    public MenuItemCategory category;
 
     public Boolean isAvailable;
     public Boolean isCustomizable;

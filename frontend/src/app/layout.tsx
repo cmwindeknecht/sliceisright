@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "../style/globals.css";  // Ignore the "Can't Find Module" warning - it totally does
+import "../style/globals.css"; // Ignore the "Can't Find Module" warning - it totally does
+import { useMediaQuery } from "usehooks-ts";
 
-import { AuthProvider } from '@/components/Auth';
+import { AuthProvider } from "@/components/context/Auth";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { MenuProvider } from "@/components/Menu";
+import { MenuProvider } from "@/components/context/Menu";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,9 +37,7 @@ export default function RootLayout({
         <AuthProvider>
           <MenuProvider>
             <Header />
-            <main className="flex-1 overflow-y-auto">
-              {children}
-            </main>
+            <main className="flex-1 overflow-y-auto">{children}</main>
             <Footer />
           </MenuProvider>
         </AuthProvider>

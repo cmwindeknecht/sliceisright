@@ -1,7 +1,6 @@
 package com.SliceIsRight.api;
 
 import java.util.List;
-import java.util.Optional;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;

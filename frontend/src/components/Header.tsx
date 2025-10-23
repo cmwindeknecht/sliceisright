@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/components/Auth";
+import { useAuth } from "@/components/context/Auth";
 import { useState } from "react";
 
 export default function Header() {

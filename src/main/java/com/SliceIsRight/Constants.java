@@ -29,15 +29,32 @@ public class Constants {
         }
     }
 
-    public enum Category {
+    public enum MenuItemCategory {
         PIZZA("Signature Pizza"),
         ITEMS("Specialty Items"),
         DESSERTS("Desserts"),
         BEVERAGES("Beverages");
-                
+
         private final String value;
         
-        Category(String value) {
+        MenuItemCategory(String value) {
+            this.value = value;
+        }
+        
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public enum IngredientCategory {
+        MEAT("Meat"),
+        VEGETABLE("Vegetable"),
+        FRUIT("Fruit"),
+        OTHER("Other");
+
+        private final String value;
+        
+        IngredientCategory(String value) {
             this.value = value;
         }
         

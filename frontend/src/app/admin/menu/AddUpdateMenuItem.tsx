@@ -4,7 +4,7 @@ import { Ingredient } from "@/types/Ingredient";
 import { MenuItem, MenuItemSize } from "@/types/MenuItem";
 import { useState, useEffect } from "react";
 import { UpdateMenuProps } from "./page";
-import { useMenu } from "@/components/Menu";
+import { useMenu } from "@/components/context/Menu";
 
 export default function AddUpdateMenuItem({
   ingredients,
@@ -17,7 +17,7 @@ export default function AddUpdateMenuItem({
 
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [availableSizes, setAvailableSizes] = useState<MenuItemSize[]>([]);
+  const [sizes, setSizes] = useState<MenuItemSize[]>([]);
   const [imageUrl, setImageUrl] = useState<string>("");
   const [isCustomizable, setIsCustomizable] = useState<boolean>(false);
   const [defaultIngredients, setDefaultIngredients] = useState<Ingredient[]>([]);
@@ -44,16 +44,16 @@ export default function AddUpdateMenuItem({
       if (menuItem) {
         setName(menuItem.name);
         setDescription(menuItem.description || "");
-        setAvailableSizes(menuItem.availableSizes || []);
+        setSizes(menuItem.sizes || []);
         setImageUrl(menuItem.imageUrl || "");
         setIsCustomizable(menuItem.isCustomizable || false);
-        setDefaultIngredients(menuItem.defaultIngredients || []);
+        setDefaultIngredients(menuItem.ingredients || []);
       }
     } else {
       // Reset form when dropdown is cleared
       setName("");
       setDescription("");
-      setAvailableSizes([]);
+      setSizes([]);
       setImageUrl("");
       setIsCustomizable(false);
       setDefaultIngredients([]);
@@ -72,7 +72,7 @@ export default function AddUpdateMenuItem({
         throw new Error("Value for name is required!");
       }
 
-      availableSizes.forEach((sizeOption) => {
+      sizes.forEach((sizeOption) => {
         if (sizeOption.price <= 0) {
           throw new Error(`Price for ${sizeOption.size} must be greater than 0!`);
         }
@@ -85,8 +85,8 @@ export default function AddUpdateMenuItem({
         imageUrl,
         isAvailable: false,
         isCustomizable,
-        defaultIngredients,
-        availableSizes,
+        ingredients,
+        sizes,
         category,
       };
 
@@ -102,7 +102,7 @@ export default function AddUpdateMenuItem({
 
       setName("");
       setDescription("");
-      setAvailableSizes([]);
+      setSizes([]);
       setImageUrl("");
       setIsCustomizable(false);
       setDefaultIngredients([]);
@@ -200,15 +200,15 @@ export default function AddUpdateMenuItem({
             <button
               type="button"
               onClick={() => {
-                const isSelected = !!availableSizes.find((s) => s.size === "None");
+                const isSelected = !!sizes.find((s) => s.size === "None");
                 if (isSelected) {
-                  setAvailableSizes(availableSizes.filter((s) => s.size !== "None"));
+                  setSizes(sizes.filter((s) => s.size !== "None"));
                 } else {
-                  setAvailableSizes([{ size: "None", price: 0 }]);
+                  setSizes([{ size: "None", price: 0 }]);
                 }
               }}
               className={`px-3 py-1 rounded border min-w-[60px] text-center ${
-                !!availableSizes.find((s) => s.size === "None")
+                !!sizes.find((s) => s.size === "None")
                   ? "bg-orange-600 text-white"
                   : "bg-white text-gray-700"
               }`}
@@ -216,7 +216,7 @@ export default function AddUpdateMenuItem({
               None
             </button>
 
-            {availableSizes.find((s) => s.size === "None") && (
+            {sizes.find((s) => s.size === "None") && (
               <div className="relative w-28">
                 <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                 <input
@@ -226,14 +226,12 @@ export default function AddUpdateMenuItem({
                                  [&::-webkit-inner-spin-button]:appearance-none 
                                  [&::-webkit-outer-spin-button]:appearance-none 
                                  focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  value={availableSizes.find((s) => s.size === "None")!.price || ""}
+                  value={sizes.find((s) => s.size === "None")!.price || ""}
                   min={0}
                   step={0.01}
                   onChange={(e) => {
                     const newPrice = Number(e.target.value);
-                    setAvailableSizes(
-                      availableSizes.map((s) => (s.size === "None" ? { ...s, price: newPrice } : s))
-                    );
+                    setSizes(sizes.map((s) => (s.size === "None" ? { ...s, price: newPrice } : s)));
                   }}
                 />
               </div>
@@ -245,7 +243,7 @@ export default function AddUpdateMenuItem({
             {sizeOptions
               .filter((s) => s !== "None")
               .map((size) => {
-                const sizeObj = availableSizes.find((x) => x.size === size);
+                const sizeObj = sizes.find((x) => x.size === size);
                 const isSelected = !!sizeObj;
 
                 return (
@@ -267,10 +265,8 @@ export default function AddUpdateMenuItem({
                           step={0.01}
                           onChange={(e) => {
                             const newPrice = Number(e.target.value);
-                            setAvailableSizes(
-                              availableSizes.map((s) =>
-                                s.size === size ? { ...s, price: newPrice } : s
-                              )
+                            setSizes(
+                              sizes.map((s) => (s.size === size ? { ...s, price: newPrice } : s))
                             );
                           }}
                         />
@@ -282,12 +278,12 @@ export default function AddUpdateMenuItem({
                     <button
                       type="button"
                       onClick={() => {
-                        const isSelected = !!availableSizes.find((s) => s.size === size);
+                        const isSelected = !!sizes.find((s) => s.size === size);
                         if (isSelected) {
-                          setAvailableSizes(availableSizes.filter((s) => s.size !== size));
+                          setSizes(sizes.filter((s) => s.size !== size));
                         } else {
-                          const withoutNone = availableSizes.filter((s) => s.size !== "None");
-                          setAvailableSizes([...withoutNone, { size, price: 0 }]);
+                          const withoutNone = sizes.filter((s) => s.size !== "None");
+                          setSizes([...withoutNone, { size, price: 0 }]);
                         }
                       }}
                       className={`px-3 py-1 rounded border min-w-[48px] text-center ${

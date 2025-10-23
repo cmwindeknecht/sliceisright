@@ -9,7 +9,8 @@ export default function AddUpdateIngredient({ ingredients, setTempIngredients }:
   const [selectedIngredientName, setSelectedIngredientName] = useState<string>("");
 
   const [name, setName] = useState<string>("");
-  const [availableSizes, setAvailableSizes] = useState<MenuItemSize[]>([]);
+  const [sizes, setSizes] = useState<MenuItemSize[]>([]);
+  const [category, setCategory] = useState<Ingredient["category"]>("MEAT");
   const [canBeRemoved, setCanBeRemoved] = useState<boolean>(false);
   const [canBeDoubled, setCanBeDoubled] = useState<boolean>(false);
 
@@ -28,14 +29,14 @@ export default function AddUpdateIngredient({ ingredients, setTempIngredients }:
       );
       if (ingredient) {
         setName(ingredient.name);
-        setAvailableSizes(ingredient.availableSizes || []);
+        setSizes(ingredient.sizes || []);
         setCanBeDoubled(ingredient.canBeDoubled || false);
         setCanBeRemoved(ingredient.canBeRemoved || false);
       }
     } else {
       // Reset form when dropdown is cleared
       setName("");
-      setAvailableSizes([]);
+      setSizes([]);
       setCanBeDoubled(false);
       setCanBeRemoved(false);
     }
@@ -53,7 +54,7 @@ export default function AddUpdateIngredient({ ingredients, setTempIngredients }:
         throw new Error("Value for name is required!");
       }
 
-      availableSizes.forEach((sizeOption) => {
+      sizes.forEach((sizeOption) => {
         if (sizeOption.price <= 0) {
           throw new Error(`Price for ${sizeOption.size} must be greater than 0!`);
         }
@@ -62,7 +63,8 @@ export default function AddUpdateIngredient({ ingredients, setTempIngredients }:
       const ingredient: Ingredient = {
         id: Math.random(),
         name,
-        availableSizes,
+        sizes,
+        category,
         canBeDoubled,
         canBeRemoved,
       };
@@ -82,7 +84,7 @@ export default function AddUpdateIngredient({ ingredients, setTempIngredients }:
       }
 
       setName("");
-      setAvailableSizes([]);
+      setSizes([]);
       setCanBeDoubled(false);
       setCanBeRemoved(false);
       setSelectedIngredientName("");
@@ -135,7 +137,7 @@ export default function AddUpdateIngredient({ ingredients, setTempIngredients }:
 
         <div className="flex flex-col gap-3">
           {sizeOptions.map((size) => {
-            const sizeObj = availableSizes.find((x) => x.size === size);
+            const sizeObj = sizes.find((x) => x.size === size);
             const isSelected = !!sizeObj;
 
             return (
@@ -143,11 +145,11 @@ export default function AddUpdateIngredient({ ingredients, setTempIngredients }:
                 <button
                   type="button"
                   onClick={() => {
-                    const isSelected = !!availableSizes.find((s) => s.size === size);
+                    const isSelected = !!sizes.find((s) => s.size === size);
                     if (isSelected) {
-                      setAvailableSizes(availableSizes.filter((s) => s.size !== size));
+                      setSizes(sizes.filter((s) => s.size !== size));
                     } else {
-                      setAvailableSizes([...availableSizes, { size, price: 0 }]);
+                      setSizes([...sizes, { size, price: 0 }]);
                     }
                   }}
                   className={`px-3 py-1 rounded border min-w-[60px] text-center ${
@@ -174,10 +176,8 @@ export default function AddUpdateIngredient({ ingredients, setTempIngredients }:
                       step={0.01}
                       onChange={(e) => {
                         const newPrice = Number(e.target.value);
-                        setAvailableSizes(
-                          availableSizes.map((s) =>
-                            s.size === size ? { ...s, price: newPrice } : s
-                          )
+                        setSizes(
+                          sizes.map((s) => (s.size === size ? { ...s, price: newPrice } : s))
                         );
                       }}
                     />

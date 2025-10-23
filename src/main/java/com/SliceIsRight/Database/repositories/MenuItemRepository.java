@@ -9,8 +9,6 @@ import com.SliceIsRight.api.model.MenuItemDTO;
 import com.SliceIsRight.api.model.MenuItemSizeDTO;
 import com.SliceIsRight.database.entities.MenuItem;
 
-import jakarta.transaction.Transactional;
-
 public class MenuItemRepository {
     public static final MenuItemRepository INSTANCE = new MenuItemRepository();
 
@@ -52,6 +50,7 @@ public class MenuItemRepository {
                     .map(ingredient -> IngredientDTO.builder()
                         .id(ingredient.id)
                         .name(ingredient.name)
+                        .category(ingredient.category)
                         .canBeDoubled(ingredient.canBeDoubled)
                         .canBeRemoved(ingredient.canBeRemoved)
                         .sizes(ingredient.sizes.stream()

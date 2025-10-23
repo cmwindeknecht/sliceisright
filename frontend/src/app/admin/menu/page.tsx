@@ -1,7 +1,7 @@
 "use client";
 
-import { useAuth } from "@/components/Auth";
-import { useMenu } from "@/components/Menu";
+import { useAuth } from "@/components/context/Auth";
+import { useMenu } from "@/components/context/Menu";
 import { Ingredient } from "@/types/Ingredient";
 import { MenuItem } from "@/types/MenuItem";
 import { useEffect, useState } from "react";

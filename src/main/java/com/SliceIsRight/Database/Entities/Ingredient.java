@@ -3,10 +3,14 @@ package com.SliceIsRight.database.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.SliceIsRight.Constants.IngredientCategory;
+
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -30,6 +34,9 @@ public class Ingredient extends PanacheEntity {
 
     @OneToMany(mappedBy = "ingredient", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<IngredientSize> sizes = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    public IngredientCategory category;
 
     public Boolean canBeRemoved;
     public Boolean canBeDoubled;
