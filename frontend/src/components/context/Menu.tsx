@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect, useMemo } from "react";
 import { jwtDecode } from "jwt-decode";
 import { User, UserResponse } from "@/types/User";
 import { useRouter } from "next/navigation";
@@ -11,11 +11,11 @@ import { get } from "http";
 export const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 interface MenuContext {
-  menuItems: MenuItem[] | null;
-  ingredients: Ingredient[] | null;
-  currentOrder: OrderItem[] | null;
-  getMenuItems: () => Promise<{ menuItems?: MenuItem[]; error?: string }>;
-  getIngredients: () => Promise<{ ingredients?: Ingredient[]; error?: string }>;
+  menuItems: MenuItem[];
+  ingredients: Ingredient[];
+  currentOrder: OrderItem[];
+  getMenuItems: () => Promise<{ menuItems: MenuItem[]; error?: string }>;
+  getIngredients: () => Promise<{ ingredients: Ingredient[]; error?: string }>;
   createMenuItem: (menuItem: MenuItem) => Promise<{ success: boolean; error?: string }>;
   createIngredient: (ingredient: Ingredient) => Promise<{ success: boolean; error?: string }>;
   createMenuItemIngredient: (
@@ -34,9 +34,9 @@ interface MenuProviderProps {
 }
 
 export const MenuProvider = ({ children }: MenuProviderProps) => {
-  const [menuItems, setMenuItems] = useState<MenuItem[] | null>(null);
-  const [ingredients, setIngredients] = useState<Ingredient[] | null>(null);
-  const [currentOrder, setCurrentOrder] = useState<OrderItem[] | null>(null);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [currentOrder, setCurrentOrder] = useState<OrderItem[]>([]);
 
   const getMenuItems = async () => {
     try {
@@ -51,7 +51,7 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
       setMenuItems(data.entity);
       return { menuItems: data.entity };
     } catch (err: any) {
-      return { error: err.message };
+      return { menuItems: [], error: err.message };
     }
   };
 
@@ -68,7 +68,7 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
       setIngredients(data.entity);
       return { ingredients: data.entity };
     } catch (err: any) {
-      return { error: err.message };
+      return { ingredients: [], error: err.message };
     }
   };
 
@@ -145,11 +145,7 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
   const updateOrderItem = (orderItem: OrderItem) => {
     try {
       setCurrentOrder((prev) =>
-        prev
-          ? prev.map((item) =>
-              item.orderItemId === orderItem.orderItemId ? { ...orderItem } : item
-            )
-          : null
+        prev.map((item) => (item.orderItemId === orderItem.orderItemId ? { ...orderItem } : item))
       );
       return { success: true };
     } catch (err: any) {
@@ -159,34 +155,31 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
 
   const deleteOrderItem = (orderItem: OrderItem) => {
     try {
-      setCurrentOrder((prev) =>
-        prev ? prev.filter((item) => item.orderItemId !== orderItem.orderItemId) : null
-      );
+      setCurrentOrder((prev) => prev.filter((item) => item.orderItemId !== orderItem.orderItemId));
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message };
     }
   };
 
-  return (
-    <MenuContext.Provider
-      value={{
-        menuItems,
-        ingredients,
-        currentOrder,
-        getMenuItems,
-        getIngredients,
-        createMenuItem,
-        createIngredient,
-        createMenuItemIngredient,
-        addOrderItem,
-        updateOrderItem,
-        deleteOrderItem,
-      }}
-    >
-      {children}
-    </MenuContext.Provider>
+  const value = useMemo(
+    () => ({
+      menuItems,
+      ingredients,
+      currentOrder,
+      getMenuItems,
+      getIngredients,
+      createMenuItem,
+      createIngredient,
+      createMenuItemIngredient,
+      addOrderItem,
+      updateOrderItem,
+      deleteOrderItem,
+    }),
+    [menuItems, ingredients, currentOrder]
   );
+
+  return <MenuContext.Provider value={value}>{children}</MenuContext.Provider>;
 };
 
 export const useMenu = () => {

@@ -11,10 +11,10 @@ import { useRouter } from "next/navigation";
 
 export interface MenuItemProps {
   menuItem: MenuItemType;
+  ingredients: Ingredient[];
 }
 
-export default function MenuItem({ menuItem }: MenuItemProps) {
-  const { ingredients } = useMenu();
+export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
   const router = useRouter();
   const [showImageOverlay, setShowImageOverlay] = useState<boolean>(false);
 
@@ -138,7 +138,7 @@ export default function MenuItem({ menuItem }: MenuItemProps) {
 
           <div className={clsx("flex flex-col h-full w-[65vw]")}>
             <IngredientDropdown
-              ingredients={ingredients ?? []}
+              ingredients={ingredients}
               setSelectedIngredient={setSelectedIngredient}
             />
             {selectedIngredient && (

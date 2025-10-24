@@ -8,9 +8,10 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import com.SliceIsRight.database.entities.Ingredient;
+import com.SliceIsRight.database.repositories.IngredientRepository;
 import com.SliceIsRight.database.repositories.MenuItemRepository;
 import com.SliceIsRight.api.responses.ResponseFactory;
+import com.SliceIsRight.api.model.IngredientDTO;
 import com.SliceIsRight.api.model.MenuItemDTO;
 
 @Path("/menu")
@@ -33,7 +34,7 @@ public class Menu {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getIngredients() {
         try {
-            List<Ingredient> ingredients = Ingredient.listAll();
+            List<IngredientDTO> ingredients = IngredientRepository.INSTANCE.getAllIngredients();
             return ResponseFactory.GetOkResponse(ingredients, "Successfully retrieved ingredients");
         } catch (Exception e) {
             return ResponseFactory.GetBadRequestResponse(e, "Failed to retrieved ingredients");
