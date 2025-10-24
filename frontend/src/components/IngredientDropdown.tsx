@@ -50,6 +50,7 @@ export default function IngredientDropdown({
           <div className="py-1">
             {categorizedIngredients.MEAT.map((ingredient) => (
               <IngredientDropdownSelection
+                key={ingredient.id}
                 ingredient={ingredient}
                 setSelectedIngredient={setSelectedIngredient}
               />
@@ -60,6 +61,7 @@ export default function IngredientDropdown({
           <div className="py-1">
             {categorizedIngredients.VEGETABLE.map((ingredient) => (
               <IngredientDropdownSelection
+                key={ingredient.id}
                 ingredient={ingredient}
                 setSelectedIngredient={setSelectedIngredient}
               />
@@ -70,6 +72,7 @@ export default function IngredientDropdown({
           <div className="py-1">
             {categorizedIngredients.FRUIT.map((ingredient) => (
               <IngredientDropdownSelection
+                key={ingredient.id}
                 ingredient={ingredient}
                 setSelectedIngredient={setSelectedIngredient}
               />
@@ -80,6 +83,7 @@ export default function IngredientDropdown({
           <div className="py-1">
             {categorizedIngredients.OTHER.map((ingredient) => (
               <IngredientDropdownSelection
+                key={ingredient.id}
                 ingredient={ingredient}
                 setSelectedIngredient={setSelectedIngredient}
               />

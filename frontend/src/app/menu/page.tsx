@@ -24,7 +24,7 @@ export default function MenuPage() {
             <MenuItem
               key={menuItem.name + menuItem.id}
               menuItem={menuItem}
-              ingredients={ingredients}
+              allIngredients={ingredients}
             />
           ))}
       </div>
