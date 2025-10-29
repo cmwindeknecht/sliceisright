@@ -1,15 +1,6 @@
-# Ignore everything
-*
-
-# Allow source code for in-container build
-!src/
-!pom.xml
-
-# Keep target runner artifacts
-!target/*-runner
-!target/*-runner.jar
-!target/lib/*
-!target/quarkus-app/**
-
-# Allow keystore for HTTPS
-!keystore.jks
+target/
+node_modules/
+.git/
+.idea/
+*.log
+.DS_Store

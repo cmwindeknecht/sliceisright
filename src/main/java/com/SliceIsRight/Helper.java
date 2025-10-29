@@ -1,12 +1,10 @@
 package com.SliceIsRight;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
+import org.eclipse.microprofile.jwt.Claims;
 
 import com.SliceIsRight.database.entities.UserAccount;
 
@@ -16,9 +14,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class Helper {
     public String getJwtToken(UserAccount user) {
-        String key = System.getenv(Constants.ENV_JWT_SIGNING_KEY);
-        SecretKey secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-
         Set<String> privileges = new HashSet<>(Set.of(Constants.USER_PRIVILEGES));
         Duration duration = Duration.ofMinutes(Constants.USER_TOKEN_DURATION);
         if (user.adminPriveleges) {
@@ -30,6 +25,7 @@ public class Helper {
               .upn(user.email)
               .expiresIn(duration)
               .groups(privileges)
-              .sign(secretKey);
+              .claim(Claims.birthdate.name(), "2001-07-13") 
+              .sign();
     }
 }
