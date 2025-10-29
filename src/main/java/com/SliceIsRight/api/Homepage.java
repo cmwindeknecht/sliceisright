@@ -8,9 +8,13 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/hello")
 public class Homepage {
 
+
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String hello() {
-        return "Hello world!";
+        return String.format(
+            "Algorithm: %s\nVerifyKey: %s\nVerifySecret: %s",
+            "blah", "blah", "blah"
+        );    
     }
 }

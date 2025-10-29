@@ -1,14 +1,21 @@
 package com.SliceIsRight.database.entities;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+
+import com.SliceIsRight.Constants.MenuItemCategory;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import jakarta.json.bind.annotation.JsonbTransient;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
@@ -20,26 +27,28 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor   
 @NoArgsConstructor 
+@Table(name = "t_menu_item")
 public class MenuItem extends PanacheEntity {
     @Column(unique = true, nullable = false)
     public String name;
-    
-    @Column(unique = true, nullable = false)
+   
     public String imageUrl;
-
     public String description;
-    public float price;
+
+    @Enumerated(EnumType.STRING)
+    public MenuItemCategory category;
+
     public Boolean isAvailable;
-
-    @OneToMany(mappedBy = "menuItem", fetch = FetchType.LAZY)
-    @JsonbTransient  // Ignore this field during deserialization
-    public List<MenuItemIngredient> menuItemIngredients = new ArrayList<>();
-
-    public String getName() {
-        return name;
-    }
+    public Boolean isCustomizable;
     
-    public void setName(String name) {
-        this.name = name;
-    }
+    @OneToMany(mappedBy = "menuItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    public Set<MenuItemSize> sizes = new HashSet<>();
+    
+    @ManyToMany
+    @JoinTable(
+        name = "t_menu_item_ingredient",
+        joinColumns = @JoinColumn(name = "menu_item_id"),
+        inverseJoinColumns = @JoinColumn(name = "ingredient_id")
+    )
+    public Set<Ingredient> ingredients = new HashSet<>();
 }

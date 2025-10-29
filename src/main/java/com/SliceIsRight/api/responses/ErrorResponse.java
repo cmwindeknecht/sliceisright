@@ -1,6 +1,7 @@
 package com.SliceIsRight.api.responses;
 
-import jakarta.json.bind.JsonbException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
@@ -18,13 +19,12 @@ public class ErrorResponse {
     public String exceptionType;
 
     @Provider
-    public static class JsonbExceptionMapper implements ExceptionMapper<JsonbException> {
+    public static class JacksonExceptionMapper implements ExceptionMapper<JsonProcessingException> {
         @Override
-        public Response toResponse(JsonbException exception) {
-            return ResponseFactory.GetBadRequestResponse(
-                exception, 
-                "Invalid JSON format in request body"
-            );
+        public Response toResponse(JsonProcessingException exception) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Invalid JSON: " + exception.getMessage())
+                    .build();
         }
     }
 }
