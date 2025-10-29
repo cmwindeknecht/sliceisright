@@ -31,6 +31,7 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
     new Map()
   );
   const [price, setPrice] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const sizeOrder = ["S", "M", "L", "XL"];
 
@@ -39,57 +40,16 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
   }, []);
 
   useEffect(() => {
+    updatePrice();
+  }, [ingredientsToAdd, ingredientsToDouble, ingredientsToRemove, size]);
+
+  function updatePrice() {
     let currentSize: MenuItemSize = getSize();
-    let currentPrice = price ?? currentSize.price;
+    let currentPrice = currentSize.price;
     currentPrice += getIngredientsPrice(ingredientsToAdd, currentSize);
     currentPrice += getIngredientsPrice(ingredientsToDouble, currentSize);
     setPrice(currentPrice);
-  }, [ingredientsToAdd, ingredientsToDouble]);
-
-  // useEffect(() => {
-  //   if (selectedIngredient == null) {
-  //     setShowAddButton(false);
-  //     setShowDoubleButton(false);
-  //     setShowRemoveButton(false);
-  //     return;
-  //   }
-
-  //   // TODO this is oddly confusing so really need to work this out
-
-  //   const addedIngredientCount = ingredientsToAdd.length + ingredientsToDouble.length;
-  //   const alreadyRemoved =
-  //     ingredientsToRemove.find(
-  //       (ingredientToRemove) => ingredientToRemove.name == selectedIngredient.name
-  //     ) != null;
-  //   const menuItemContainsSelected =
-  //     menuItem.ingredients.find(
-  //       (menuItemIngredient) => menuItemIngredient.name == selectedIngredient.name
-  //     ) != null;
-
-  //   if (addedIngredientCount > 3) {
-  //     setShowAddButton(false);
-  //     setShowDoubleButton(false);
-  //   }
-
-  //   if (!alreadyRemoved && menuItemContainsSelected) {
-  //     setShowRemoveButton(true);
-  //   }
-
-  //   setShowAddButton(
-  //     ingredientsToAdd.find((ingredientToAdd) => ingredientToAdd.name == selectedIngredient.name) !=
-  //       null
-  //   );
-  //   setShowDoubleButton(
-  //     ingredientsToDouble.find(
-  //       (ingredientToDouble) => ingredientToDouble.name == selectedIngredient.name
-  //     ) != null
-  //   );
-  //   setShowRemoveButton(
-  //     ingredientsToRemove.find(
-  //       (ingredientToRemove) => ingredientToRemove.name == selectedIngredient.name
-  //     ) != null
-  //   );
-  // }, [selectedIngredient]);
+  }
 
   function getIngredientsPrice(ingredients: Map<number, Ingredient>, currentSize: MenuItemSize) {
     let tempPrice = 0;
@@ -152,8 +112,14 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
     router.back();
   }
 
+  // TODO need to add whole pizza / half pizza logic
   function addIngredient() {
     if (selectedIngredient == null) {
+      return;
+    }
+
+    if (ingredientsToAdd.size + ingredientsToDouble.size >= 4) {
+      setError("Cannot add more than 4 ingredients!");
       return;
     }
 
@@ -174,6 +140,11 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
 
   function doubleIngredient() {
     if (selectedIngredient == null) {
+      return;
+    }
+
+    if (ingredientsToAdd.size + ingredientsToDouble.size > 4) {
+      setError("Cannot add more than 4 ingredients!");
       return;
     }
 
@@ -285,14 +256,19 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
                       {thisSize.size}
                     </button>
                   ))}
+                ${size?.price.toFixed(2)}
               </div>
 
               <div className="flex flex-row">
                 <div className={clsx("flex flex-row items-center h-[10vh]")}>
                   <IngredientDropdown
                     ingredients={ingredients}
-                    setSelectedIngredient={setSelectedIngredient}
+                    setSelectedIngredient={(selected) => {
+                      setError("");
+                      setSelectedIngredient(selected);
+                    }}
                   />
+                  {error && <div>{error}</div>}
                   {selectedIngredient && (
                     <div className="flex flex-col items-center justify-center pl-5">
                       <div
@@ -418,6 +394,7 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
             </div>
           </div>
         </div>
+        <div>Price ${price?.toFixed(2)}</div>
       </div>
       {showImageOverlay && (
         <div
