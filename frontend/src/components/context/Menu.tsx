@@ -72,13 +72,14 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
     try {
       const jwt = validateJWT();
 
+      debugger;
+
       const res = await fetch(`${apiUrl}/admin/menu/menuItem`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: jwt },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
         body: JSON.stringify(menuItem),
       });
 
-      debugger;
       if (!res.ok) {
         const error = await res.json();
         throw new Error(error.message || "Failed to create menu item");
