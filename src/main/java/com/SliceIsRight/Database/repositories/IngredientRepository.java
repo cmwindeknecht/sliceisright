@@ -30,7 +30,7 @@ public class IngredientRepository {
                 .category(ingredient.category)
                 .sizes(
                     ingredient.sizes.stream()
-                        .map(size -> new IngredientSizeDTO(size.size, size.price))
+                        .map(size -> new IngredientSizeDTO(size.id, size.size, size.price))
                         .collect(Collectors.toList())
                 ).build()
             )

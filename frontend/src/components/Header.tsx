@@ -59,6 +59,12 @@ export default function Header() {
                 >
                   Admin Orders
                 </Link>
+                <Link
+                  href="/admin/menu"
+                  className={`hover:font-bold ${mounted && pathname === "/admin/order" ? "underline" : ""}`}
+                >
+                  Admin Menu
+                </Link>
               </>
             )}
 

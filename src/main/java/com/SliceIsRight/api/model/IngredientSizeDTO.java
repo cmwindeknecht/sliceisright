@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class IngredientSizeDTO {
+    public long id;
+    
     @Enumerated(EnumType.STRING)
     public Size size;
 

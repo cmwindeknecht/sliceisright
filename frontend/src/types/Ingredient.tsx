@@ -1,5 +1,3 @@
-import { MenuItemSize } from "./MenuItem";
-
 export interface Ingredient {
   id: number | null;
   name: string;
