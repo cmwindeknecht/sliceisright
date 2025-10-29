@@ -21,18 +21,13 @@ export default function AddUpdateMenuItem({
   const [imageUrl, setImageUrl] = useState<string>("");
   const [isCustomizable, setIsCustomizable] = useState<boolean>(false);
   const [defaultIngredients, setDefaultIngredients] = useState<Ingredient[]>([]);
-  const [category, setCategory] = useState<MenuItem["category"]>("Signature Pizza");
+  const [category, setCategory] = useState<MenuItem["category"]>("PIZZA");
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const categoryOptions: MenuItem["category"][] = [
-    "Signature Pizza",
-    "Specialty Item",
-    "Dessert",
-    "Drink",
-  ];
+  const categoryOptions: MenuItem["category"][] = ["PIZZA", "ITEMS", "DESSERTS", "BEVERAGES"];
   const sizeOptions: MenuItemSize["size"][] = ["None", "S", "M", "L", "XL"];
 
   const isUpdateMode = selectedMenuItemName !== "";

@@ -18,10 +18,6 @@ interface MenuContext {
   getIngredients: () => Promise<{ ingredients: Ingredient[]; error?: string }>;
   createMenuItem: (menuItem: MenuItem) => Promise<{ success: boolean; error?: string }>;
   createIngredient: (ingredient: Ingredient) => Promise<{ success: boolean; error?: string }>;
-  createMenuItemIngredient: (
-    menuItem: MenuItem,
-    ingredient: Ingredient
-  ) => Promise<{ success: boolean; error?: string }>;
   addOrderItem: (orderItem: OrderItem) => { success: boolean; error?: string };
   updateOrderItem: (orderItem: OrderItem) => { success: boolean; error?: string };
   deleteOrderItem: (orderItem: OrderItem) => { success: boolean; error?: string };
@@ -74,18 +70,22 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
 
   const createMenuItem = async (menuItem: MenuItem) => {
     try {
+      const jwt = validateJWT();
+
       const res = await fetch(`${apiUrl}/admin/menu/menuItem`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: jwt },
         body: JSON.stringify(menuItem),
       });
 
+      debugger;
       if (!res.ok) {
         const error = await res.json();
         throw new Error(error.message || "Failed to create menu item");
       }
 
-      const data = await res.json();
+      await res.json();
+      debugger;
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message };
@@ -94,9 +94,11 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
 
   const createIngredient = async (ingredient: Ingredient) => {
     try {
+      const jwt = validateJWT();
+
       const res = await fetch(`${apiUrl}/admin/menu/ingredient`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: jwt },
         body: JSON.stringify(ingredient),
       });
 
@@ -105,27 +107,7 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
         throw new Error(error.message || "Failed to create ingredient");
       }
 
-      const data = await res.json();
-      return { success: true };
-    } catch (err: any) {
-      return { success: false, error: err.message };
-    }
-  };
-
-  const createMenuItemIngredient = async (menuItem: MenuItem, ingredient: Ingredient) => {
-    try {
-      const res = await fetch(`${apiUrl}/admin/menu/menuItemIngredient`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ menuItemId: menuItem.id, ingredientId: ingredient.id }),
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || "Failed to create menu item ingredient");
-      }
-
-      const data = await res.json();
+      await res.json();
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message };
@@ -162,6 +144,14 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
     }
   };
 
+  const validateJWT = () => {
+    const jwt = localStorage.getItem("token");
+    if (jwt == null) {
+      throw new Error("No JWT is stored locally!");
+    }
+    return jwt;
+  };
+
   const value = useMemo(
     () => ({
       menuItems,
@@ -171,7 +161,6 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
       getIngredients,
       createMenuItem,
       createIngredient,
-      createMenuItemIngredient,
       addOrderItem,
       updateOrderItem,
       deleteOrderItem,

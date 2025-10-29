@@ -40,35 +40,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
     if (savedToken) {
-      try {
-        const decoded = jwtDecode<{ exp: number; upn: string; groups: string[] }>(savedToken);
-        const now = Math.floor(Date.now() / 1000);
-        console.log("Token", decoded);
-        console.log("Token exp:", decoded.exp);
-        console.log("Current time:", now);
-        console.log("Time until expiry:", decoded.exp - now, "seconds");
-
-        if (decoded.exp < now) {
-          console.warn("Token expired — logging out");
-          logout();
-        } else {
-          // Token is valid, set it
-          console.log("Resetting user/token in useEffect");
-          if (user == null) {
-            const userFromToken: User = {
-              email: decoded.upn,
-              isAdmin: decoded.groups.includes("Admin"),
-              orders: [],
-            };
-            setUser(userFromToken);
-          }
-
-          setJwtToken(savedToken);
-        }
-      } catch (e) {
-        console.error("Invalid token:", e);
-        logout();
-      }
+      validateAndUpdateToken(savedToken);
     }
   }, []);
 
@@ -133,7 +105,38 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const { email, jwtToken, isAdmin } = data.entity;
       setUser({ email, orders: [], isAdmin });
       setJwtToken(jwtToken ?? null);
-      if (jwtToken) localStorage.setItem("token", jwtToken);
+      if (jwtToken) {
+        validateAndUpdateToken(jwtToken);
+      }
+    }
+  };
+
+  const validateAndUpdateToken = (token: string) => {
+    try {
+      const decoded = jwtDecode<{ exp: number; upn: string; groups: string[] }>(token);
+      const now = Math.floor(Date.now() / 1000);
+
+      if (decoded.exp < now) {
+        console.warn("Token expired — logging out");
+        logout();
+      } else {
+        // Token is valid, set it
+        console.log("Resetting user/token in useEffect");
+        if (user == null) {
+          const userFromToken: User = {
+            email: decoded.upn,
+            isAdmin: decoded.groups.includes("Admin"),
+            orders: [],
+          };
+          setUser(userFromToken);
+        }
+
+        setJwtToken(token);
+        localStorage.setItem("token", token);
+      }
+    } catch (e) {
+      console.error("Invalid token:", e);
+      logout();
     }
   };
 
