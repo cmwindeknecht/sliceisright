@@ -21,8 +21,8 @@ export default function IngredientDropdown({
     setCategorizedIngredient(getByCategory(ingredients));
   }, []);
 
-  function getByCategory(ingredients: Ingredient[]) {
-    return ingredients.reduce(
+  function getByCategory(ingredientsToCategorize: Ingredient[]) {
+    return ingredientsToCategorize.reduce(
       (memo, ingredient) => {
         if (memo[ingredient.category]) {
           memo[ingredient.category].push(ingredient);
