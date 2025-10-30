@@ -1,0 +1,17 @@
+# Stage 1: Build
+FROM quay.io/quarkus/ubi-quarkus-maven:22.3-java17 AS build
+WORKDIR /project
+COPY pom.xml .
+COPY src ./src
+RUN ls -la src/main/resources/
+RUN find src -name "*.pem"
+RUN ./mvnw package -DskipTests
+
+# Stage 2: Runtime
+FROM registry.access.redhat.com/ubi8/ubi-minimal
+WORKDIR /app
+# Copy entire quarkus-app (includes jars + resources + properties)
+COPY --from=build /project/target/quarkus-app /app/quarkus-app
+
+EXPOSE 8080
+CMD ["java", "-Dquarkus.profile=local", "-Dquarkus.log.level=DEBUG", "-jar", "/app/quarkus-app/quarkus-run.jar"]

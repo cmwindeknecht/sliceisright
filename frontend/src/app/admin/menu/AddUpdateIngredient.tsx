@@ -1,11 +1,14 @@
 "use client";
 
-import { Ingredient } from "@/types/Ingredient";
+import { Ingredient, IngredientSize } from "@/types/Ingredient";
 import { MenuItem, MenuItemSize } from "@/types/MenuItem";
 import { useState, useEffect } from "react";
 import { UpdateMenuProps } from "./page";
+import { useMenu } from "@/components/context/Menu";
 
 export default function AddUpdateIngredient({ ingredients, setTempIngredients }: UpdateMenuProps) {
+  const { createIngredient } = useMenu();
+
   const [selectedIngredientName, setSelectedIngredientName] = useState<string>("");
 
   const [name, setName] = useState<string>("");
@@ -18,7 +21,8 @@ export default function AddUpdateIngredient({ ingredients, setTempIngredients }:
   const [loading, setLoading] = useState<boolean | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const sizeOptions: MenuItemSize["size"][] = ["None", "S", "M", "L", "XL"];
+  const categoryOptions: Ingredient["category"][] = ["MEAT", "VEGETABLE", "FRUIT", "OTHER"];
+  const sizeOptions: IngredientSize["size"][] = ["None", "S", "M", "L", "XL"];
   const isUpdateMode = selectedIngredientName !== "";
 
   // Load selected menu item data when dropdown changes
@@ -42,7 +46,7 @@ export default function AddUpdateIngredient({ ingredients, setTempIngredients }:
     }
   }, [selectedIngredientName, ingredients]);
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
     try {
@@ -80,15 +84,21 @@ export default function AddUpdateIngredient({ ingredients, setTempIngredients }:
           throw new Error(`Name ${ingredient.name} already exists!`);
         }
 
-        setTempIngredients((prev) => [...(prev ?? []), ingredient]);
-      }
+        const response = await createIngredient(ingredient);
 
-      setName("");
-      setSizes([]);
-      setCanBeDoubled(false);
-      setCanBeRemoved(false);
-      setSelectedIngredientName("");
-      setSuccess(true);
+        if (response.success) {
+          setTempIngredients((prev) => [...(prev ?? []), ingredient]);
+          setName("");
+          setSizes([]);
+          setCanBeDoubled(false);
+          setCanBeRemoved(false);
+          setSelectedIngredientName("");
+          setSuccess(true);
+        } else {
+          setSuccess(false);
+          setError(response.error || "An unexpected error occurred.");
+        }
+      }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
     } finally {
@@ -131,61 +141,128 @@ export default function AddUpdateIngredient({ ingredients, setTempIngredients }:
         />
       </div>
 
+      <div>
+        <label className="block mb-1 font-medium">Category</label>
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value as Ingredient["category"])}
+          className="border p-2 rounded w-full"
+        >
+          <option value="">-- Select Category --</option>
+          {categoryOptions.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {/* Sizes & Prices */}
       <div>
         <label className="block mb-2 font-medium">Sizes & Prices</label>
 
-        <div className="flex flex-col gap-3">
-          {sizeOptions.map((size) => {
-            const sizeObj = sizes.find((x) => x.size === size);
-            const isSelected = !!sizeObj;
+        <div className="grid grid-cols-2 gap-4">
+          {/* LEFT COLUMN: None */}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                const isSelected = !!sizes.find((s) => s.size === "None");
+                if (isSelected) {
+                  setSizes(sizes.filter((s) => s.size !== "None"));
+                } else {
+                  setSizes([{ size: "None", price: 0 }]);
+                }
+              }}
+              className={`px-3 py-1 rounded border min-w-[60px] text-center ${
+                !!sizes.find((s) => s.size === "None")
+                  ? "bg-orange-600 text-white"
+                  : "bg-white text-gray-700"
+              }`}
+            >
+              None
+            </button>
 
-            return (
-              <div key={size} className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const isSelected = !!sizes.find((s) => s.size === size);
-                    if (isSelected) {
-                      setSizes(sizes.filter((s) => s.size !== size));
-                    } else {
-                      setSizes([...sizes, { size, price: 0 }]);
-                    }
+            {sizes.find((s) => s.size === "None") && (
+              <div className="relative w-28">
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                <input
+                  type="number"
+                  className="border rounded w-full p-1 pl-6 text-right 
+                                 [appearance:textfield] 
+                                 [&::-webkit-inner-spin-button]:appearance-none 
+                                 [&::-webkit-outer-spin-button]:appearance-none 
+                                 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  value={sizes.find((s) => s.size === "None")!.price || ""}
+                  min={0}
+                  step={0.01}
+                  onChange={(e) => {
+                    const newPrice = Number(e.target.value);
+                    setSizes(sizes.map((s) => (s.size === "None" ? { ...s, price: newPrice } : s)));
                   }}
-                  className={`px-3 py-1 rounded border min-w-[60px] text-center ${
-                    isSelected ? "bg-orange-600 text-white" : "bg-white text-gray-700"
-                  }`}
-                >
-                  {size}
-                </button>
-
-                {isSelected && (
-                  <div className="relative w-28">
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500">
-                      $
-                    </span>
-                    <input
-                      type="number"
-                      className="border rounded w-full p-1 pl-6 text-right 
-                                     [appearance:textfield] 
-                                     [&::-webkit-inner-spin-button]:appearance-none 
-                                     [&::-webkit-outer-spin-button]:appearance-none 
-                                     focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      value={sizeObj!.price || ""}
-                      min={0}
-                      step={0.01}
-                      onChange={(e) => {
-                        const newPrice = Number(e.target.value);
-                        setSizes(
-                          sizes.map((s) => (s.size === size ? { ...s, price: newPrice } : s))
-                        );
-                      }}
-                    />
-                  </div>
-                )}
+                />
               </div>
-            );
-          })}
+            )}
+          </div>
+
+          {/* RIGHT COLUMN: S, M, L, XL */}
+          <div className="flex flex-col items-end gap-3">
+            {sizeOptions
+              .filter((s) => s !== "None")
+              .map((size) => {
+                const sizeObj = sizes.find((x) => x.size === size);
+                const isSelected = !!sizeObj;
+
+                return (
+                  <div key={size} className="flex items-center gap-3">
+                    {isSelected ? (
+                      <div className="relative w-28">
+                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500">
+                          $
+                        </span>
+                        <input
+                          type="number"
+                          className="border rounded w-full p-1 pl-6 text-right 
+                                         [appearance:textfield] 
+                                         [&::-webkit-inner-spin-button]:appearance-none 
+                                         [&::-webkit-outer-spin-button]:appearance-none 
+                                         focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          value={sizeObj!.price || ""}
+                          min={0}
+                          step={0.01}
+                          onChange={(e) => {
+                            const newPrice = Number(e.target.value);
+                            setSizes(
+                              sizes.map((s) => (s.size === size ? { ...s, price: newPrice } : s))
+                            );
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-28" />
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const isSelected = !!sizes.find((s) => s.size === size);
+                        if (isSelected) {
+                          setSizes(sizes.filter((s) => s.size !== size));
+                        } else {
+                          const withoutNone = sizes.filter((s) => s.size !== "None");
+                          setSizes([...withoutNone, { size, price: 0 }]);
+                        }
+                      }}
+                      className={`px-3 py-1 rounded border min-w-[48px] text-center ${
+                        isSelected ? "bg-orange-600 text-white" : "bg-white text-gray-700"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  </div>
+                );
+              })}
+          </div>
         </div>
       </div>
 

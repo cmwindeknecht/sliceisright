@@ -15,19 +15,17 @@ export interface UpdateMenuProps {
   menuItems: MenuItem[];
   setTempMenuItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
   setTempIngredients: React.Dispatch<React.SetStateAction<Ingredient[]>>;
-  setShouldFetch: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function AdminMenuPage() {
-  const { user } = useAuth();
+  const { user, validateAdminPriveleges } = useAuth();
   const { getMenuItems, getIngredients } = useMenu();
 
   const [tempMenuItems, setTempMenuItems] = useState<MenuItem[]>([]);
   const [tempIngredients, setTempIngredients] = useState<Ingredient[]>([]);
-  const [shouldFetch, setShouldFetch] = useState<boolean>(false);
 
   useEffect(() => {
-    setShouldFetch(true);
+    validateAdminPriveleges();
   }, []);
 
   useEffect(() => {
@@ -42,7 +40,7 @@ export default function AdminMenuPage() {
         setTempIngredients(ingredientsResponse.ingredients);
       }
     })();
-  }, [shouldFetch]);
+  }, []);
 
   return (
     <div>
@@ -51,21 +49,18 @@ export default function AdminMenuPage() {
       ) : (
         <div>
           <h1 className="text-3xl font-bold text-center m-5">Admin Menu</h1>
-          {/* TODO Dropdown to choose whether creating OR updating menu item, creating OR updating ingredient */}
           <div className="flex flex-row justify-between">
             <AddUpdateMenuItem
               ingredients={tempIngredients}
               menuItems={tempMenuItems}
               setTempMenuItems={setTempMenuItems}
               setTempIngredients={setTempIngredients}
-              setShouldFetch={setShouldFetch}
             />
             <AddUpdateIngredient
               ingredients={tempIngredients}
               menuItems={tempMenuItems}
               setTempMenuItems={setTempMenuItems}
               setTempIngredients={setTempIngredients}
-              setShouldFetch={setShouldFetch}
             />
           </div>
           {/* Menu Items */}

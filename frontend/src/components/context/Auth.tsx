@@ -20,6 +20,7 @@ interface AuthContext {
     password: string
   ) => Promise<{ success: boolean; data?: UserResponse; error?: string }>;
   logout: () => void;
+  validateAdminPriveleges: () => void;
   updateUserData: (data: UserResponse) => void;
 }
 
@@ -140,9 +141,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const validateAdminPriveleges = () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (token == null) {
+        console.error("No token present to validate, logging out");
+        return logout();
+      }
+
+      const decoded = jwtDecode<{ exp: number; upn: string; groups: string[] }>(token);
+      return decoded.groups.includes("Admin");
+    } catch (e) {
+      console.error("Invalid token:", e);
+      logout();
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, jwtToken, loading, register, loginByEmail, logout, updateUserData }}
+      value={{
+        user,
+        jwtToken,
+        loading,
+        register,
+        loginByEmail,
+        logout,
+        updateUserData,
+        validateAdminPriveleges,
+      }}
     >
       {children}
     </AuthContext.Provider>

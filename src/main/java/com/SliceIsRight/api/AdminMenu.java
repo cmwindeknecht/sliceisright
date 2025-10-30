@@ -1,5 +1,6 @@
 package com.SliceIsRight.api;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,9 +19,11 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import com.SliceIsRight.database.entities.Ingredient;
+import com.SliceIsRight.database.entities.IngredientSize;
 import com.SliceIsRight.database.entities.MenuItem;
 import com.SliceIsRight.database.entities.MenuItemSize;
 import com.SliceIsRight.api.responses.ResponseFactory;
+import com.SliceIsRight.api.model.IngredientDTO;
 import com.SliceIsRight.api.model.MenuItemDTO;
 
 @Path("/admin/menu")
@@ -50,35 +53,78 @@ public class AdminMenu {
             menuItem.isAvailable = request.isAvailable;
             menuItem.isCustomizable = request.isCustomizable;
 
-            Set<Ingredient> ingredients = Ingredient.<Ingredient>find(
-                "id in ?1",
-                request.ingredients.stream()
-                    .map(ingredientDto -> ingredientDto.id)
-                    .collect(Collectors.toList())
-            )
-            .list()
-            .stream()
-            .collect(Collectors.toSet());
-
+            Set<Ingredient> ingredients = Ingredient
+                .<Ingredient>find(
+                    "id in ?1",
+                    request.ingredients.stream()
+                        .map(ingredientDto -> ingredientDto.id)
+                        .collect(Collectors.toList())
+                )
+                .list()
+                .stream()
+                .collect(Collectors.toSet());
             menuItem.ingredients.addAll(ingredients);
 
-            Set<MenuItemSize> sizes = MenuItemSize.<MenuItemSize>find(
-                "id in ?1",
-                request.sizes.stream()
-                    .map(menuItemSizeDTO -> menuItemSizeDTO.id)
-                    .collect(Collectors.toList())
-            )
-            .list()
-            .stream()
-            .collect(Collectors.toSet());
-            
+            if (ingredients.size() != request.ingredients.size()) {
+                throw new Exception("Failed to find all ingredients in DB to create MenuItem");
+            }
+
+            List<MenuItemSize> sizes = request.sizes.stream()
+                .map(menuItemSizeDTO -> {
+                    MenuItemSize menuItemSize = new MenuItemSize();
+                    menuItemSize.menuItem = menuItem;
+                    menuItemSize.price = menuItemSizeDTO.price;
+                    menuItemSize.size = menuItemSizeDTO.size;
+                    menuItemSize.persist();
+                    return menuItemSize;
+                })
+                .collect(Collectors.toList()); 
             menuItem.sizes.addAll(sizes);
 
             MenuItem.persist(menuItem);
 
-            return ResponseFactory.GetOkResponse(menuItem, "Successfully retrieved menu items");
+            return ResponseFactory.GetOkResponse(menuItem, "Successfully created MenuItem");
         } catch (Exception e) {
-            return ResponseFactory.GetBadRequestResponse(e, "Failed to retrieved menu items");
+            return ResponseFactory.GetBadRequestResponse(e, "Failed to create MenuItem");
+        }
+    }
+
+    @Path("/ingredient")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    @RolesAllowed("Admin")
+    public Response createIngredient(IngredientDTO request) {
+        try {
+            Optional.ofNullable(Ingredient.find("name", request.name)
+                .firstResult())
+                .ifPresent(existing -> {
+                    throw new WebApplicationException(String.format("Ingredient with name %s already exists", request.name), Response.Status.BAD_REQUEST);
+                });
+            Ingredient ingredient = new Ingredient();
+            ingredient.name = request.name;
+            ingredient.category = request.category;
+            ingredient.canBeDoubled = request.canBeDoubled;
+            ingredient.canBeRemoved = request.canBeRemoved;
+
+            List<IngredientSize> sizes = request.sizes.stream()
+                .map(ingredientSizeDTO -> {
+                    IngredientSize ingredientSize = new IngredientSize();
+                    ingredientSize.ingredient = ingredient;
+                    ingredientSize.price = ingredientSizeDTO.price;
+                    ingredientSize.size = ingredientSizeDTO.size;
+                    ingredientSize.persist();
+                    return ingredientSize;
+                })
+                .collect(Collectors.toList()); 
+            ingredient.sizes.addAll(sizes);
+
+            Ingredient.persist(ingredient);
+
+            return ResponseFactory.GetOkResponse(ingredient, "Successfully created Ingredient");
+        } catch (Exception e) {
+            return ResponseFactory.GetBadRequestResponse(e, "Failed to create ingredient");
         }
     }
 }

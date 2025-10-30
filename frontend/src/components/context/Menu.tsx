@@ -99,7 +99,7 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
 
       const res = await fetch(`${apiUrl}/admin/menu/ingredient`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: jwt },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
         body: JSON.stringify(ingredient),
       });
 

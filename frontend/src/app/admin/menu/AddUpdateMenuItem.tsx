@@ -55,7 +55,7 @@ export default function AddUpdateMenuItem({
     }
   }, [selectedMenuItemName, menuItems]);
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
     try {
@@ -92,17 +92,23 @@ export default function AddUpdateMenuItem({
         //   prev.map((item) => (item.name?.toString() === selectedMenuItemName ? menuItem : item))
         // );
       } else {
-        createMenuItem(menuItem);
-      }
+        const response = await createMenuItem(menuItem);
 
-      setName("");
-      setDescription("");
-      setSizes([]);
-      setImageUrl("");
-      setIsCustomizable(false);
-      setDefaultIngredients([]);
-      setSelectedMenuItemName("");
-      setSuccess(true);
+        if (response.success) {
+          setTempMenuItems((prev) => [...(prev ?? []), menuItem]);
+          setSuccess(true);
+          setName("");
+          setDescription("");
+          setSizes([]);
+          setImageUrl("");
+          setIsCustomizable(false);
+          setDefaultIngredients([]);
+          setSelectedMenuItemName("");
+        } else {
+          setSuccess(false);
+          setError(response.error || "An unexpected error occurred.");
+        }
+      }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
     } finally {
