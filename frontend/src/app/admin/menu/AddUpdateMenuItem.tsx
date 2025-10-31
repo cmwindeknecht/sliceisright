@@ -6,11 +6,7 @@ import { useState, useEffect } from "react";
 import { UpdateMenuProps } from "./page";
 import { useMenu } from "@/components/context/Menu";
 
-export default function AddUpdateMenuItem({
-  ingredients,
-  menuItems,
-  setTempMenuItems,
-}: UpdateMenuProps) {
+export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }: UpdateMenuProps) {
   const { createMenuItem } = useMenu();
 
   const [selectedMenuItemName, setSelectedMenuItemName] = useState<string>("");
@@ -87,15 +83,10 @@ export default function AddUpdateMenuItem({
 
       if (isUpdateMode) {
         // TODO put request to update
-        // updateOrderItem();
-        // setTempMenuItems((prev) =>
-        //   prev.map((item) => (item.name?.toString() === selectedMenuItemName ? menuItem : item))
-        // );
       } else {
         const response = await createMenuItem(menuItem);
 
         if (response.success) {
-          setTempMenuItems((prev) => [...(prev ?? []), menuItem]);
           setSuccess(true);
           setName("");
           setDescription("");
@@ -109,6 +100,8 @@ export default function AddUpdateMenuItem({
           setError(response.error || "An unexpected error occurred.");
         }
       }
+
+      setReload(true);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
     } finally {
@@ -359,9 +352,7 @@ export default function AddUpdateMenuItem({
             type="button"
             onClick={() => {
               if (confirm("Are you sure you want to delete this menu item?")) {
-                setTempMenuItems((prev) =>
-                  prev.filter((item) => item.name?.toString() !== selectedMenuItemName)
-                );
+                // TODO delete endpoint
                 setSelectedMenuItemName("");
                 setSuccess(true);
               }

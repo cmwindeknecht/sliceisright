@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { UpdateMenuProps } from "./page";
 import { useMenu } from "@/components/context/Menu";
 
-export default function AddUpdateIngredient({ ingredients, setTempIngredients }: UpdateMenuProps) {
+export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMenuProps) {
   const { createIngredient } = useMenu();
 
   const [selectedIngredientName, setSelectedIngredientName] = useState<string>("");
@@ -74,9 +74,7 @@ export default function AddUpdateIngredient({ ingredients, setTempIngredients }:
       };
 
       if (isUpdateMode) {
-        setTempIngredients((prev) =>
-          prev.map((item) => (item.name?.toString() === selectedIngredientName ? ingredient : item))
-        );
+        // TODO create update endpoint
       } else {
         const exists = ingredients.some((item) => item.name.toLowerCase() === name.toLowerCase());
 
@@ -87,7 +85,6 @@ export default function AddUpdateIngredient({ ingredients, setTempIngredients }:
         const response = await createIngredient(ingredient);
 
         if (response.success) {
-          setTempIngredients((prev) => [...(prev ?? []), ingredient]);
           setName("");
           setSizes([]);
           setCanBeDoubled(false);
@@ -98,6 +95,8 @@ export default function AddUpdateIngredient({ ingredients, setTempIngredients }:
           setSuccess(false);
           setError(response.error || "An unexpected error occurred.");
         }
+
+        setReload(true);
       }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
@@ -298,10 +297,8 @@ export default function AddUpdateIngredient({ ingredients, setTempIngredients }:
           <button
             type="button"
             onClick={() => {
-              if (confirm("Are you sure you want to delete this menu item?")) {
-                setTempIngredients((prev) =>
-                  prev.filter((item) => item.name?.toString() !== selectedIngredientName)
-                );
+              if (confirm("Are you sure you want to delete this ingredient?")) {
+                // TODO delete endpoint
                 setSelectedIngredientName("");
                 setSuccess(true);
               }

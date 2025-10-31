@@ -23,11 +23,13 @@ import com.SliceIsRight.database.entities.IngredientSize;
 import com.SliceIsRight.database.entities.MenuItem;
 import com.SliceIsRight.database.entities.MenuItemSize;
 import com.SliceIsRight.api.responses.ResponseFactory;
+import com.SliceIsRight.Helper;
 import com.SliceIsRight.api.model.IngredientDTO;
 import com.SliceIsRight.api.model.MenuItemDTO;
 
 @Path("/admin/menu")
 public class AdminMenu {
+    private final Helper helper = new Helper();
 
     @Inject
     JsonWebToken jwt; 
@@ -66,7 +68,7 @@ public class AdminMenu {
             menuItem.ingredients.addAll(ingredients);
 
             if (ingredients.size() != request.ingredients.size()) {
-                throw new Exception("Failed to find all ingredients in DB to create MenuItem");
+                throw new Exception(String.format("Failed to find all ingredients in DB to create MenuItem - request size = %s found size = %s", request.ingredients.size(), ingredients.size()));
             }
 
             List<MenuItemSize> sizes = request.sizes.stream()
@@ -75,7 +77,7 @@ public class AdminMenu {
                     menuItemSize.menuItem = menuItem;
                     menuItemSize.price = menuItemSizeDTO.price;
                     menuItemSize.size = menuItemSizeDTO.size;
-                    menuItemSize.persist();
+                    MenuItemSize.persist(menuItemSize);
                     return menuItemSize;
                 })
                 .collect(Collectors.toList()); 
@@ -83,9 +85,10 @@ public class AdminMenu {
 
             MenuItem.persist(menuItem);
 
-            return ResponseFactory.GetOkResponse(menuItem, "Successfully created MenuItem");
-        } catch (Exception e) {
-            return ResponseFactory.GetBadRequestResponse(e, "Failed to create MenuItem");
+            return ResponseFactory.GetCreatedResponse(helper.buildMenuItemDTO(menuItem), "Successfully created MenuItem");
+        } catch (Exception exception) {
+            System.out.println(String.format("Failed to create MenuItem due to exception %s for request %s", exception.getMessage(), request.toString()));
+            return ResponseFactory.GetBadRequestResponse(exception, "Failed to create MenuItem");
         }
     }
 
@@ -114,7 +117,7 @@ public class AdminMenu {
                     ingredientSize.ingredient = ingredient;
                     ingredientSize.price = ingredientSizeDTO.price;
                     ingredientSize.size = ingredientSizeDTO.size;
-                    ingredientSize.persist();
+                    IngredientSize.persist(ingredientSize);
                     return ingredientSize;
                 })
                 .collect(Collectors.toList()); 
@@ -122,9 +125,10 @@ public class AdminMenu {
 
             Ingredient.persist(ingredient);
 
-            return ResponseFactory.GetOkResponse(ingredient, "Successfully created Ingredient");
-        } catch (Exception e) {
-            return ResponseFactory.GetBadRequestResponse(e, "Failed to create ingredient");
+            return ResponseFactory.GetCreatedResponse(helper.buildIngredientDTO(ingredient), "Successfully created Ingredient");
+        } catch (Exception exception) {
+            System.out.println(String.format("Failed to create MenuItem due to exception %s for request %s", exception.getMessage(), request.toString()));
+            return ResponseFactory.GetBadRequestResponse(exception, "Failed to create ingredient");
         }
     }
 }
