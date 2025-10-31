@@ -7,10 +7,11 @@ import { UpdateMenuProps } from "./page";
 import { useMenu } from "@/components/context/Menu";
 
 export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }: UpdateMenuProps) {
-  const { createMenuItem } = useMenu();
+  const { createMenuItem, updateMenuItem } = useMenu();
 
   const [selectedMenuItemName, setSelectedMenuItemName] = useState<string>("");
 
+  const [id, setId] = useState<number | null>(null);
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [sizes, setSizes] = useState<MenuItemSize[]>([]);
@@ -33,6 +34,7 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
     if (selectedMenuItemName) {
       const menuItem = menuItems.find((item) => item.name?.toString() === selectedMenuItemName);
       if (menuItem) {
+        setId(menuItem.id);
         setName(menuItem.name);
         setDescription(menuItem.description || "");
         setSizes(menuItem.sizes || []);
@@ -41,7 +43,7 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
         setDefaultIngredients(menuItem.ingredients || []);
       }
     } else {
-      // Reset form when dropdown is cleared
+      setId(null);
       setName("");
       setDescription("");
       setSizes([]);
@@ -70,7 +72,7 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
       });
 
       const menuItem: MenuItem = {
-        id: Math.random(), // Override with proper id when creating in backend
+        id: id ?? Math.random(),
         name,
         description,
         imageUrl,
@@ -81,27 +83,33 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
         category,
       };
 
+      let response;
       if (isUpdateMode) {
-        // TODO put request to update
+        response = await updateMenuItem(menuItem);
       } else {
-        const response = await createMenuItem(menuItem);
+        const exists = menuItems.some((item) => item.name.toLowerCase() === name.toLowerCase());
 
-        if (response.success) {
-          setSuccess(true);
-          setName("");
-          setDescription("");
-          setSizes([]);
-          setImageUrl("");
-          setIsCustomizable(false);
-          setDefaultIngredients([]);
-          setSelectedMenuItemName("");
-        } else {
-          setSuccess(false);
-          setError(response.error || "An unexpected error occurred.");
+        if (exists) {
+          throw new Error(`Name ${menuItem.name} already exists!`);
         }
+
+        response = await createMenuItem(menuItem);
       }
 
-      setReload(true);
+      if (response.success) {
+        setSuccess(true);
+        setName("");
+        setDescription("");
+        setSizes([]);
+        setImageUrl("");
+        setIsCustomizable(false);
+        setDefaultIngredients([]);
+        setSelectedMenuItemName("");
+        setReload(true);
+      } else {
+        setSuccess(false);
+        setError(response.error || "An unexpected error occurred.");
+      }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
     } finally {

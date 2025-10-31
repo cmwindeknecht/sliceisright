@@ -7,10 +7,11 @@ import { UpdateMenuProps } from "./page";
 import { useMenu } from "@/components/context/Menu";
 
 export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMenuProps) {
-  const { createIngredient } = useMenu();
+  const { createIngredient, updateIngredient } = useMenu();
 
   const [selectedIngredientName, setSelectedIngredientName] = useState<string>("");
 
+  const [id, setId] = useState<number | null>(null);
   const [name, setName] = useState<string>("");
   const [sizes, setSizes] = useState<MenuItemSize[]>([]);
   const [category, setCategory] = useState<Ingredient["category"]>("MEAT");
@@ -32,13 +33,14 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
         (item) => item.name?.toString() === selectedIngredientName
       );
       if (ingredient) {
+        setId(ingredient.id);
         setName(ingredient.name);
         setSizes(ingredient.sizes || []);
         setCanBeDoubled(ingredient.canBeDoubled || false);
         setCanBeRemoved(ingredient.canBeRemoved || false);
       }
     } else {
-      // Reset form when dropdown is cleared
+      setId(null);
       setName("");
       setSizes([]);
       setCanBeDoubled(false);
@@ -65,7 +67,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
       });
 
       const ingredient: Ingredient = {
-        id: Math.random(),
+        id: id ?? Math.random(),
         name,
         sizes,
         category,
@@ -73,8 +75,9 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
         canBeRemoved,
       };
 
+      let response;
       if (isUpdateMode) {
-        // TODO create update endpoint
+        response = await updateIngredient(ingredient);
       } else {
         const exists = ingredients.some((item) => item.name.toLowerCase() === name.toLowerCase());
 
@@ -82,21 +85,20 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
           throw new Error(`Name ${ingredient.name} already exists!`);
         }
 
-        const response = await createIngredient(ingredient);
+        response = await createIngredient(ingredient);
+      }
 
-        if (response.success) {
-          setName("");
-          setSizes([]);
-          setCanBeDoubled(false);
-          setCanBeRemoved(false);
-          setSelectedIngredientName("");
-          setSuccess(true);
-        } else {
-          setSuccess(false);
-          setError(response.error || "An unexpected error occurred.");
-        }
-
+      if (response.success) {
+        setName("");
+        setSizes([]);
+        setCanBeDoubled(false);
+        setCanBeRemoved(false);
+        setSelectedIngredientName("");
+        setSuccess(true);
         setReload(true);
+      } else {
+        setSuccess(false);
+        setError(response.error || "An unexpected error occurred.");
       }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");

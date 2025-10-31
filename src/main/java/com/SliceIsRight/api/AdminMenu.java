@@ -12,6 +12,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
@@ -47,42 +48,9 @@ public class AdminMenu {
                 .ifPresent(existing -> {
                     throw new WebApplicationException(String.format("Menu Item with name %s already exists", request.name), Response.Status.BAD_REQUEST);
                 });
+
             MenuItem menuItem = new MenuItem();
-            menuItem.name = request.name;
-            menuItem.description = request.description;
-            menuItem.imageUrl = request.imageUrl;
-            menuItem.category = request.category;
-            menuItem.isAvailable = request.isAvailable;
-            menuItem.isCustomizable = request.isCustomizable;
-
-            Set<Ingredient> ingredients = Ingredient
-                .<Ingredient>find(
-                    "id in ?1",
-                    request.ingredients.stream()
-                        .map(ingredientDto -> ingredientDto.id)
-                        .collect(Collectors.toList())
-                )
-                .list()
-                .stream()
-                .collect(Collectors.toSet());
-            menuItem.ingredients.addAll(ingredients);
-
-            if (ingredients.size() != request.ingredients.size()) {
-                throw new Exception(String.format("Failed to find all ingredients in DB to create MenuItem - request size = %s found size = %s", request.ingredients.size(), ingredients.size()));
-            }
-
-            List<MenuItemSize> sizes = request.sizes.stream()
-                .map(menuItemSizeDTO -> {
-                    MenuItemSize menuItemSize = new MenuItemSize();
-                    menuItemSize.menuItem = menuItem;
-                    menuItemSize.price = menuItemSizeDTO.price;
-                    menuItemSize.size = menuItemSizeDTO.size;
-                    MenuItemSize.persist(menuItemSize);
-                    return menuItemSize;
-                })
-                .collect(Collectors.toList()); 
-            menuItem.sizes.addAll(sizes);
-
+            updateMenuItemFromRequest(menuItem, request);
             MenuItem.persist(menuItem);
 
             return ResponseFactory.GetCreatedResponse(helper.buildMenuItemDTO(menuItem), "Successfully created MenuItem");
@@ -90,6 +58,67 @@ public class AdminMenu {
             System.out.println(String.format("Failed to create MenuItem due to exception %s for request %s", exception.getMessage(), request.toString()));
             return ResponseFactory.GetBadRequestResponse(exception, "Failed to create MenuItem");
         }
+    }
+
+    @Path("/menuItem")
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    @RolesAllowed("Admin")
+    public Response updateMenuItem(MenuItemDTO request) {
+        try {
+            MenuItem existingMenuItem = MenuItem.<MenuItem>find("id", request.id)
+                .firstResultOptional()
+                .orElseThrow(() -> new WebApplicationException(
+                    String.format("Menu Item with id %s name %s not found", request.id, request.name), 
+                    Response.Status.NOT_FOUND
+                ));
+            
+            updateMenuItemFromRequest(existingMenuItem, request);
+
+            return ResponseFactory.GetCreatedResponse(helper.buildMenuItemDTO(existingMenuItem), "Successfully created MenuItem");
+        } catch (Exception exception) {
+            System.out.println(String.format("Failed to update MenuItem due to exception %s for request %s", exception.getMessage(), request.toString()));
+            return ResponseFactory.GetBadRequestResponse(exception, "Failed to update MenuItem");
+        }
+    }
+
+    private void updateMenuItemFromRequest(MenuItem toUpdate, MenuItemDTO request) throws Exception {
+        toUpdate.name = request.name;
+        toUpdate.description = request.description;
+        toUpdate.imageUrl = request.imageUrl;
+        toUpdate.category = request.category;
+        toUpdate.isAvailable = request.isAvailable;
+        toUpdate.isCustomizable = request.isCustomizable;
+
+        Set<Ingredient> ingredients = Ingredient
+            .<Ingredient>find(
+                "id in ?1",
+                request.ingredients.stream()
+                    .map(ingredientDto -> ingredientDto.id)
+                    .collect(Collectors.toList())
+            )
+            .list()
+            .stream()
+            .collect(Collectors.toSet());
+        toUpdate.ingredients.addAll(ingredients);
+
+        if (ingredients.size() != request.ingredients.size()) {
+            throw new Exception(String.format("Failed to find all ingredients in DB to create MenuItem - request size = %s found size = %s", request.ingredients.size(), ingredients.size()));
+        }
+
+        Set<MenuItemSize> sizes = request.sizes.stream()
+            .map(menuItemSizeDTO -> {
+                MenuItemSize menuItemSize = new MenuItemSize();
+                menuItemSize.menuItem = toUpdate;
+                menuItemSize.price = menuItemSizeDTO.price;
+                menuItemSize.size = menuItemSizeDTO.size;
+                MenuItemSize.persist(menuItemSize);
+                return menuItemSize;
+            })
+            .collect(Collectors.toSet()); 
+        toUpdate.sizes.addAll(sizes);
     }
 
     @Path("/ingredient")
@@ -106,23 +135,7 @@ public class AdminMenu {
                     throw new WebApplicationException(String.format("Ingredient with name %s already exists", request.name), Response.Status.BAD_REQUEST);
                 });
             Ingredient ingredient = new Ingredient();
-            ingredient.name = request.name;
-            ingredient.category = request.category;
-            ingredient.canBeDoubled = request.canBeDoubled;
-            ingredient.canBeRemoved = request.canBeRemoved;
-
-            List<IngredientSize> sizes = request.sizes.stream()
-                .map(ingredientSizeDTO -> {
-                    IngredientSize ingredientSize = new IngredientSize();
-                    ingredientSize.ingredient = ingredient;
-                    ingredientSize.price = ingredientSizeDTO.price;
-                    ingredientSize.size = ingredientSizeDTO.size;
-                    IngredientSize.persist(ingredientSize);
-                    return ingredientSize;
-                })
-                .collect(Collectors.toList()); 
-            ingredient.sizes.addAll(sizes);
-
+            updateIngredientFromRequest(ingredient, request);
             Ingredient.persist(ingredient);
 
             return ResponseFactory.GetCreatedResponse(helper.buildIngredientDTO(ingredient), "Successfully created Ingredient");
@@ -130,6 +143,49 @@ public class AdminMenu {
             System.out.println(String.format("Failed to create MenuItem due to exception %s for request %s", exception.getMessage(), request.toString()));
             return ResponseFactory.GetBadRequestResponse(exception, "Failed to create ingredient");
         }
+    }
+
+    @Path("/ingredient")
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    @RolesAllowed("Admin")
+    public Response updateIngredient(IngredientDTO request) {
+        try {
+            Ingredient existingIngredient = Ingredient.<Ingredient>find("id", request.id)
+                .firstResultOptional()
+                .orElseThrow(() -> new WebApplicationException(
+                    String.format("Ingredient with id %s not found", request.id, request.name), 
+                    Response.Status.NOT_FOUND
+                ));
+
+            updateIngredientFromRequest(existingIngredient, request);
+
+            return ResponseFactory.GetCreatedResponse(helper.buildIngredientDTO(existingIngredient), "Successfully created Ingredient");
+        } catch (Exception exception) {
+            System.out.println(String.format("Failed to create MenuItem due to exception %s for request %s", exception.getMessage(), request.toString()));
+            return ResponseFactory.GetBadRequestResponse(exception, "Failed to create ingredient");
+        }
+    }
+
+    private void updateIngredientFromRequest(Ingredient toUpdate, IngredientDTO request) {
+        toUpdate.name = request.name;
+        toUpdate.category = request.category;
+        toUpdate.canBeDoubled = request.canBeDoubled;
+        toUpdate.canBeRemoved = request.canBeRemoved;
+
+        Set<IngredientSize> sizes = request.sizes.stream()
+            .map(ingredientSizeDTO -> {
+                IngredientSize ingredientSize = new IngredientSize();
+                ingredientSize.ingredient = toUpdate;
+                ingredientSize.price = ingredientSizeDTO.price;
+                ingredientSize.size = ingredientSizeDTO.size;
+                IngredientSize.persist(ingredientSize);
+                return ingredientSize;
+            })
+            .collect(Collectors.toSet()); 
+        toUpdate.sizes.addAll(sizes);
     }
 }
 

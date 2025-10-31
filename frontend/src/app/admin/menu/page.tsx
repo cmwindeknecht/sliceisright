@@ -23,25 +23,20 @@ export default function AdminMenuPage() {
 
   useEffect(() => {
     validateAdminPriveleges();
+    reloadMenu();
   }, []);
+
+  useEffect(() => {
+    if (reload) {
+      reloadMenu();
+    }
+  }, [reload]);
 
   const reloadMenu = async () => {
     await getMenuItems();
     await getIngredients();
     setReload(false);
   };
-
-  useEffect(() => {
-    debugger;
-    if (reload) {
-      reloadMenu();
-    }
-  }, [reload]);
-
-  useEffect(() => {
-    debugger;
-    reloadMenu();
-  }, []);
 
   return (
     <div>
