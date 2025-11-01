@@ -20,6 +20,8 @@ interface MenuContext {
   createIngredient: (ingredient: Ingredient) => Promise<{ success: boolean; error?: string }>;
   updateMenuItem: (menuItem: MenuItem) => Promise<{ success: boolean; error?: string }>;
   updateIngredient: (ingredient: Ingredient) => Promise<{ success: boolean; error?: string }>;
+  deleteMenuItem: (menuItem: MenuItem) => Promise<{ success: boolean; error?: string }>;
+  deleteIngredient: (ingredient: Ingredient) => Promise<{ success: boolean; error?: string }>;
   addOrderItem: (orderItem: OrderItem) => { success: boolean; error?: string };
   updateOrderItem: (orderItem: OrderItem) => { success: boolean; error?: string };
   deleteOrderItem: (orderItem: OrderItem) => { success: boolean; error?: string };
@@ -158,6 +160,48 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
     }
   };
 
+  const deleteMenuItem = async (menuItem: MenuItem) => {
+    try {
+      const jwt = validateJWT();
+
+      const res = await fetch(`${apiUrl}/admin/menu/menuItem/${menuItem.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to delete menu item");
+      }
+
+      await res.json();
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  };
+
+  const deleteIngredient = async (ingredient: Ingredient) => {
+    try {
+      const jwt = validateJWT();
+
+      const res = await fetch(`${apiUrl}/admin/menu/ingredient/${ingredient.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to delete ingredient");
+      }
+
+      await res.json();
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  };
+
   const addOrderItem = (orderItem: OrderItem) => {
     try {
       const orderItemWithId: OrderItem = { ...orderItem, orderItemId: crypto.randomUUID() };
@@ -207,6 +251,8 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
       createIngredient,
       updateMenuItem,
       updateIngredient,
+      deleteMenuItem,
+      deleteIngredient,
       addOrderItem,
       updateOrderItem,
       deleteOrderItem,

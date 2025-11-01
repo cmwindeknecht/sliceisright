@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import com.SliceIsRight.Helper;
 import com.SliceIsRight.api.model.MenuItemDTO;
+import com.SliceIsRight.database.entities.Ingredient;
 import com.SliceIsRight.database.entities.MenuItem;
 
 public class MenuItemRepository {
@@ -32,6 +33,15 @@ public class MenuItemRepository {
 
         List<MenuItemDTO> menuItemsDTOs = buildMenuItemDTOs(menuItems);
         return menuItemsDTOs;
+    }
+
+    public void deleteIngredientAssociations(Ingredient ingredient) {
+        MenuItem.<MenuItem>list("SELECT m FROM MenuItem m JOIN m.ingredients i WHERE i.id = ?1", ingredient.id)
+            .stream()
+            .forEach(menuItem -> {
+                menuItem.ingredients.remove(ingredient);
+                menuItem.persist();
+            });
     }
 
     private List<MenuItemDTO> buildMenuItemDTOs(List<MenuItem> menuItems) {    

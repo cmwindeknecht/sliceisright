@@ -13,9 +13,11 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
@@ -25,6 +27,7 @@ import com.SliceIsRight.database.entities.Ingredient;
 import com.SliceIsRight.database.entities.IngredientSize;
 import com.SliceIsRight.database.entities.MenuItem;
 import com.SliceIsRight.database.entities.MenuItemSize;
+import com.SliceIsRight.database.repositories.MenuItemRepository;
 import com.SliceIsRight.api.responses.ResponseFactory;
 import com.SliceIsRight.Helper;
 import com.SliceIsRight.api.model.IngredientDTO;
@@ -83,6 +86,26 @@ public class AdminMenu {
         } catch (Exception exception) {
             System.out.println(String.format("Failed to update MenuItem due to exception %s for request %s", exception.getMessage(), request.toString()));
             return ResponseFactory.GetBadRequestResponse(exception, "Failed to update MenuItem");
+        }
+    }
+
+    @Path("/menuItem/{menuItemId}")
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    @RolesAllowed("Admin")
+    public Response deleteMenuItem(@PathParam("menuItemId") Long menuItemId) {
+        try {
+            MenuItem existingMenuItem = MenuItem.<MenuItem>find("id", menuItemId)
+                .firstResultOptional()
+                .orElseThrow(() -> new WebApplicationException(String.format("Menu Item with id %s not found", menuItemId), Response.Status.NOT_FOUND));
+            
+            existingMenuItem.delete();
+
+            return ResponseFactory.GetCreatedResponse(helper.buildMenuItemDTO(existingMenuItem), "Successfully deleted MenuItem");
+        } catch (Exception exception) {
+            System.out.println(String.format("Failed to delete MenuItem due to exception %s for requested id %s", exception.getMessage(), menuItemId));
+            return ResponseFactory.GetBadRequestResponse(exception, "Failed to delete MenuItem");
         }
     }
 
@@ -169,17 +192,39 @@ public class AdminMenu {
         try {
             Ingredient existingIngredient = Ingredient.<Ingredient>find("id", request.id)
                 .firstResultOptional()
-                .orElseThrow(() -> new WebApplicationException(
-                    String.format("Ingredient with id %s not found", request.id, request.name), 
-                    Response.Status.NOT_FOUND
-                ));
+                .orElseThrow(() -> new WebApplicationException(String.format("Ingredient with id %s not found", request.id, request.name), Response.Status.NOT_FOUND));
 
             updateIngredientFromRequest(existingIngredient, request);
 
-            return ResponseFactory.GetCreatedResponse(helper.buildIngredientDTO(existingIngredient), "Successfully created Ingredient");
+            return ResponseFactory.GetCreatedResponse(helper.buildIngredientDTO(existingIngredient), "Successfully updated Ingredient");
         } catch (Exception exception) {
-            System.out.println(String.format("Failed to create MenuItem due to exception %s for request %s", exception.getMessage(), request.toString()));
-            return ResponseFactory.GetBadRequestResponse(exception, "Failed to create ingredient");
+            System.out.println(String.format("Failed to update Ingredient due to exception %s for request %s", exception.getMessage(), request.toString()));
+            return ResponseFactory.GetBadRequestResponse(exception, "Failed to update Ingredient");
+        }
+    }
+
+    @Path("/ingredient/{ingredientId}")
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    @RolesAllowed("Admin")
+    public Response deleteIngredient(@PathParam("ingredientId") Long ingredientId) {
+        try {
+            Ingredient existingIngredient = Ingredient.<Ingredient>find("id", ingredientId)
+                .firstResultOptional()
+                .orElseThrow(() -> new WebApplicationException(
+                    String.format("Ingredient with id %s not found", ingredientId), 
+                    Response.Status.NOT_FOUND
+                ));
+
+            MenuItemRepository.INSTANCE.deleteIngredientAssociations(existingIngredient);
+            
+            existingIngredient.delete();
+
+            return ResponseFactory.GetCreatedResponse(helper.buildIngredientDTO(existingIngredient), "Successfully deleted Ingredient");
+        } catch (Exception exception) {
+            System.out.println(String.format("Failed to delete Ingredient due to exception %s for requested id %s", exception.getMessage(), ingredientId));
+            return ResponseFactory.GetBadRequestResponse(exception, "Failed to delete Ingredient");
         }
     }
 

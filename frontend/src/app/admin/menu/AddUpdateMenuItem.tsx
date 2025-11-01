@@ -5,12 +5,17 @@ import { MenuItem, MenuItemSize } from "@/types/MenuItem";
 import { useState, useEffect } from "react";
 import { UpdateMenuProps } from "./page";
 import { useMenu } from "@/components/context/Menu";
+import ItemSelector from "@/components/ItemSelector";
+import CategorySelector from "@/components/CategorySelector";
+import SizePriceSelector from "@/components/SizeSelector";
+import SizeSelector from "@/components/SizeSelector";
 
 export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }: UpdateMenuProps) {
-  const { createMenuItem, updateMenuItem } = useMenu();
+  const { createMenuItem, updateMenuItem, deleteMenuItem } = useMenu();
 
   const [selectedMenuItemName, setSelectedMenuItemName] = useState<string>("");
 
+  const [selected, setSelected] = useState<MenuItem | null>(null);
   const [id, setId] = useState<number | null>(null);
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -33,23 +38,15 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
   useEffect(() => {
     if (selectedMenuItemName) {
       const menuItem = menuItems.find((item) => item.name?.toString() === selectedMenuItemName);
-      if (menuItem) {
-        setId(menuItem.id);
-        setName(menuItem.name);
-        setDescription(menuItem.description || "");
-        setSizes(menuItem.sizes || []);
-        setImageUrl(menuItem.imageUrl || "");
-        setIsCustomizable(menuItem.isCustomizable || false);
-        setDefaultIngredients(menuItem.ingredients || []);
-      }
-    } else {
-      setId(null);
-      setName("");
-      setDescription("");
-      setSizes([]);
-      setImageUrl("");
-      setIsCustomizable(false);
-      setDefaultIngredients([]);
+
+      setSelected(menuItem ?? null);
+      setId(menuItem ? menuItem.id : null);
+      setName(menuItem ? menuItem.name : "");
+      setDescription(menuItem ? menuItem.description : "");
+      setSizes(menuItem ? menuItem.sizes : []);
+      setImageUrl(menuItem ? menuItem.imageUrl : "");
+      setIsCustomizable(menuItem ? menuItem.isCustomizable : false);
+      setDefaultIngredients(menuItem ? menuItem.ingredients : []);
     }
   }, [selectedMenuItemName, menuItems]);
 
@@ -117,6 +114,26 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
     }
   };
 
+  const handleDelete = async (menuItem: MenuItem) => {
+    const response = await deleteMenuItem(menuItem);
+
+    if (response.success) {
+      setSuccess(true);
+      setName("");
+      setDescription("");
+      setSizes([]);
+      setImageUrl("");
+      setIsCustomizable(false);
+      setDefaultIngredients([]);
+      setSelectedMenuItemName("");
+      setReload(true);
+      setSelected(null);
+    } else {
+      setSuccess(false);
+      setError(response.error || "An unexpected error occurred.");
+    }
+  };
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -124,23 +141,14 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
     >
       <h2 className="text-xl font-semibold text-center">Add / Update Menu Item</h2>
 
-      {/* Menu Item Selector */}
-      <div>
-        <label className="block mb-1 font-medium">Select Menu Item (optional)</label>
-        <select
-          value={selectedMenuItemName}
-          onChange={(e) => setSelectedMenuItemName(e.target.value)}
-          className="border p-2 rounded w-full"
-        >
-          <option value="">-- Create New Menu Item --</option>
-          {menuItems.map((item) => (
-            <option key={item.name} value={item.name?.toString()}>
-              {item.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      {/* Name */}
+      <ItemSelector
+        label="Select Menu Item (optional)"
+        value={selectedMenuItemName}
+        onChange={(e) => setSelectedMenuItemName(e.target.value)}
+        items={menuItems}
+        defaultText="-- Create New Menu Item --"
+      />
+
       <div>
         <label className="block mb-1 font-medium">Name</label>
         <input
@@ -152,7 +160,6 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
         />
       </div>
 
-      {/* Description */}
       <div>
         <label className="block mb-1 font-medium">Description</label>
         <input
@@ -164,7 +171,6 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
         />
       </div>
 
-      {/* Image URL */}
       <div>
         <label className="block mb-1 font-medium">Image URL</label>
         <input
@@ -176,130 +182,13 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
         />
       </div>
 
-      <div>
-        <label className="block mb-1 font-medium">Category</label>
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value as MenuItem["category"])}
-          className="border p-2 rounded w-full"
-        >
-          <option value="">-- Select Category --</option>
-          {categoryOptions.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
-      </div>
+      <CategorySelector
+        value={category}
+        onChange={(e) => setCategory(e.target.value as MenuItem["category"])}
+        categoryOptions={categoryOptions}
+      />
 
-      {/* Sizes & Prices */}
-      <div>
-        <label className="block mb-2 font-medium">Sizes & Prices</label>
-
-        <div className="grid grid-cols-2 gap-4">
-          {/* LEFT COLUMN: None */}
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                const isSelected = !!sizes.find((s) => s.size === "None");
-                if (isSelected) {
-                  setSizes(sizes.filter((s) => s.size !== "None"));
-                } else {
-                  setSizes([{ size: "None", price: 0 }]);
-                }
-              }}
-              className={`px-3 py-1 rounded border min-w-[60px] text-center ${
-                !!sizes.find((s) => s.size === "None")
-                  ? "bg-orange-600 text-white"
-                  : "bg-white text-gray-700"
-              }`}
-            >
-              None
-            </button>
-
-            {sizes.find((s) => s.size === "None") && (
-              <div className="relative w-28">
-                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                <input
-                  type="number"
-                  className="border rounded w-full p-1 pl-6 text-right 
-                                 [appearance:textfield] 
-                                 [&::-webkit-inner-spin-button]:appearance-none 
-                                 [&::-webkit-outer-spin-button]:appearance-none 
-                                 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  value={sizes.find((s) => s.size === "None")!.price || ""}
-                  min={0}
-                  step={0.01}
-                  onChange={(e) => {
-                    const newPrice = Number(e.target.value);
-                    setSizes(sizes.map((s) => (s.size === "None" ? { ...s, price: newPrice } : s)));
-                  }}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* RIGHT COLUMN: S, M, L, XL */}
-          <div className="flex flex-col items-end gap-3">
-            {sizeOptions
-              .filter((s) => s !== "None")
-              .map((size) => {
-                const sizeObj = sizes.find((x) => x.size === size);
-                const isSelected = !!sizeObj;
-
-                return (
-                  <div key={size} className="flex items-center gap-3">
-                    {isSelected ? (
-                      <div className="relative w-28">
-                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500">
-                          $
-                        </span>
-                        <input
-                          type="number"
-                          className="border rounded w-full p-1 pl-6 text-right 
-                                         [appearance:textfield] 
-                                         [&::-webkit-inner-spin-button]:appearance-none 
-                                         [&::-webkit-outer-spin-button]:appearance-none 
-                                         focus:outline-none focus:ring-2 focus:ring-orange-500"
-                          value={sizeObj!.price || ""}
-                          min={0}
-                          step={0.01}
-                          onChange={(e) => {
-                            const newPrice = Number(e.target.value);
-                            setSizes(
-                              sizes.map((s) => (s.size === size ? { ...s, price: newPrice } : s))
-                            );
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-28" />
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const isSelected = !!sizes.find((s) => s.size === size);
-                        if (isSelected) {
-                          setSizes(sizes.filter((s) => s.size !== size));
-                        } else {
-                          const withoutNone = sizes.filter((s) => s.size !== "None");
-                          setSizes([...withoutNone, { size, price: 0 }]);
-                        }
-                      }}
-                      className={`px-3 py-1 rounded border min-w-[48px] text-center ${
-                        isSelected ? "bg-orange-600 text-white" : "bg-white text-gray-700"
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  </div>
-                );
-              })}
-          </div>
-        </div>
-      </div>
+      <SizeSelector sizes={sizes} setSizes={setSizes} sizeOptions={sizeOptions} />
 
       {/* Ingredients */}
       {ingredients && (
@@ -359,10 +248,8 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
           <button
             type="button"
             onClick={() => {
-              if (confirm("Are you sure you want to delete this menu item?")) {
-                // TODO delete endpoint
-                setSelectedMenuItemName("");
-                setSuccess(true);
+              if (confirm("Are you sure you want to delete this menu item?") && selected != null) {
+                handleDelete(selected);
               }
             }}
             disabled={loading ?? false}
