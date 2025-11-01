@@ -71,7 +71,7 @@ export default function AdminMenuPage() {
           {ingredients && ingredients.length > 0 && (
             <div className="flex flex-col justify-between">
               <h1 className="text-2xl font-bold text-center mb-4">Ingredients</h1>
-              <div className="flex flex-wrap justify-between gap-4 m-5">
+              <div className="flex flex-wrap gap-4">
                 {ingredients.map((ingredient) => (
                   <IngredientAdmin key={ingredient.id} ingredient={ingredient} />
                 ))}

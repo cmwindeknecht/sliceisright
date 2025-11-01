@@ -87,6 +87,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
         setError(response.error || "An unexpected error occurred.");
       }
     } catch (err: any) {
+      setSuccess(false);
       setError(err.message || "An unexpected error occurred.");
     } finally {
       setLoading(false);

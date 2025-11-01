@@ -1,3 +1,4 @@
+import { sortIngredientSize, sortMenuSize } from "@/misc/helper";
 import { MenuItem as MenuItemType } from "@/types/MenuItem";
 import { useState } from "react";
 
@@ -10,7 +11,7 @@ export default function MenuItemAdmin({ menuItem }: MenuItemAdminProps) {
 
   return (
     <>
-      <div className="flex gap-4 p-4 border rounded-lg shadow bg-white min-w-5xl h-fit">
+      <div className="flex gap-4 p-4 border rounded-lg shadow bg-orange-600 min-w-5xl h-fit">
         {/* Left: Image */}
         <div className="flex-shrink-0 cursor-pointer" onClick={() => setShowImageOverlay(true)}>
           {menuItem.imageUrl ? (
@@ -28,67 +29,66 @@ export default function MenuItemAdmin({ menuItem }: MenuItemAdminProps) {
           )}
         </div>
 
-        {/* Right: Content */}
-        <div className="flex-1 flex flex-col gap-3">
-          {/* Name and Description - Side by Side */}
-          <div className="flex gap-4">
+        <div className="flex flex-col flex-1 gap-3">
+          <div className="flex gap-4 h-1/3 bg-red-600 rounded-2xl p-2">
             {/* Name */}
-            <div className="flex-1">
-              <h3 className="text-xl font-semibold">{menuItem.name}</h3>
+            <div className="flex flex-col w-1/4  text-sm">
+              <div>
+                <span className="font-medium">Name:</span>
+                <span className="text-black">{menuItem.name}</span>
+              </div>
 
-              <div className="text-sm">
-                <span className="font-medium">Category:</span>{" "}
-                <span className="text-gray-700">{menuItem.category}</span>
+              <div>
+                <span className="font-medium">Category:</span>
+                <span className="text-black">{menuItem.category}</span>
               </div>
             </div>
 
-            {/* Description */}
-            {menuItem.description && (
-              <div className="flex-1">
-                <p className="text-gray-600 text-sm">{menuItem.description}</p>
-              </div>
-            )}
+            <div className="text-sm w-3/4">
+              <span className="font-medium">Description:</span>
+              <span className="text-black">{menuItem.description}</span>
+            </div>
           </div>
 
-          {/* Available Sizes and Ingredients - Side by Side */}
           <div className="flex gap-4">
-            {/* Available Sizes */}
-            {menuItem.sizes && menuItem.sizes.length > 0 && (
-              <div className="flex-1">
-                <div className="text-sm font-medium mb-2">Available Sizes:</div>
+            <div className="flex flex-col w-1/4 text-sm font-medium mb-2">
+              Sizes
+              {menuItem.sizes && menuItem.sizes.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {menuItem.sizes.map((size) => (
+                  {sortMenuSize(menuItem.sizes).map((size) => (
                     <button
                       key={size.size}
                       type="button"
                       disabled
-                      className="px-3 py-1 rounded border bg-gray-100 text-gray-700 cursor-default"
+                      className="px-3 py-1 rounded border bg-red-600 text-black cursor-default"
                     >
                       {size.size}: ${size.price.toFixed(2)}
                     </button>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
-            {/* Default Ingredients */}
-            {menuItem.ingredients && menuItem.ingredients.length > 0 && (
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="text-sm font-medium">Ingredients:</div>
-                  <div className="flex flex-row items-center">
-                    <input type="checkbox" checked={menuItem.isCustomizable} readOnly />
-                    <div className="pl-1 text-sm">Can be customized by customer?</div>
-                  </div>
+            <div className="flex flex-col w-3/4 text-sm font-medium">
+              <div className="flex flex-row gap-4">
+                <span className="font-bold">Ingredients</span>
+                <div className="flex flex-row items-center">
+                  <input type="checkbox" checked={menuItem.isCustomizable} readOnly />
+                  <div className="pl-1 text-sm">Can be customized by customer?</div>
                 </div>
-                <div className="flex flex-col gap-1">
+              </div>
+              {menuItem.ingredients && menuItem.ingredients.length > 0 && (
+                <div className="flex flex-row flex-wrap gap-1">
                   {menuItem.ingredients.map((ingredient) => (
-                    <div key={ingredient.id} className="text-sm text-gray-700">
+                    <div
+                      key={ingredient.id}
+                      className="text-sm text-black border-2 border-black p-1 bg-red-6"
+                    >
                       <span className="font-medium">{ingredient.name}</span>
                       {ingredient.sizes && ingredient.sizes.length > 0 && (
-                        <span className="ml-2 text-gray-500">
+                        <span className="ml-2 text-black">
                           (
-                          {ingredient.sizes
+                          {sortIngredientSize(ingredient.sizes)
                             .map((size) => `${size.size}: ${size.price.toFixed(2)}`)
                             .join(", ")}
                           )
@@ -97,8 +97,8 @@ export default function MenuItemAdmin({ menuItem }: MenuItemAdminProps) {
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>

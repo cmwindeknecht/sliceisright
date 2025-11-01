@@ -96,6 +96,7 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
         setError(response.error || "An unexpected error occurred.");
       }
     } catch (err: any) {
+      setSuccess(false);
       setError(err.message || "An unexpected error occurred.");
     } finally {
       setLoading(false);
