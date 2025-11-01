@@ -20,9 +20,6 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
 
   const [size, setSize] = useState<MenuItemSize | null>(null);
   const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(null);
-  const [showAddButton, setShowAddButton] = useState<boolean>(false);
-  const [showDoubleButton, setShowDoubleButton] = useState<boolean>(false);
-  const [showRemoveButton, setShowRemoveButton] = useState<boolean>(false);
   const [ingredientsToAdd, setIngredientsToAdd] = useState<Map<number, Ingredient>>(new Map());
   const [ingredientsToRemove, setIngredientsToRemove] = useState<Map<number, Ingredient>>(
     new Map()
@@ -91,6 +88,7 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
       throw new Error(`There are no sizes available for menu item ${menuItem.name}!`);
     }
 
+    debugger;
     setSize(tempSize);
     return tempSize;
   }

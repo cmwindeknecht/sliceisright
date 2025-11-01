@@ -117,6 +117,10 @@ public class AdminMenu {
         toUpdate.isAvailable = request.isAvailable;
         toUpdate.isCustomizable = request.isCustomizable;
 
+        if (request.sizes.size() < 0) {
+            throw new Exception("Menu Item update contained zero sizes!");
+        }
+
         Set<Ingredient> ingredients = Ingredient
             .<Ingredient>find(
                 "id in ?1",
@@ -228,11 +232,15 @@ public class AdminMenu {
         }
     }
 
-    private void updateIngredientFromRequest(Ingredient toUpdate, IngredientDTO request) {
+    private void updateIngredientFromRequest(Ingredient toUpdate, IngredientDTO request) throws Exception {
         toUpdate.name = request.name;
         toUpdate.category = request.category;
         toUpdate.canBeDoubled = request.canBeDoubled;
         toUpdate.canBeRemoved = request.canBeRemoved;
+
+        if (request.sizes.size() < 0) {
+            throw new Exception("Ingredient update contained zero sizes!");
+        }
         
         Map<Long, IngredientSize> existingIngredientSizes = IngredientSize
             .<IngredientSize>find(

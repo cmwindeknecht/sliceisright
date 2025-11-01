@@ -58,15 +58,8 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
       setSuccess(false);
       setLoading(true);
 
-      if (!name || name.trim() === "") {
-        throw new Error("Value for name is required!");
-      }
-
-      sizes.forEach((sizeOption) => {
-        if (sizeOption.price <= 0) {
-          throw new Error(`Price for ${sizeOption.size} must be greater than 0!`);
-        }
-      });
+      validateName();
+      validateSizes();
 
       const menuItem: MenuItem = {
         id: id ?? Math.random(),
@@ -84,12 +77,7 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
       if (isUpdateMode) {
         response = await updateMenuItem(menuItem);
       } else {
-        const exists = menuItems.some((item) => item.name.toLowerCase() === name.toLowerCase());
-
-        if (exists) {
-          throw new Error(`Name ${menuItem.name} already exists!`);
-        }
-
+        validateNonExistingOnCreate(menuItem);
         response = await createMenuItem(menuItem);
       }
 
@@ -131,6 +119,32 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
     } else {
       setSuccess(false);
       setError(response.error || "An unexpected error occurred.");
+    }
+  };
+
+  const validateName = () => {
+    if (!name || name.trim() === "") {
+      throw new Error("Value for name is required!");
+    }
+  };
+
+  const validateSizes = () => {
+    if (sizes.length <= 0) {
+      throw new Error("At least one size is required!");
+    }
+
+    sizes.forEach((sizeOption) => {
+      if (sizeOption.price <= 0) {
+        throw new Error(`Price for ${sizeOption.size} must be greater than 0!`);
+      }
+    });
+  };
+
+  const validateNonExistingOnCreate = (menuItem: MenuItem) => {
+    const exists = menuItems.some((item) => item.name.toLowerCase() === name.toLowerCase());
+
+    if (exists) {
+      throw new Error(`Name ${menuItem.name} already exists!`);
     }
   };
 

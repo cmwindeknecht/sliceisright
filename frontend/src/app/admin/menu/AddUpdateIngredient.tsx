@@ -54,15 +54,8 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
       setSuccess(false);
       setLoading(true);
 
-      if (!name || name.trim() === "") {
-        throw new Error("Value for name is required!");
-      }
-
-      sizes.forEach((sizeOption) => {
-        if (sizeOption.price <= 0) {
-          throw new Error(`Price for ${sizeOption.size} must be greater than 0!`);
-        }
-      });
+      validateName();
+      validateSizes();
 
       const ingredient: Ingredient = {
         id: id ?? Math.random(),
@@ -77,12 +70,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
       if (isUpdateMode) {
         response = await updateIngredient(ingredient);
       } else {
-        const exists = ingredients.some((item) => item.name.toLowerCase() === name.toLowerCase());
-
-        if (exists) {
-          throw new Error(`Name ${ingredient.name} already exists!`);
-        }
-
+        validateNonExistingOnCreate(ingredient);
         response = await createIngredient(ingredient);
       }
 
@@ -129,6 +117,32 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
       setError(err.message || "An unexpected error occurred.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const validateName = () => {
+    if (!name || name.trim() === "") {
+      throw new Error("Value for name is required!");
+    }
+  };
+
+  const validateSizes = () => {
+    if (sizes.length <= 0) {
+      throw new Error("At least one size is required!");
+    }
+
+    sizes.forEach((sizeOption) => {
+      if (sizeOption.price <= 0) {
+        throw new Error(`Price for ${sizeOption.size} must be greater than 0!`);
+      }
+    });
+  };
+
+  const validateNonExistingOnCreate = (ingredient: Ingredient) => {
+    const exists = ingredients.some((item) => item.name.toLowerCase() === name.toLowerCase());
+
+    if (exists) {
+      throw new Error(`Name ${ingredient.name} already exists!`);
     }
   };
 
