@@ -13,36 +13,30 @@ import IngredientAdmin from "@/components/IngredientAdmin";
 export interface UpdateMenuProps {
   ingredients: Ingredient[];
   menuItems: MenuItem[];
-  setTempMenuItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
-  setTempIngredients: React.Dispatch<React.SetStateAction<Ingredient[]>>;
-  setShouldFetch: React.Dispatch<React.SetStateAction<boolean>>;
+  setReload: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function AdminMenuPage() {
-  const { user } = useAuth();
-  const { getMenuItems, getIngredients } = useMenu();
-
-  const [tempMenuItems, setTempMenuItems] = useState<MenuItem[]>([]);
-  const [tempIngredients, setTempIngredients] = useState<Ingredient[]>([]);
-  const [shouldFetch, setShouldFetch] = useState<boolean>(false);
+  const { user, validateAdminPriveleges } = useAuth();
+  const { getMenuItems, getIngredients, menuItems, ingredients } = useMenu();
+  const [reload, setReload] = useState<boolean>(false);
 
   useEffect(() => {
-    setShouldFetch(true);
+    validateAdminPriveleges();
+    reloadMenu();
   }, []);
 
   useEffect(() => {
-    (async () => {
-      const menuResponse = await getMenuItems();
-      if (menuResponse.menuItems != null) {
-        setTempMenuItems(menuResponse.menuItems);
-      }
+    if (reload) {
+      reloadMenu();
+    }
+  }, [reload]);
 
-      const ingredientsResponse = await getIngredients();
-      if (ingredientsResponse.ingredients != null) {
-        setTempIngredients(ingredientsResponse.ingredients);
-      }
-    })();
-  }, [shouldFetch]);
+  const reloadMenu = async () => {
+    await getMenuItems();
+    await getIngredients();
+    setReload(false);
+  };
 
   return (
     <div>
@@ -51,39 +45,34 @@ export default function AdminMenuPage() {
       ) : (
         <div>
           <h1 className="text-3xl font-bold text-center m-5">Admin Menu</h1>
-          {/* TODO Dropdown to choose whether creating OR updating menu item, creating OR updating ingredient */}
           <div className="flex flex-row justify-between">
             <AddUpdateMenuItem
-              ingredients={tempIngredients}
-              menuItems={tempMenuItems}
-              setTempMenuItems={setTempMenuItems}
-              setTempIngredients={setTempIngredients}
-              setShouldFetch={setShouldFetch}
+              ingredients={ingredients}
+              menuItems={menuItems}
+              setReload={setReload}
             />
             <AddUpdateIngredient
-              ingredients={tempIngredients}
-              menuItems={tempMenuItems}
-              setTempMenuItems={setTempMenuItems}
-              setTempIngredients={setTempIngredients}
-              setShouldFetch={setShouldFetch}
+              ingredients={ingredients}
+              menuItems={menuItems}
+              setReload={setReload}
             />
           </div>
           {/* Menu Items */}
-          {tempMenuItems && tempMenuItems.length > 0 && (
+          {menuItems && menuItems.length > 0 && (
             <div className="flex flex-col justify-center items-center">
               <h1 className="text-2xl font-bold text-center mb-4">Menu Items</h1>
               <div className="flex flex-wrap justify-between gap-4">
-                {tempMenuItems.map((menuItem) => (
+                {menuItems.map((menuItem) => (
                   <MenuItemAdmin key={menuItem.id} menuItem={menuItem} />
                 ))}
               </div>
             </div>
           )}
-          {tempIngredients && tempIngredients.length > 0 && (
+          {ingredients && ingredients.length > 0 && (
             <div className="flex flex-col justify-between">
               <h1 className="text-2xl font-bold text-center mb-4">Ingredients</h1>
-              <div className="flex flex-wrap justify-between gap-4 m-5">
-                {tempIngredients.map((ingredient) => (
+              <div className="flex flex-wrap gap-4">
+                {ingredients.map((ingredient) => (
                   <IngredientAdmin key={ingredient.id} ingredient={ingredient} />
                 ))}
               </div>

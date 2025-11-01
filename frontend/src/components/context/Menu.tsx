@@ -18,6 +18,10 @@ interface MenuContext {
   getIngredients: () => Promise<{ ingredients: Ingredient[]; error?: string }>;
   createMenuItem: (menuItem: MenuItem) => Promise<{ success: boolean; error?: string }>;
   createIngredient: (ingredient: Ingredient) => Promise<{ success: boolean; error?: string }>;
+  updateMenuItem: (menuItem: MenuItem) => Promise<{ success: boolean; error?: string }>;
+  updateIngredient: (ingredient: Ingredient) => Promise<{ success: boolean; error?: string }>;
+  deleteMenuItem: (menuItem: MenuItem) => Promise<{ success: boolean; error?: string }>;
+  deleteIngredient: (ingredient: Ingredient) => Promise<{ success: boolean; error?: string }>;
   addOrderItem: (orderItem: OrderItem) => { success: boolean; error?: string };
   updateOrderItem: (orderItem: OrderItem) => { success: boolean; error?: string };
   deleteOrderItem: (orderItem: OrderItem) => { success: boolean; error?: string };
@@ -72,8 +76,6 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
     try {
       const jwt = validateJWT();
 
-      debugger;
-
       const res = await fetch(`${apiUrl}/admin/menu/menuItem`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
@@ -86,7 +88,6 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
       }
 
       await res.json();
-      debugger;
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message };
@@ -99,13 +100,99 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
 
       const res = await fetch(`${apiUrl}/admin/menu/ingredient`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: jwt },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
         body: JSON.stringify(ingredient),
       });
 
       if (!res.ok) {
         const error = await res.json();
         throw new Error(error.message || "Failed to create ingredient");
+      }
+
+      await res.json();
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  };
+
+  const updateMenuItem = async (menuItem: MenuItem) => {
+    try {
+      const jwt = validateJWT();
+
+      const res = await fetch(`${apiUrl}/admin/menu/menuItem`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
+        body: JSON.stringify(menuItem),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to update menu item");
+      }
+
+      await res.json();
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  };
+
+  const updateIngredient = async (ingredient: Ingredient) => {
+    try {
+      const jwt = validateJWT();
+
+      const res = await fetch(`${apiUrl}/admin/menu/ingredient`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
+        body: JSON.stringify(ingredient),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to update ingredient");
+      }
+
+      await res.json();
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  };
+
+  const deleteMenuItem = async (menuItem: MenuItem) => {
+    try {
+      const jwt = validateJWT();
+
+      const res = await fetch(`${apiUrl}/admin/menu/menuItem/${menuItem.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to delete menu item");
+      }
+
+      await res.json();
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  };
+
+  const deleteIngredient = async (ingredient: Ingredient) => {
+    try {
+      const jwt = validateJWT();
+
+      const res = await fetch(`${apiUrl}/admin/menu/ingredient/${ingredient.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to delete ingredient");
       }
 
       await res.json();
@@ -162,6 +249,10 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
       getIngredients,
       createMenuItem,
       createIngredient,
+      updateMenuItem,
+      updateIngredient,
+      deleteMenuItem,
+      deleteIngredient,
       addOrderItem,
       updateOrderItem,
       deleteOrderItem,

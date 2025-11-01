@@ -20,9 +20,6 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
 
   const [size, setSize] = useState<MenuItemSize | null>(null);
   const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(null);
-  const [showAddButton, setShowAddButton] = useState<boolean>(false);
-  const [showDoubleButton, setShowDoubleButton] = useState<boolean>(false);
-  const [showRemoveButton, setShowRemoveButton] = useState<boolean>(false);
   const [ingredientsToAdd, setIngredientsToAdd] = useState<Map<number, Ingredient>>(new Map());
   const [ingredientsToRemove, setIngredientsToRemove] = useState<Map<number, Ingredient>>(
     new Map()
@@ -91,6 +88,7 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
       throw new Error(`There are no sizes available for menu item ${menuItem.name}!`);
     }
 
+    debugger;
     setSize(tempSize);
     return tempSize;
   }
@@ -346,7 +344,7 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
               <div className="flex flex-col w-full h-full p-2">
                 <div className="font-bold">Added</div>
                 {ingredientsToAdd.size > 0 &&
-                  ingredientsToAdd.values().map((ingredientToAdd) => (
+                  Array.from(ingredientsToAdd.values()).map((ingredientToAdd) => (
                     <div
                       className="flex flex-row justify-between w-full px-2"
                       key={ingredientToAdd.id}
@@ -364,7 +362,7 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
               <div className="flex flex-col w-full h-full border-l-2 p-2">
                 <div className="font-bold">Doubled</div>
                 {ingredientsToDouble.size > 0 &&
-                  ingredientsToDouble.values().map((ingredientToDouble) => (
+                  Array.from(ingredientsToDouble.values()).map((ingredientToDouble) => (
                     <div
                       className="flex flex-row justify-between w-full px-2"
                       key={ingredientToDouble.id}
@@ -382,7 +380,7 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
               <div className="flex flex-col w-full h-full border-l-2 p-2">
                 <div className="font-bold">Removed</div>
                 {ingredientsToRemove.size > 0 &&
-                  ingredientsToRemove.values().map((ingredientToRemove) => (
+                  Array.from(ingredientsToRemove.values()).map((ingredientToRemove) => (
                     <div
                       className="flex flex-row justify-center w-full px-2"
                       key={ingredientToRemove.id}

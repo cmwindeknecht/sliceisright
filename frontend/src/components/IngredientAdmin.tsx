@@ -7,14 +7,17 @@ export interface IngredientAdminProps {
 
 export default function IngredientAdmin({ ingredient }: IngredientAdminProps) {
   return (
-    <div className="flex gap-4 p-4 border rounded-lg shadow bg-white min-w-lg h-fit">
+    <div className="flex gap-4 p-4 border rounded-lg shadow bg-orange-600 flex-1 basis-[calc(50%-0.5rem)] h-fit">
       {/* Right: Content */}
       <div className="flex-1 flex flex-col gap-3">
         {/* Name and Description - Side by Side */}
         <div className="flex gap-4">
           {/* Name */}
-          <div className="flex-1">
-            <h3 className="text-xl font-semibold">{ingredient.name}</h3>
+          <div className="flex-1 text-sm w-2/5">
+            <div className="flex gap-4 w-3/4">
+              <span className="font-bold">Name:</span>
+              <span className="text-black">{ingredient.name}</span>
+            </div>
 
             <div className="flex flex-row">
               <input type="checkbox" checked={ingredient.canBeDoubled} readOnly />
@@ -27,25 +30,27 @@ export default function IngredientAdmin({ ingredient }: IngredientAdminProps) {
           </div>
 
           {/* Available Sizes and Ingredients - Side by Side */}
-          <div className="flex gap-4">
-            {/* Available Sizes */}
-            {ingredient.sizes && ingredient.sizes.length > 0 && (
-              <div className="flex-1">
-                <div className="text-sm font-medium mb-2">Available Sizes:</div>
-                <div className="flex flex-wrap gap-2">
-                  {ingredient.sizes.map((size) => (
-                    <button
-                      key={size.size}
-                      type="button"
-                      disabled
-                      className="px-3 py-1 rounded border bg-gray-100 text-gray-700 cursor-default"
-                    >
-                      {size.size}: ${size.price.toFixed(2)}
-                    </button>
-                  ))}
+          <div className="flex gap-4 w-3/5">
+            <div className="text-sm font-bold mb-2">
+              Sizes
+              {/* Available Sizes */}
+              {ingredient.sizes && ingredient.sizes.length > 0 && (
+                <div className="flex-1">
+                  <div className="flex flex-wrap gap-2">
+                    {ingredient.sizes.map((size) => (
+                      <button
+                        key={size.size}
+                        type="button"
+                        disabled
+                        className="px-3 py-1 font-normal rounded border bg-red-600 text-black cursor-default"
+                      >
+                        {size.size}: ${size.price.toFixed(2)}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
