@@ -1,8 +1,10 @@
 package com.SliceIsRight.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
@@ -108,17 +110,29 @@ public class AdminMenu {
             throw new Exception(String.format("Failed to find all ingredients in DB to create MenuItem - request size = %s found size = %s", request.ingredients.size(), ingredients.size()));
         }
 
-        Set<MenuItemSize> sizes = request.sizes.stream()
-            .map(menuItemSizeDTO -> {
-                MenuItemSize menuItemSize = new MenuItemSize();
+        Map<Long, MenuItemSize> existingMenuItemSizes = MenuItemSize
+            .<MenuItemSize>find(
+                "id in ?1",
+                request.sizes.stream()
+                    .map(dto -> dto.id)
+                    .collect(Collectors.toList())
+            )
+            .list()
+            .stream()
+            .collect(Collectors.toMap(size -> size.id, size -> size));
+        
+        Set<MenuItemSize> updatedSizes = request.sizes.stream()
+            .map(requestSize -> {
+                MenuItemSize menuItemSize = existingMenuItemSizes.getOrDefault(requestSize.id, new MenuItemSize());
                 menuItemSize.menuItem = toUpdate;
-                menuItemSize.price = menuItemSizeDTO.price;
-                menuItemSize.size = menuItemSizeDTO.size;
-                MenuItemSize.persist(menuItemSize);
+                menuItemSize.price = requestSize.price;
+                menuItemSize.size = requestSize.size;
+                menuItemSize.persist();
                 return menuItemSize;
             })
-            .collect(Collectors.toSet()); 
-        toUpdate.sizes.addAll(sizes);
+            .collect(Collectors.toSet());
+
+        toUpdate.sizes.addAll(updatedSizes);
     }
 
     @Path("/ingredient")
@@ -174,18 +188,30 @@ public class AdminMenu {
         toUpdate.category = request.category;
         toUpdate.canBeDoubled = request.canBeDoubled;
         toUpdate.canBeRemoved = request.canBeRemoved;
-
-        Set<IngredientSize> sizes = request.sizes.stream()
-            .map(ingredientSizeDTO -> {
-                IngredientSize ingredientSize = new IngredientSize();
+        
+        Map<Long, IngredientSize> existingIngredientSizes = IngredientSize
+            .<IngredientSize>find(
+                "id in ?1",
+                request.sizes.stream()
+                    .map(dto -> dto.id)
+                    .collect(Collectors.toList())
+            )
+            .list()
+            .stream()
+            .collect(Collectors.toMap(size -> size.id, size -> size));
+        
+        Set<IngredientSize> updatedSizes = request.sizes.stream()
+            .map(requestSize -> {
+                IngredientSize ingredientSize = existingIngredientSizes.getOrDefault(requestSize.id, new IngredientSize());
                 ingredientSize.ingredient = toUpdate;
-                ingredientSize.price = ingredientSizeDTO.price;
-                ingredientSize.size = ingredientSizeDTO.size;
-                IngredientSize.persist(ingredientSize);
+                ingredientSize.price = requestSize.price;
+                ingredientSize.size = requestSize.size;
+                ingredientSize.persist();
                 return ingredientSize;
             })
-            .collect(Collectors.toSet()); 
-        toUpdate.sizes.addAll(sizes);
+            .collect(Collectors.toSet());
+        
+        toUpdate.sizes.addAll(updatedSizes);
     }
 }
 

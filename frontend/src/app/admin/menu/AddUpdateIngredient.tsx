@@ -13,7 +13,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
 
   const [id, setId] = useState<number | null>(null);
   const [name, setName] = useState<string>("");
-  const [sizes, setSizes] = useState<MenuItemSize[]>([]);
+  const [sizes, setSizes] = useState<IngredientSize[]>([]);
   const [category, setCategory] = useState<Ingredient["category"]>("MEAT");
   const [canBeRemoved, setCanBeRemoved] = useState<boolean>(false);
   const [canBeDoubled, setCanBeDoubled] = useState<boolean>(false);
@@ -114,7 +114,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
     >
       <h2 className="text-xl font-semibold text-center">Add / Update Ingredient</h2>
 
-      {/* Menu Item Selector */}
+      {/* Create / Update Ingredient Selector */}
       <div>
         <label className="block mb-1 font-medium">Select Ingredient (optional)</label>
         <select
@@ -122,7 +122,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
           onChange={(e) => setSelectedIngredientName(e.target.value)}
           className="border p-2 rounded w-full"
         >
-          <option value="">-- Create New Ingredient --</option>
+          <option value="default">-- Create New Ingredient --</option>
           {ingredients.map((item) => (
             <option key={item.name} value={item.name?.toString()}>
               {item.name}
@@ -130,6 +130,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
           ))}
         </select>
       </div>
+
       {/* Name */}
       <div>
         <label className="block mb-1 font-medium">Name</label>
@@ -246,6 +247,14 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
                     <button
                       type="button"
                       onClick={() => {
+                        // const sizeFound = sizes.find((s) => s.size === size);
+
+                        // if (sizeFound)
+
+                        // If sizes is an empty array:
+                        //    sizes.find((s) => s.size === size) = undefined
+                        //    !sizes.find((s) => s.size === size) = false
+                        //    !!sizes.find((s) => s.size === size) = true
                         const isSelected = !!sizes.find((s) => s.size === size);
                         if (isSelected) {
                           setSizes(sizes.filter((s) => s.size !== size));
