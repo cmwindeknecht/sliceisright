@@ -43,6 +43,7 @@ public class Helper {
             .description(menuItem.description)
             .imageUrl(menuItem.imageUrl)
             .category(menuItem.category)
+            .isAvailable(menuItem.isAvailable)
             .isCustomizable(menuItem.isCustomizable)
             .sizes(menuItem.sizes.stream()
                 .map(size -> new MenuItemSizeDTO(size.id, size.size, size.price))

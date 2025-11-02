@@ -88,7 +88,6 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
       throw new Error(`There are no sizes available for menu item ${menuItem.name}!`);
     }
 
-    debugger;
     setSize(tempSize);
     return tempSize;
   }
@@ -257,53 +256,33 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
                 ${size?.price.toFixed(2)}
               </div>
 
-              <div className="flex flex-row">
-                <div className={clsx("flex flex-row items-center h-[10vh]")}>
-                  <IngredientDropdown
-                    ingredients={ingredients}
-                    setSelectedIngredient={(selected) => {
-                      setError("");
-                      setSelectedIngredient(selected);
-                    }}
-                  />
-                  {error && <div>{error}</div>}
-                  {selectedIngredient && (
-                    <div className="flex flex-col items-center justify-center pl-5">
-                      <div
-                        className={clsx(
-                          "rounded-lg p-2 m-1",
-                          "font-semibold font-stretch-ultra-expanded text-sm text-black underline-offset-1"
-                        )}
-                      >
-                        <u>{selectedIngredient.name}</u>
-                      </div>
-                      <div className="flex flex-row">
-                        {!doesMenuItemHasIngredient() && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              addIngredient();
-                              setSelectedIngredient(null);
-                            }}
-                            className={clsx(
-                              "rounded-lg p-2 me-2 mb-2",
-                              "font-medium text-sm text-white bg-red-700 hover:bg-red-800",
-                              "focus:outline-none focus:ring-4 focus:ring-red-300",
-                              "dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
-                            )}
-                          >
-                            Add
-                          </button>
-                        )}
-                        {doesMenuItemHasIngredient() &&
-                          menuItem.ingredients.find(
-                            (menuItemIngredient) =>
-                              menuItemIngredient.name == selectedIngredient.name
-                          ) && (
+              {menuItem.isCustomizable && (
+                <div className="flex flex-row">
+                  <div className={clsx("flex flex-row items-center h-[10vh]")}>
+                    <IngredientDropdown
+                      ingredients={ingredients}
+                      setSelectedIngredient={(selected) => {
+                        setError("");
+                        setSelectedIngredient(selected);
+                      }}
+                    />
+                    {error && <div>{error}</div>}
+                    {selectedIngredient && (
+                      <div className="flex flex-col items-center justify-center pl-5">
+                        <div
+                          className={clsx(
+                            "rounded-lg p-2 m-1",
+                            "font-semibold font-stretch-ultra-expanded text-sm text-black underline-offset-1"
+                          )}
+                        >
+                          <u>{selectedIngredient.name}</u>
+                        </div>
+                        <div className="flex flex-row">
+                          {!doesMenuItemHasIngredient() && (
                             <button
                               type="button"
                               onClick={() => {
-                                removeIngredient();
+                                addIngredient();
                                 setSelectedIngredient(null);
                               }}
                               className={clsx(
@@ -313,84 +292,108 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
                                 "dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
                               )}
                             >
-                              Remove
+                              Add
                             </button>
                           )}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            doubleIngredient();
-                            setSelectedIngredient(null);
-                          }}
-                          className={clsx(
-                            "rounded-lg p-2 me-2 mb-2",
-                            "font-medium text-sm text-white bg-red-700 hover:bg-red-800",
-                            "focus:outline-none focus:ring-4 focus:ring-red-300",
-                            "dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
-                          )}
-                        >
-                          Double
-                        </button>
+                          {doesMenuItemHasIngredient() &&
+                            menuItem.ingredients.find(
+                              (menuItemIngredient) =>
+                                menuItemIngredient.name == selectedIngredient.name
+                            ) && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  removeIngredient();
+                                  setSelectedIngredient(null);
+                                }}
+                                className={clsx(
+                                  "rounded-lg p-2 me-2 mb-2",
+                                  "font-medium text-sm text-white bg-red-700 hover:bg-red-800",
+                                  "focus:outline-none focus:ring-4 focus:ring-red-300",
+                                  "dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+                                )}
+                              >
+                                Remove
+                              </button>
+                            )}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              doubleIngredient();
+                              setSelectedIngredient(null);
+                            }}
+                            className={clsx(
+                              "rounded-lg p-2 me-2 mb-2",
+                              "font-medium text-sm text-white bg-red-700 hover:bg-red-800",
+                              "focus:outline-none focus:ring-4 focus:ring-red-300",
+                              "dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+                            )}
+                          >
+                            Double
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          {menuItem.isCustomizable && (
+            <div>
+              {/* Ingredient Modifications */}
+              <div className="flex flex-row w-[55vw] h-full justify-between border-r-2 border-l-2 border-b-2">
+                <div className="flex flex-col w-full h-full p-2">
+                  <div className="font-bold">Added</div>
+                  {ingredientsToAdd.size > 0 &&
+                    Array.from(ingredientsToAdd.values()).map((ingredientToAdd) => (
+                      <div
+                        className="flex flex-row justify-between w-full px-2"
+                        key={ingredientToAdd.id}
+                      >
+                        <div>{ingredientToAdd.name}</div>
+                        <div>
+                          $
+                          {ingredientToAdd.sizes
+                            .find((ingredientSize) => ingredientSize.size == size?.size)
+                            ?.price.toFixed(2)}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+                <div className="flex flex-col w-full h-full border-l-2 p-2">
+                  <div className="font-bold">Doubled</div>
+                  {ingredientsToDouble.size > 0 &&
+                    Array.from(ingredientsToDouble.values()).map((ingredientToDouble) => (
+                      <div
+                        className="flex flex-row justify-between w-full px-2"
+                        key={ingredientToDouble.id}
+                      >
+                        <div>{ingredientToDouble.name}</div>
+                        <div>
+                          $
+                          {ingredientToDouble.sizes
+                            .find((ingredientSize) => ingredientSize.size == size?.size)
+                            ?.price.toFixed(2)}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+                <div className="flex flex-col w-full h-full border-l-2 p-2">
+                  <div className="font-bold">Removed</div>
+                  {ingredientsToRemove.size > 0 &&
+                    Array.from(ingredientsToRemove.values()).map((ingredientToRemove) => (
+                      <div
+                        className="flex flex-row justify-center w-full px-2"
+                        key={ingredientToRemove.id}
+                      >
+                        <div>{ingredientToRemove.name}</div>
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>
-          </div>
-          <div>
-            {/* Ingredient Modifications */}
-            <div className="flex flex-row w-[55vw] h-full justify-between border-r-2 border-l-2 border-b-2">
-              <div className="flex flex-col w-full h-full p-2">
-                <div className="font-bold">Added</div>
-                {ingredientsToAdd.size > 0 &&
-                  Array.from(ingredientsToAdd.values()).map((ingredientToAdd) => (
-                    <div
-                      className="flex flex-row justify-between w-full px-2"
-                      key={ingredientToAdd.id}
-                    >
-                      <div>{ingredientToAdd.name}</div>
-                      <div>
-                        $
-                        {ingredientToAdd.sizes
-                          .find((ingredientSize) => ingredientSize.size == size?.size)
-                          ?.price.toFixed(2)}
-                      </div>
-                    </div>
-                  ))}
-              </div>
-              <div className="flex flex-col w-full h-full border-l-2 p-2">
-                <div className="font-bold">Doubled</div>
-                {ingredientsToDouble.size > 0 &&
-                  Array.from(ingredientsToDouble.values()).map((ingredientToDouble) => (
-                    <div
-                      className="flex flex-row justify-between w-full px-2"
-                      key={ingredientToDouble.id}
-                    >
-                      <div>{ingredientToDouble.name}</div>
-                      <div>
-                        $
-                        {ingredientToDouble.sizes
-                          .find((ingredientSize) => ingredientSize.size == size?.size)
-                          ?.price.toFixed(2)}
-                      </div>
-                    </div>
-                  ))}
-              </div>
-              <div className="flex flex-col w-full h-full border-l-2 p-2">
-                <div className="font-bold">Removed</div>
-                {ingredientsToRemove.size > 0 &&
-                  Array.from(ingredientsToRemove.values()).map((ingredientToRemove) => (
-                    <div
-                      className="flex flex-row justify-center w-full px-2"
-                      key={ingredientToRemove.id}
-                    >
-                      <div>{ingredientToRemove.name}</div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </div>
+          )}
         </div>
         <div>Price ${price?.toFixed(2)}</div>
       </div>

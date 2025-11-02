@@ -13,7 +13,7 @@ export interface MenuItem {
 }
 
 export interface MenuItemSize {
-  size: "None" | "S" | "M" | "L" | "XL";
+  size: "NONE" | "S" | "M" | "L" | "XL";
   price: number;
 }
 

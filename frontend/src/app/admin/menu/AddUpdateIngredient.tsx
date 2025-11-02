@@ -27,7 +27,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
   const [success, setSuccess] = useState(false);
 
   const categoryOptions: Ingredient["category"][] = ["MEAT", "VEGETABLE", "FRUIT", "OTHER"];
-  const sizeOptions: IngredientSize["size"][] = ["None", "S", "M", "L", "XL"];
+  const sizeOptions: IngredientSize["size"][] = ["NONE", "S", "M", "L", "XL"];
   const isUpdateMode = selectedIngredientName !== "";
 
   // Load selected ingredient data when dropdown changes
@@ -45,6 +45,17 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
       setCanBeRemoved(ingredient ? ingredient.canBeRemoved : false);
     }
   }, [selectedIngredientName, ingredients]);
+
+  const resetOnSuccess = () => {
+    setName("");
+    setSizes([]);
+    setCanBeDoubled(false);
+    setCanBeRemoved(false);
+    setSelectedIngredientName("");
+    setSuccess(true);
+    setReload(true);
+    setSelected(null);
+  };
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -75,13 +86,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
       }
 
       if (response.success) {
-        setName("");
-        setSizes([]);
-        setCanBeDoubled(false);
-        setCanBeRemoved(false);
-        setSelectedIngredientName("");
-        setSuccess(true);
-        setReload(true);
+        resetOnSuccess();
       } else {
         setSuccess(false);
         setError(response.error || "An unexpected error occurred.");
@@ -103,13 +108,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
       const response = await deleteIngredient(ingredient);
 
       if (response.success) {
-        setName("");
-        setSizes([]);
-        setCanBeDoubled(false);
-        setCanBeRemoved(false);
-        setSelectedIngredientName("");
-        setSuccess(true);
-        setReload(true);
+        resetOnSuccess();
       } else {
         setSuccess(false);
         setError(response.error || "An unexpected error occurred.");

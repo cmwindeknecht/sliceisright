@@ -18,13 +18,15 @@ export default function MenuPage() {
     <div className="flex flex-col">
       <h1 className="text-3xl font-bold text-center mt-5">Menu</h1>
       <div>
-        {menuItems?.map((menuItem) => (
-          <MenuItem
-            key={menuItem.name + menuItem.id}
-            menuItem={menuItem}
-            ingredients={ingredients}
-          />
-        ))}
+        {menuItems
+          ?.filter((menuItem) => menuItem.isAvailable)
+          .map((menuItem) => (
+            <MenuItem
+              key={menuItem.name + menuItem.id}
+              menuItem={menuItem}
+              ingredients={ingredients}
+            />
+          ))}
       </div>
     </div>
   );

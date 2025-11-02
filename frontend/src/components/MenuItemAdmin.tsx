@@ -76,6 +76,10 @@ export default function MenuItemAdmin({ menuItem }: MenuItemAdminProps) {
                   <input type="checkbox" checked={menuItem.isCustomizable} readOnly />
                   <div className="pl-1 text-sm">Can be customized by customer?</div>
                 </div>
+                <div className="flex flex-row items-center">
+                  <input type="checkbox" checked={menuItem.isAvailable} readOnly />
+                  <div className="pl-1 text-sm">Is available for the menu?</div>
+                </div>
               </div>
               {menuItem.ingredients && menuItem.ingredients.length > 0 && (
                 <div className="flex flex-row flex-wrap gap-1">
