@@ -29,8 +29,10 @@ import com.SliceIsRight.database.entities.MenuItem;
 import com.SliceIsRight.database.entities.MenuItemSize;
 import com.SliceIsRight.database.repositories.MenuItemRepository;
 import com.SliceIsRight.api.responses.ResponseFactory;
+import com.SliceIsRight.Constants.Size;
 import com.SliceIsRight.Helper;
 import com.SliceIsRight.api.model.IngredientDTO;
+import com.SliceIsRight.api.model.IngredientSizeDTO;
 import com.SliceIsRight.api.model.MenuItemDTO;
 import com.SliceIsRight.api.model.MenuItemSizeDTO;
 
@@ -143,9 +145,8 @@ public class AdminMenu {
             throw new Exception(String.format("Failed to find all ingredients in DB to create MenuItem - request size = %s found size = %s", request.ingredients.size(), ingredients.size()));
         }
 
-
         // check if the request is removing a size - delete the menu item size association if its not in the request
-        Map<Long, MenuItemSize> existingMenuItemSizes = new HashMap<Long, MenuItemSize>();
+        Map<Size, MenuItemSize> existingMenuItemSizes = new HashMap<Size, MenuItemSize>();
         Iterator<MenuItemSize> menuItemSizeIterator = toUpdate.sizes.iterator();
         while (menuItemSizeIterator.hasNext()) {
             MenuItemSize menuItemSize = menuItemSizeIterator.next();
@@ -155,25 +156,14 @@ public class AdminMenu {
             if (matchingSizeMaybe.isEmpty()) {
                 menuItemSizeIterator.remove();
             } else {
-                existingMenuItemSizes.put(menuItemSize.id, menuItemSize);
+                existingMenuItemSizes.put(menuItemSize.size, menuItemSize);
             }
         }
-
-        // // 
-        // Map<Long, MenuItemSize> existingMenuItemSizes = MenuItemSize
-        //     .<MenuItemSize>find(
-        //         "id in ?1",
-        //         request.sizes.stream()
-        //             .map(dto -> dto.id)
-        //             .collect(Collectors.toList())
-        //     )
-        //     .list()
-        //     .stream()
-        //     .collect(Collectors.toMap(size -> size.id, size -> size));
         
+        // update or create new size associations
         Set<MenuItemSize> updatedSizes = request.sizes.stream()
             .map(requestSize -> {
-                MenuItemSize menuItemSize = existingMenuItemSizes.getOrDefault(requestSize.id, new MenuItemSize());
+                MenuItemSize menuItemSize = existingMenuItemSizes.getOrDefault(requestSize.size, new MenuItemSize());
                 menuItemSize.menuItem = toUpdate;
                 menuItemSize.price = requestSize.price;
                 menuItemSize.size = requestSize.size;
@@ -264,21 +254,26 @@ public class AdminMenu {
         if (request.sizes.size() < 0) {
             throw new Exception("Ingredient update contained zero sizes!");
         }
+
+        // check if the request is removing a size - delete the ingredient size association if its not in the request
+        Map<Size, IngredientSize> existingIngredientSizes = new HashMap<Size, IngredientSize>();
+        Iterator<IngredientSize> menuItemSizeIterator = toUpdate.sizes.iterator();
+        while (menuItemSizeIterator.hasNext()) {
+            IngredientSize ingredientSize = menuItemSizeIterator.next();
+            Optional<IngredientSizeDTO> matchingSizeMaybe = request.sizes.stream()
+                .filter(requestSize -> requestSize.size == ingredientSize.size)
+                .findFirst();
+            if (matchingSizeMaybe.isEmpty()) {
+                menuItemSizeIterator.remove();
+            } else {
+                existingIngredientSizes.put(ingredientSize.size, ingredientSize);
+            }
+        }
         
-        Map<Long, IngredientSize> existingIngredientSizes = IngredientSize
-            .<IngredientSize>find(
-                "id in ?1",
-                request.sizes.stream()
-                    .map(dto -> dto.id)
-                    .collect(Collectors.toList())
-            )
-            .list()
-            .stream()
-            .collect(Collectors.toMap(size -> size.id, size -> size));
-        
+        // update or create new size associations
         Set<IngredientSize> updatedSizes = request.sizes.stream()
             .map(requestSize -> {
-                IngredientSize ingredientSize = existingIngredientSizes.getOrDefault(requestSize.id, new IngredientSize());
+                IngredientSize ingredientSize = existingIngredientSizes.getOrDefault(requestSize.size, new IngredientSize());
                 ingredientSize.ingredient = toUpdate;
                 ingredientSize.price = requestSize.price;
                 ingredientSize.size = requestSize.size;
