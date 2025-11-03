@@ -1,27 +1,21 @@
-export interface SizeSelectorProps<T extends { size: string; price: number }> {
+export interface AdminSizeSelectorProps<T extends { size: string; price: number }> {
   sizes: T[];
   setSizes: React.Dispatch<React.SetStateAction<T[]>>;
   sizeOptions: string[];
   label?: string;
 }
 
-export default function SizeSelector<T extends { size: string; price: number }>({
+export default function AdminSizeSelector<T extends { size: string; price: number }>({
   sizes,
   setSizes,
   sizeOptions,
   label = "Sizes & Prices",
-}: SizeSelectorProps<T>) {
+}: AdminSizeSelectorProps<T>) {
   const toggleSize = (size: string) => {
     const isSelected = !!sizes.find((s) => s.size === size);
     if (isSelected) {
       setSizes(sizes.filter((s) => s.size !== size));
     } else {
-      //   if (size === "None") {
-      //     setSizes([{ size: "None", price: 0 } as T]);
-      //   } else {
-      //     const withoutNone = sizes.filter((s) => s.size !== "None");
-      //     setSizes([...withoutNone, { size, price: 0 } as T]);
-      //   }
       setSizes([...sizes, { size, price: 0 } as T]);
     }
   };

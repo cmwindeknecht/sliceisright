@@ -8,6 +8,7 @@ import { Ingredient, IngredientSize } from "@/types/Ingredient";
 import clsx from "clsx";
 import { useMenu } from "./context/Menu";
 import { useRouter } from "next/navigation";
+import OverlayImageWithFadeIn from "./OverlayImageWithFadeIn";
 
 export interface MenuItemProps {
   menuItem: MenuItemType;
@@ -16,6 +17,8 @@ export interface MenuItemProps {
 
 export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
   const router = useRouter();
+  const { addOrderItem, deleteOrderItem, updateOrderItem } = useMenu();
+
   const [showImageOverlay, setShowImageOverlay] = useState<boolean>(false);
 
   const [size, setSize] = useState<MenuItemSize | null>(null);
@@ -29,8 +32,9 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
   );
   const [price, setPrice] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [imageLoaded, setImageLoaded] = useState<boolean>(false);
 
-  const sizeOrder = ["S", "M", "L", "XL"];
+  const sizeOrder = ["NONE", "S", "M", "L", "XL"];
 
   useEffect(() => {
     getSize();
@@ -92,7 +96,7 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
     return tempSize;
   }
 
-  function doesMenuItemHasIngredient() {
+  function doesMenuItemHaveIngredient() {
     if (selectedIngredient == null) return false;
 
     return menuItem.ingredients.find(
@@ -213,15 +217,11 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
       >
         {/* Image / Name & Description */}
         <div className="flex flex-row items-stretch w-[95vw]">
-          <div className="flex-shrink-0 cursor-pointer" onClick={() => setShowImageOverlay(true)}>
-            <Image
-              src="/queens.jpg"
-              className="w-[15vw] h-full object-cover"
-              width={1536}
-              height={2048}
-              alt={menuItem.name}
-            />
-          </div>
+          <OverlayImageWithFadeIn
+            menuItemName={menuItem.name}
+            wrapperClass="w-[15vw] h-[15vw] relative bg-gray-300 cursor-pointer"
+          />
+
           <div className="flex flex-col w-[80vw] bg-red-600">
             <div className="font-bold bg-orange-600">{menuItem.name}</div>
             <div className="flex flex-row gap-2">
@@ -281,7 +281,7 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
                           <u>{selectedIngredient.name}</u>
                         </div>
                         <div className="flex flex-row">
-                          {!doesMenuItemHasIngredient() && (
+                          {!doesMenuItemHaveIngredient() && (
                             <button
                               type="button"
                               onClick={() => {
@@ -298,7 +298,7 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
                               Add
                             </button>
                           )}
-                          {doesMenuItemHasIngredient() &&
+                          {doesMenuItemHaveIngredient() &&
                             menuItem.ingredients.find(
                               (menuItemIngredient) =>
                                 menuItemIngredient.name == selectedIngredient.name

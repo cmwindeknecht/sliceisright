@@ -4,11 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/context/Auth";
 import { useState } from "react";
+import { useMenu } from "./context/Menu";
 
 export default function Header() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const { user, logout } = useAuth();
+  const { currentOrder } = useMenu();
 
   return (
     <header className="bg-gradient-to-r from-orange-600 from-50% to-red-600 to-50% text-white p-4 flex justify-center items-center relative drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] [text-shadow:_0_0_3px_black,_0_0_5px_black]">
@@ -37,7 +39,7 @@ export default function Header() {
           href="/order"
           className={`hover:font-bold ${mounted && pathname === "/order" ? "underline" : ""}`}
         >
-          Current Order
+          🛒 Order ({currentOrder.length})
         </Link>
       </div>
 

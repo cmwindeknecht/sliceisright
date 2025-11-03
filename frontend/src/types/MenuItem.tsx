@@ -9,7 +9,7 @@ export interface MenuItem {
   isCustomizable: boolean;
   ingredients: Ingredient[];
   sizes: MenuItemSize[];
-  category: "PIZZA" | "ITEMS" | "DESSERTS" | "BEVERAGES";
+  category: "PIZZA" | "ITEMS" | "DESSERTS" | "BEVERAGES" | "DEALS";
 }
 
 export interface MenuItemSize {

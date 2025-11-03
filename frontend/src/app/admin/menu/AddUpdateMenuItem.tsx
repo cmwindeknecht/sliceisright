@@ -7,7 +7,7 @@ import { UpdateMenuProps } from "./page";
 import { useMenu } from "@/components/context/Menu";
 import ItemSelector from "@/components/ItemSelector";
 import CategorySelector from "@/components/CategorySelector";
-import SizeSelector from "@/components/SizeSelector";
+import AdminSizeSelector from "@/components/AdminSizeSelector";
 
 export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }: UpdateMenuProps) {
   const { createMenuItem, updateMenuItem, deleteMenuItem } = useMenu();
@@ -28,7 +28,13 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
   const [loading, setLoading] = useState<boolean | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const categoryOptions: MenuItem["category"][] = ["PIZZA", "ITEMS", "DESSERTS", "BEVERAGES"];
+  const categoryOptions: MenuItem["category"][] = [
+    "PIZZA",
+    "ITEMS",
+    "DESSERTS",
+    "BEVERAGES",
+    "DEALS",
+  ];
   const sizeOptions: MenuItemSize["size"][] = ["NONE", "S", "M", "L", "XL"];
   const defaultSelectorText = "-- Create New Menu Item --";
 
@@ -218,7 +224,7 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
         categoryOptions={categoryOptions}
       />
 
-      <SizeSelector sizes={sizes} setSizes={setSizes} sizeOptions={sizeOptions} />
+      <AdminSizeSelector sizes={sizes} setSizes={setSizes} sizeOptions={sizeOptions} />
 
       {/* Ingredients */}
       {ingredients && (

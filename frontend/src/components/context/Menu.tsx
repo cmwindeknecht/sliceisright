@@ -37,6 +37,7 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [currentOrder, setCurrentOrder] = useState<OrderItem[]>([]);
+
   useEffect(() => {
     const eventSource = new EventSource("http://localhost:8080/menu/updates");
 
@@ -51,7 +52,7 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
     };
 
     eventSource.onerror = (error) => {
-      console.error("SSE error:", error);
+      console.warn("SSE error:", error);
     };
 
     return () => eventSource.close();

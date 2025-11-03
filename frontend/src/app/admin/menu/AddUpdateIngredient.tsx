@@ -7,7 +7,7 @@ import { UpdateMenuProps } from "./page";
 import { useMenu } from "@/components/context/Menu";
 import ItemSelector from "@/components/ItemSelector";
 import CategorySelector from "@/components/CategorySelector";
-import SizeSelector from "@/components/SizeSelector";
+import AdminSizeSelector from "@/components/AdminSizeSelector";
 
 export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMenuProps) {
   const { createIngredient, updateIngredient, deleteIngredient } = useMenu();
@@ -179,7 +179,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
         categoryOptions={categoryOptions}
       />
 
-      <SizeSelector sizes={sizes} setSizes={setSizes} sizeOptions={sizeOptions} />
+      <AdminSizeSelector sizes={sizes} setSizes={setSizes} sizeOptions={sizeOptions} />
 
       <div className="flex flex-row">
         <input
