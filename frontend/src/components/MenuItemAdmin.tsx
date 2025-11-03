@@ -11,7 +11,7 @@ export default function MenuItemAdmin({ menuItem }: MenuItemAdminProps) {
 
   return (
     <>
-      <div className="flex gap-4 p-4 border rounded-lg shadow bg-orange-600 min-w-5xl h-fit">
+      <div className="flex gap-4 p-4 border rounded-lg shadow bg-orange-600 w-[90vw] h-fit">
         {/* Left: Image */}
         <div className="flex-shrink-0 cursor-pointer" onClick={() => setShowImageOverlay(true)}>
           {menuItem.imageUrl ? (
@@ -30,7 +30,7 @@ export default function MenuItemAdmin({ menuItem }: MenuItemAdminProps) {
         </div>
 
         <div className="flex flex-col flex-1 gap-3">
-          <div className="flex gap-4 h-1/3 bg-red-600 rounded-2xl p-2">
+          <div className="flex p-2 pb-6 gap-4 h-1/3 bg-red-600 rounded-2xl">
             {/* Name */}
             <div className="flex flex-col w-1/4  text-sm">
               <div>

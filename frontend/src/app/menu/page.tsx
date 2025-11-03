@@ -1,18 +1,13 @@
 "use client";
 
 import { useMenu } from "@/components/context/Menu";
-import { useEffect, useState } from "react";
 import MenuItem from "@/components/MenuItem";
+import { useEffect } from "react";
 
 export default function MenuPage() {
-  const { getMenuItems, menuItems, getIngredients, ingredients } = useMenu();
+  const { menuItems, ingredients } = useMenu();
 
-  useEffect(() => {
-    (async () => {
-      await getMenuItems();
-      await getIngredients();
-    })();
-  }, [menuItems, ingredients]);
+  useEffect(() => {}, [menuItems]);
 
   return (
     <div className="flex flex-col">

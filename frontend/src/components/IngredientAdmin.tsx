@@ -7,7 +7,7 @@ export interface IngredientAdminProps {
 
 export default function IngredientAdmin({ ingredient }: IngredientAdminProps) {
   return (
-    <div className="flex gap-4 p-4 border rounded-lg shadow bg-orange-600 flex-1 basis-[calc(50%-0.5rem)] h-fit">
+    <div className="flex gap-4 p-4 border rounded-lg shadow bg-orange-600 w-[45vw] h-fit">
       {/* Right: Content */}
       <div className="flex-1 flex flex-col gap-3">
         {/* Name and Description - Side by Side */}

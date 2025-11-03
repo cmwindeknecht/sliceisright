@@ -224,7 +224,10 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
           </div>
           <div className="flex flex-col w-[80vw] bg-red-600">
             <div className="font-bold bg-orange-600">{menuItem.name}</div>
-            <div className="pl-5 pt-2">{menuItem.description}</div>
+            <div className="flex flex-row gap-2">
+              <div className="p-3 w-1/3">{menuItem.description}</div>
+              <div className="p-3 w-2/3">test</div>
+            </div>
           </div>
         </div>
 

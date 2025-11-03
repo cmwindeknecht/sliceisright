@@ -37,8 +37,29 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [currentOrder, setCurrentOrder] = useState<OrderItem[]>([]);
+  useEffect(() => {
+    const eventSource = new EventSource("http://localhost:8080/menu/updates");
+
+    eventSource.onmessage = (event) => {
+      console.log(`Received event data ${event.data}`);
+      if (event.data === "refreshMenuItems") {
+        getMenuItems();
+      }
+      if (event.data === "refreshIngredients") {
+        getIngredients();
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error("SSE error:", error);
+    };
+
+    return () => eventSource.close();
+  }, []);
 
   const getMenuItems = async () => {
+    logTrace("getMenuItems");
+
     try {
       const res = await fetch(`${apiUrl}/menu/menuItems`);
 
@@ -56,6 +77,8 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
   };
 
   const getIngredients = async () => {
+    logTrace("getIngredients");
+
     try {
       const res = await fetch(`${apiUrl}/menu/ingredients`);
 
@@ -230,6 +253,15 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
     } catch (err: any) {
       return { success: false, error: err.message };
     }
+  };
+
+  const logTrace = (prefix: string) => {
+    const stack = new Error().stack
+      ?.split("\n")
+      .slice(2, 5)
+      .map((s) => s.trim());
+
+    console.log(`${prefix} called from:\n`, stack?.join("\n"));
   };
 
   const validateJWT = () => {
