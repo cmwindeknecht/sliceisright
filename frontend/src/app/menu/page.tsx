@@ -3,7 +3,9 @@
 import { useMenu } from "@/components/context/Menu";
 import MenuItem from "@/components/MenuItem";
 import MenuItemOverview from "@/components/MenuItemOverview";
+import MenuItemOverviewSimple from "@/components/MenuItemOverviewSimple";
 import { MenuItem as MenuItemType } from "@/types/MenuItem";
+import clsx from "clsx";
 import { useEffect, useState } from "react";
 
 export default function MenuPage() {
@@ -47,6 +49,7 @@ export default function MenuPage() {
     setCategorizedMenu(categorized);
   };
 
+  // TODO get the current order and populate the quantities in the overview cards
   return (
     <div className="m-3">
       {menuItemToCustomize ? (
@@ -64,20 +67,27 @@ export default function MenuPage() {
           {[...categorizedMenu.entries()].map(([category, menuItems]) => (
             <div key={category}>
               <div className="text-center text-3xl m-3">{categories.get(category)}</div>
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+              <div
+                className={clsx(
+                  category == "BEVERAGES"
+                    ? "grid-cols-8 sm:grid-cols-4 md:grid-cols-5 xl:grid-cols-6"
+                    : "grid-cols-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4",
+                  "grid gap-4 "
+                )}
+              >
                 {menuItems
                   .filter((menuItem) => menuItem.isAvailable)
-                  .map((menuItem) => (
-                    <div
-                      key={menuItem.name + menuItem.id}
-                      // onClick={() => setMenuItemToCustomize(menuItem)}
-                    >
+                  .map((menuItem) =>
+                    category == "BEVERAGES" ? (
+                      <MenuItemOverviewSimple menuItem={menuItem} />
+                    ) : (
                       <MenuItemOverview
+                        key={menuItem.name + menuItem.id}
                         menuItem={menuItem}
                         setMenuItemToCustomize={setMenuItemToCustomize}
                       />
-                    </div>
-                  ))}
+                    )
+                  )}
               </div>
             </div>
           ))}
