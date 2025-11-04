@@ -20,6 +20,7 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
   const [description, setDescription] = useState<string>("");
   const [sizes, setSizes] = useState<MenuItemSize[]>([]);
   const [imageUrl, setImageUrl] = useState<string>("");
+  const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const [isCustomizable, setIsCustomizable] = useState<boolean>(false);
   const [menuItemIngredients, setMenuItemIngredients] = useState<Ingredient[]>([]);
   const [category, setCategory] = useState<MenuItem["category"]>("PIZZA");
@@ -54,6 +55,7 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
     setSizes(menuItem ? menuItem.sizes : []);
     setImageUrl(menuItem ? menuItem.imageUrl : "");
     setIsCustomizable(menuItem ? menuItem.isCustomizable : false);
+    setIsAvailable(menuItem ? menuItem.isAvailable : false);
     setMenuItemIngredients(menuItem ? menuItem.ingredients : []);
   }, [selectedMenuItemName, menuItems]);
 
@@ -86,7 +88,7 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
         name,
         description,
         imageUrl,
-        isAvailable: false,
+        isAvailable: selected ? selected.isAvailable : false,
         isCustomizable,
         ingredients: menuItemIngredients,
         sizes,

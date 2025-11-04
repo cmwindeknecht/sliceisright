@@ -11,7 +11,7 @@ export default function MenuPage() {
   const [categorizedMenu, setCategorizedMenu] = useState<
     Map<MenuItemType["category"], MenuItemType[]>
   >(new Map());
-  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItemType | null>(null);
+  const [menuItemToCustomize, setMenuItemToCustomize] = useState<MenuItemType | null>(null);
 
   const categories = new Map<MenuItemType["category"], string>([
     ["PIZZA", "Signature Pizzas"],
@@ -49,30 +49,33 @@ export default function MenuPage() {
 
   return (
     <div className="m-3">
-      {selectedMenuItem ? (
+      {menuItemToCustomize ? (
         <div>
           <button
-            onClick={() => setSelectedMenuItem(null)}
+            onClick={() => setMenuItemToCustomize(null)}
             className=" bg-orange-600 text-white p-2 mb-3 rounded hover:bg-orange-700 disabled:opacity-50"
           >
             Return to Menu
           </button>
-          <MenuItem menuItem={selectedMenuItem} ingredients={ingredients} />
+          <MenuItem menuItem={menuItemToCustomize} ingredients={ingredients} />
         </div>
       ) : (
         <div>
           {[...categorizedMenu.entries()].map(([category, menuItems]) => (
             <div key={category}>
               <div className="text-center text-3xl m-3">{categories.get(category)}</div>
-              <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                 {menuItems
                   .filter((menuItem) => menuItem.isAvailable)
                   .map((menuItem) => (
                     <div
                       key={menuItem.name + menuItem.id}
-                      onClick={() => setSelectedMenuItem(menuItem)}
+                      // onClick={() => setMenuItemToCustomize(menuItem)}
                     >
-                      <MenuItemOverview menuItem={menuItem} />
+                      <MenuItemOverview
+                        menuItem={menuItem}
+                        setMenuItemToCustomize={setMenuItemToCustomize}
+                      />
                     </div>
                   ))}
               </div>
