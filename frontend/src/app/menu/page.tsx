@@ -4,6 +4,7 @@ import { useMenu } from "@/components/context/Menu";
 import MenuItem from "@/components/MenuItem";
 import MenuItemOverview from "@/components/MenuItemOverview";
 import MenuItemOverviewSimple from "@/components/MenuItemOverviewSimple";
+import { sortMenuItemsByCategory } from "@/misc/helper";
 import { MenuItem as MenuItemType } from "@/types/MenuItem";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
@@ -69,17 +70,25 @@ export default function MenuPage() {
               <div className="text-center text-3xl m-3">{categories.get(category)}</div>
               <div
                 className={clsx(
-                  category == "BEVERAGES"
-                    ? "grid-cols-8 sm:grid-cols-4 md:grid-cols-5 xl:grid-cols-6"
-                    : "grid-cols-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4",
+                  category == "BEVERAGES" || category == "DESSERTS"
+                    ? "grid-cols-8 sm:grid-cols-5 md:grid-cols-6 xl:grid-cols-7"
+                    : "grid-cols-6 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5",
                   "grid gap-4 "
                 )}
               >
-                {menuItems
+                {sortMenuItemsByCategory(menuItems)
                   .filter((menuItem) => menuItem.isAvailable)
                   .map((menuItem) =>
                     category == "BEVERAGES" ? (
-                      <MenuItemOverviewSimple menuItem={menuItem} />
+                      <MenuItemOverviewSimple
+                        key={menuItem.name + menuItem.id}
+                        menuItem={menuItem}
+                      />
+                    ) : category == "DESSERTS" ? (
+                      <MenuItemOverviewSimple
+                        key={menuItem.name + menuItem.id}
+                        menuItem={menuItem}
+                      />
                     ) : (
                       <MenuItemOverview
                         key={menuItem.name + menuItem.id}

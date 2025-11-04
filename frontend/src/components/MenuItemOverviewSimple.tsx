@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { MenuItemSize, MenuItem as MenuItemType } from "@/types/MenuItem";
+import { MenuItem as MenuItemType } from "@/types/MenuItem";
 import clsx from "clsx";
-import OverlayImageWithFadeIn from "./OverlayImageWithFadeIn";
 import { useMenu } from "./context/Menu";
-import { sortMenuSize } from "@/misc/helper";
 import { Minus, Plus } from "lucide-react";
+import OverlayImageWithFadeIn from "./OverlayImageWithFadeIn";
 
 export interface MenuItemOverviewSimpleProps {
   menuItem: MenuItemType;
@@ -20,12 +19,17 @@ export default function MenuItemOverviewSimple({ menuItem }: MenuItemOverviewSim
   return (
     <div
       className={clsx(
-        "h-30 flex flex-col items-center justify-center rounded outline-4 outline-black"
+        "h-60 flex flex-col items-center justify-center rounded outline-4 outline-black"
       )}
     >
       <div className="h-full w-full flex flex-col items-center">
-        <div className="h-1/4 w-full bg-orange-600 p-1">{menuItem.name}</div>
-        <div className="h-1/8 w-full bg-orange-400 p-1 text-sm" />
+        <OverlayImageWithFadeIn
+          imageUrl={menuItem.imageUrl}
+          menuItemName={menuItem.name}
+          wrapperClass="flex-shrink-0 cursor-pointer h-1/2 w-full"
+        />
+        <div className="h-3/16 w-full bg-orange-600 p-1">{menuItem.name}</div>
+        <div className="h-1/16 w-full bg-orange-400 p-1 text-sm" />
         <div className="h-5/8 w-full bg-orange-600 flex flex-col items-center justify-end gap-2">
           <div
             onClick={() => setAdded((prev) => prev + 1)}

@@ -54,6 +54,7 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
     setDescription(menuItem ? menuItem.description : "");
     setSizes(menuItem ? menuItem.sizes : []);
     setImageUrl(menuItem ? menuItem.imageUrl : "");
+    setCategory(menuItem ? menuItem.category : "PIZZA");
     setIsCustomizable(menuItem ? menuItem.isCustomizable : false);
     setIsAvailable(menuItem ? menuItem.isAvailable : false);
     setMenuItemIngredients(menuItem ? menuItem.ingredients : []);
