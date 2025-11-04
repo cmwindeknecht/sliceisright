@@ -7,6 +7,7 @@ import { useMenu } from "./context/Menu";
 import { Minus, Plus } from "lucide-react";
 import OverlayImageWithFadeIn from "./OverlayImageWithFadeIn";
 import PlusMinus from "./PlusMinus";
+import Toast from "./Toast";
 
 export interface MenuItemOverviewSimpleProps {
   menuItem: MenuItemType;
@@ -19,6 +20,7 @@ export default function MenuItemOverviewSimple({ menuItem }: MenuItemOverviewSim
   const { addOrderItem, updateOrderItem, deleteOrderItem, currentOrder } = useMenu();
 
   const [currentOrderItem, setCurrentOrderItem] = useState<OrderItem | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
     for (const orderItem of currentOrder) {
@@ -41,6 +43,7 @@ export default function MenuItemOverviewSimple({ menuItem }: MenuItemOverviewSim
         quantity: 1,
       };
       addOrderItem(orderItem);
+      setToastMessage(`Added ${menuItem.name} to cart`);
     } else {
       orderItem = currentOrderItem;
       orderItem.quantity++;

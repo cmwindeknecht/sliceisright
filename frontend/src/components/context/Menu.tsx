@@ -31,9 +31,10 @@ const MenuContext = createContext<MenuContext | null>(null);
 
 interface MenuProviderProps {
   children: ReactNode;
+  setToastMessage: (message: string | null) => void;
 }
 
-export const MenuProvider = ({ children }: MenuProviderProps) => {
+export const MenuProvider = ({ children, setToastMessage }: MenuProviderProps) => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [currentOrder, setCurrentOrder] = useState<OrderItem[]>([]);
@@ -240,6 +241,9 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
   const addOrderItem = (orderItem: OrderItem) => {
     try {
       setCurrentOrder((prev) => (prev ? [...prev, orderItem] : [orderItem]));
+      setToastMessage(
+        `Added ${orderItem.name} ${orderItem.chosenSize.size == "NONE" ? "" : `(${orderItem.chosenSize.size})`} to cart`
+      );
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message };
@@ -251,6 +255,9 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
       setCurrentOrder((prev) =>
         prev.map((item) => (item.orderItemId === orderItem.orderItemId ? { ...orderItem } : item))
       );
+      setToastMessage(
+        `Updated ${orderItem.name} ${orderItem.chosenSize.size == "NONE" ? "" : `(${orderItem.chosenSize.size})`} in cart`
+      );
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message };
@@ -260,6 +267,9 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
   const deleteOrderItem = (orderItem: OrderItem) => {
     try {
       setCurrentOrder((prev) => prev.filter((item) => item.orderItemId !== orderItem.orderItemId));
+      setToastMessage(
+        `Removed ${orderItem.name} ${orderItem.chosenSize.size == "NONE" ? "" : `(${orderItem.chosenSize.size})`} from cart`
+      );
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message };
