@@ -8,15 +8,15 @@ import { useMenu } from "./context/Menu";
 import { sortMenuSize } from "@/misc/helper";
 import { Minus, Plus } from "lucide-react";
 
-export interface MenuItemOverviewProps {
+export interface MenuItemOverviewSizeCustomProps {
   menuItem: MenuItemType;
   setMenuItemToCustomize: React.Dispatch<React.SetStateAction<MenuItemType | null>>;
 }
 
-export default function MenuItemOverview({
+export default function MenuItemOverviewSizeCustom({
   menuItem,
   setMenuItemToCustomize,
-}: MenuItemOverviewProps) {
+}: MenuItemOverviewSizeCustomProps) {
   const { addOrderItem } = useMenu();
 
   const [added, setAdded] = useState<Map<MenuItemSize, number>>(new Map());
@@ -59,9 +59,9 @@ export default function MenuItemOverview({
         wrapperClass="flex-shrink-0 cursor-pointer h-1/2 w-full"
       />
       <div className="h-1/2 w-full flex flex-col items-center">
-        <div className="h-1/8 w-full bg-orange-600 p-1">{menuItem.name}</div>
-        <div className="h-4/8 w-full bg-orange-400 p-1 text-sm">{menuItem.description || " "}</div>
-        <div className="h-3/8 w-full bg-orange-600 flex flex-col items-end gap-2">
+        <div className="h-1/8 w-full bg-orange-600 p-1 font-bold">{menuItem.name}</div>
+        <div className="h-9/16 w-full bg-orange-400 p-1 text-sm">{menuItem.description || " "}</div>
+        <div className="h-5/16 w-full bg-orange-600 flex flex-col items-end gap-2">
           {menuItem.isCustomizable ? (
             <div className="flex flex-col w-full justify-between items-center h-full">
               {sortMenuSize(menuItem.sizes).map((menuItemSize) => (
@@ -80,7 +80,7 @@ export default function MenuItemOverview({
               <button
                 onClick={() => setMenuItemToCustomize(menuItem)}
                 className={clsx(
-                  "bg-red-600 hover:bg-orange-700 text-white flex items-center justify-center w-1/3 h-10 outline-1 outline-black rounded disabled:opacity-50 px-1"
+                  "bg-red-600 hover:bg-orange-700 text-white flex items-center justify-center w-1/3 h-6 outline-1 outline-black rounded disabled:opacity-50 px-1"
                 )}
               >
                 Customize
@@ -116,16 +116,16 @@ export default function MenuItemOverview({
                       selectedSize
                         ? "bg-red-600 hover:bg-orange-700 text-white"
                         : "bg-gray-200 text-black",
-                      "flex items-center justify-center w-1/3 h-10 outline-1 outline-black rounded disabled:opacity-50 px-1"
+                      "flex items-center justify-center w-1/3 h-6 outline-1 outline-black rounded disabled:opacity-50 px-1"
                     )}
                   >
                     Add to Cart
                   </button>
                 ) : (
-                  <div className="flex flex-row justify-between w-1/3">
+                  <div className="flex flex-row justify-between items-center w-1/3">
                     <button
                       onClick={() => decreaseAdded()}
-                      className="flex items-center justify-center w-10 h-10 bg-red-600 text-white rounded-full hover:bg-orange-700 disabled:opacity-50"
+                      className="flex items-center justify-center w-6 h-6 bg-red-600 text-white rounded-full hover:bg-orange-700 disabled:opacity-50"
                     >
                       <Minus className="w-6 h-6" />
                     </button>
@@ -134,7 +134,7 @@ export default function MenuItemOverview({
                     </span>
                     <button
                       onClick={() => increaseAdded()}
-                      className="flex items-center justify-center w-10 h-10 bg-red-600 text-white rounded-full hover:bg-orange-700 disabled:opacity-50"
+                      className="flex items-center justify-center w-6 h-6 bg-red-600 text-white rounded-full hover:bg-orange-700 disabled:opacity-50"
                     >
                       <Plus className="w-6 h-6" />
                     </button>

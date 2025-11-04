@@ -37,7 +37,7 @@ export default function RootLayout({
         <AuthProvider>
           <MenuProvider>
             <Header />
-            <main className="flex-1 overflow-y-auto">{children}</main>
+            <main className="flex-1 overflow-y-auto mt-[10vh]">{children}</main>
             <Footer />
           </MenuProvider>
         </AuthProvider>

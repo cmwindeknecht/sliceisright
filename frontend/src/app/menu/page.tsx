@@ -2,12 +2,14 @@
 
 import { useMenu } from "@/components/context/Menu";
 import MenuItem from "@/components/MenuItem";
-import MenuItemOverview from "@/components/MenuItemOverview";
+import MenuItemOverviewSize from "@/components/MenuItemOverviewSize";
 import MenuItemOverviewSimple from "@/components/MenuItemOverviewSimple";
 import { sortMenuItemsByCategory } from "@/misc/helper";
 import { MenuItem as MenuItemType } from "@/types/MenuItem";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
+import MenuItemOverviewSizeCustom from "@/components/MenuItemOverviewSizeCustom";
+import MenuItemOverviewCustom from "@/components/MenuItemOverviewCustom";
 
 export default function MenuPage() {
   const { menuItems, ingredients, getMenuItems, getIngredients } = useMenu();
@@ -50,6 +52,34 @@ export default function MenuPage() {
     setCategorizedMenu(categorized);
   };
 
+  const getOverviewComponent = (menuItem: MenuItemType) => {
+    if (menuItem.sizes.length > 1 && menuItem.isCustomizable) {
+      return (
+        <MenuItemOverviewSizeCustom
+          key={menuItem.name + menuItem.id}
+          menuItem={menuItem}
+          setMenuItemToCustomize={setMenuItemToCustomize}
+        />
+      );
+    }
+
+    if (menuItem.isCustomizable) {
+      return (
+        <MenuItemOverviewCustom
+          key={menuItem.name + menuItem.id}
+          menuItem={menuItem}
+          setMenuItemToCustomize={setMenuItemToCustomize}
+        />
+      );
+    }
+
+    if (menuItem.sizes.length > 1) {
+      return <MenuItemOverviewSize key={menuItem.name + menuItem.id} menuItem={menuItem} />;
+    }
+
+    return <MenuItemOverviewSimple key={menuItem.name + menuItem.id} menuItem={menuItem} />;
+  };
+
   // TODO get the current order and populate the quantities in the overview cards
   return (
     <div className="m-3">
@@ -76,27 +106,30 @@ export default function MenuPage() {
                   "grid gap-4 "
                 )}
               >
-                {sortMenuItemsByCategory(menuItems)
-                  .filter((menuItem) => menuItem.isAvailable)
-                  .map((menuItem) =>
-                    category == "BEVERAGES" ? (
-                      <MenuItemOverviewSimple
-                        key={menuItem.name + menuItem.id}
-                        menuItem={menuItem}
-                      />
-                    ) : category == "DESSERTS" ? (
-                      <MenuItemOverviewSimple
-                        key={menuItem.name + menuItem.id}
-                        menuItem={menuItem}
-                      />
-                    ) : (
-                      <MenuItemOverview
-                        key={menuItem.name + menuItem.id}
-                        menuItem={menuItem}
-                        setMenuItemToCustomize={setMenuItemToCustomize}
-                      />
-                    )
-                  )}
+                {
+                  sortMenuItemsByCategory(menuItems)
+                    .filter((menuItem) => menuItem.isAvailable)
+                    .map((menuItem) => getOverviewComponent(menuItem))
+                  // .map((menuItem) =>
+                  //   category == "BEVERAGES" ? (
+                  //     <MenuItemOverviewSimple
+                  //       key={menuItem.name + menuItem.id}
+                  //       menuItem={menuItem}
+                  //     />
+                  //   ) : category == "DESSERTS" ? (
+                  //     <MenuItemOverviewSimple
+                  //       key={menuItem.name + menuItem.id}
+                  //       menuItem={menuItem}
+                  //     />
+                  //   ) : (
+                  //     <MenuItemOverviewSize
+                  //       key={menuItem.name + menuItem.id}
+                  //       menuItem={menuItem}
+                  //       setMenuItemToCustomize={setMenuItemToCustomize}
+                  //     />
+                  //   )
+                  // )
+                }
               </div>
             </div>
           ))}

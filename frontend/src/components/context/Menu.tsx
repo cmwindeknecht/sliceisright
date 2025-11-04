@@ -39,6 +39,17 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
   const [currentOrder, setCurrentOrder] = useState<OrderItem[]>([]);
 
   useEffect(() => {
+    const stored = localStorage.getItem("currentOrder");
+    if (stored) {
+      setCurrentOrder(JSON.parse(stored));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("currentOrder", JSON.stringify(currentOrder));
+  }, [currentOrder]);
+
+  useEffect(() => {
     const eventSource = new EventSource("http://localhost:8080/menu/updates");
 
     eventSource.onmessage = (event) => {
@@ -228,7 +239,6 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
 
   const addOrderItem = (orderItem: OrderItem) => {
     try {
-      const orderItemWithId: OrderItem = { ...orderItem, orderItemId: crypto.randomUUID() };
       setCurrentOrder((prev) => (prev ? [...prev, orderItem] : [orderItem]));
       return { success: true };
     } catch (err: any) {

@@ -18,7 +18,13 @@ export interface MenuItemSize {
 }
 
 export interface OrderItem extends MenuItem {
-  orderItemId: string | null;
+  orderItemId: number | null;
   modifiedIngredients: Ingredient[];
-  chosenSize: MenuItem;
+  chosenSize: MenuItemSize;
+  quantity: number;
+}
+
+export interface Order {
+  orderId: number | null;
+  orderItems: OrderItem[];
 }

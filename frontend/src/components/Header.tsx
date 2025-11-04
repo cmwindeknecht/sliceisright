@@ -13,9 +13,8 @@ export default function Header() {
   const { currentOrder } = useMenu();
 
   return (
-    <header className="bg-gradient-to-r from-orange-600 from-50% to-red-600 to-50% text-white p-4 flex justify-center items-center relative drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] [text-shadow:_0_0_3px_black,_0_0_5px_black]">
+    <header className="fixed top-0 left-0 w-full h-[10vh] z-50 bg-gradient-to-r from-orange-600 from-50% to-red-600 to-50% text-white p-4 flex justify-center items-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] [text-shadow:_0_0_3px_black,_0_0_5px_black]">
       <div className="absolute left-4">Slice is Right Pizzeria</div>
-
       <div className="flex gap-4">
         <Link
           href="/"
@@ -39,10 +38,9 @@ export default function Header() {
           href="/order"
           className={`hover:font-bold ${mounted && pathname === "/order" ? "underline" : ""}`}
         >
-          🛒 Order ({currentOrder.length})
+          🛒 Order ({currentOrder.reduce((memo, orderItem) => memo + orderItem.quantity, 0)})
         </Link>
       </div>
-
       <div className="flex items-center gap-4 absolute right-4">
         {!user ? (
           <Link
