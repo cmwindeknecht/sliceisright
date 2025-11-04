@@ -51,7 +51,7 @@ export default function MenuItemOverviewSize({ menuItem }: MenuItemOverviewSizeP
         ...menuItem,
         orderItemId: Math.random(),
         modifiedIngredients: [],
-        chosenSize: menuItem.sizes[0],
+        chosenSize: selectedSize,
         quantity: 1,
       };
       addOrderItem(orderItemToUpdate);
@@ -90,19 +90,6 @@ export default function MenuItemOverviewSize({ menuItem }: MenuItemOverviewSizeP
     setCurrentOrderItems(currentOrderItemsUpdated);
   };
 
-  const getCurrentOrderItem = () => {
-    if (selectedSize == null) {
-      throw new Error("No selected size to get current order item!");
-    }
-
-    const currentOrderItem: OrderItem | undefined = currentOrderItems.get(selectedSize.size);
-    if (!currentOrderItem) {
-      throw new Error("Current order items does not have the selected size!");
-    }
-
-    return currentOrderItem;
-  };
-
   return (
     <div
       className={clsx(
@@ -137,11 +124,10 @@ export default function MenuItemOverviewSize({ menuItem }: MenuItemOverviewSizeP
               ))}
             </div>
             <div className={clsx("flex flex-row w-full justify-center items-center gap-2")}>
-              {!selectedSize ||
-              (selectedSize && (currentOrderItems.get(selectedSize.size)?.quantity || 0) <= 0) ? (
+              {!selectedSize || (currentOrderItems.get(selectedSize.size)?.quantity || 0) <= 0 ? (
                 <button
-                  onClick={() => increaseOrderItemQuantity()}
-                  disabled={selectedSize == null}
+                  onClick={increaseOrderItemQuantity}
+                  disabled={!selectedSize}
                   title={!selectedSize ? "Select a size first" : ""}
                   className={clsx(
                     selectedSize
@@ -153,11 +139,19 @@ export default function MenuItemOverviewSize({ menuItem }: MenuItemOverviewSizeP
                   Add to Cart
                 </button>
               ) : (
-                <PlusMinus
-                  plusFunction={increaseOrderItemQuantity}
-                  minusFunction={decreaseOrderItemQuantity}
-                  orderItem={getCurrentOrderItem()}
-                />
+                (() => {
+                  const orderItem = currentOrderItems.get(selectedSize.size);
+                  if (!orderItem) return null;
+
+                  return (
+                    <PlusMinus
+                      key={`${menuItem.id}-${selectedSize.size}-${orderItem.orderItemId}`}
+                      plusFunction={increaseOrderItemQuantity}
+                      minusFunction={decreaseOrderItemQuantity}
+                      orderItem={orderItem}
+                    />
+                  );
+                })()
               )}
             </div>
           </div>
