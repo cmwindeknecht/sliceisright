@@ -52,16 +52,6 @@ export default function MenuPage() {
   };
 
   const getOverviewComponent = (menuItem: MenuItemType) => {
-    if (menuItem.sizes.length > 1 && menuItem.isCustomizable) {
-      return (
-        <MenuItemOverviewSizeCustom
-          key={menuItem.name + menuItem.id}
-          menuItem={menuItem}
-          setMenuItemToCustomize={setMenuItemToCustomize}
-        />
-      );
-    }
-
     if (menuItem.isCustomizable) {
       return (
         <MenuItemOverviewCustom
@@ -104,30 +94,9 @@ export default function MenuPage() {
                   "grid gap-4 "
                 )}
               >
-                {
-                  sortMenuItemsByCategory(menuItems)
-                    .filter((menuItem) => menuItem.isAvailable)
-                    .map((menuItem) => getOverviewComponent(menuItem))
-                  // .map((menuItem) =>
-                  //   category == "BEVERAGES" ? (
-                  //     <MenuItemOverviewSimple
-                  //       key={menuItem.name + menuItem.id}
-                  //       menuItem={menuItem}
-                  //     />
-                  //   ) : category == "DESSERTS" ? (
-                  //     <MenuItemOverviewSimple
-                  //       key={menuItem.name + menuItem.id}
-                  //       menuItem={menuItem}
-                  //     />
-                  //   ) : (
-                  //     <MenuItemOverviewSize
-                  //       key={menuItem.name + menuItem.id}
-                  //       menuItem={menuItem}
-                  //       setMenuItemToCustomize={setMenuItemToCustomize}
-                  //     />
-                  //   )
-                  // )
-                }
+                {sortMenuItemsByCategory(menuItems)
+                  .filter((menuItem) => menuItem.isAvailable)
+                  .map((menuItem) => getOverviewComponent(menuItem))}
               </div>
             </div>
           ))}

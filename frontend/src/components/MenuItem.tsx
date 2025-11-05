@@ -28,15 +28,48 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
     new Map()
   );
 
-  useEffect(() => {
-    const ingredientMap = new Map(categorizedIngredients);
+  const [error, setError] = useState<string | null>(null);
 
-    ingredients.forEach((ingredient) => {
-      const key = doesMenuItemHaveIngredient(ingredient) ? "INCLUDED" : ingredient.category;
+  useEffect(() => {
+    const ingredientMap = new Map<string, Ingredient[]>();
+
+    for (const ingredient of ingredients) {
+      const ingredientSelectedSize = ingredient.sizes.find(
+        (ingredientSize) => ingredientSize.size != selectedSize.size
+      );
+      if (!ingredientSelectedSize) {
+        console.warn(
+          `Ingredient ${ingredient.name} does not have the selected size and will not be listed`
+        );
+        continue;
+      }
+      if (ingredient.id == null) {
+        console.error(`Ingredient ${ingredient.name} does not have an id!`);
+        continue;
+      }
+
+      let key;
+      if (doesMenuItemHaveIngredient(ingredient)) {
+        key = "INCLUDED";
+        updateIngredientOptions({
+          ingredientId: ingredient.id,
+          basePrice: ingredientSelectedSize.price,
+          isRemoved: false,
+          isLight: false,
+          isRegular: true,
+          isDoubled: false,
+          isLeftHalf: false,
+          isRightHalf: false,
+          isWholePizza: true,
+        });
+      } else {
+        key = ingredient.category;
+      }
+
       const ingredientList = ingredientMap.get(key) ?? [];
       ingredientList.push(ingredient);
       ingredientMap.set(key, ingredientList);
-    });
+    }
 
     for (const ingredientList of ingredientMap.values()) {
       ingredientList.sort((a, b) => a.name.localeCompare(b.name));
@@ -45,10 +78,39 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
     setCategorizedIngredients(ingredientMap);
   }, [ingredients]);
 
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
   const updateIngredientOptions = (ingredientOption: IngredientOption) => {
+    let ingredientCount = 0;
+
+    ingredientOptions.values().forEach((ingredientOption) => {
+      if (ingredientOption.isWholePizza) {
+        ingredientCount += ingredientOption.isDoubled ? 2 : 1;
+      } else if (ingredientOption.isLeftHalf || ingredientOption.isRightHalf) {
+        ingredientCount += ingredientOption.isDoubled ? 1 : 0.5;
+      } else if (ingredientOption.isRemoved) {
+        ingredientCount -= 1;
+      }
+    });
+
+    // TODO hmm somehow this happened when I created a new ingredient, so something fucked up is going on
+    if (ingredientCount) {
+      setError("Maximum number (10) of ingredients has been reached");
+      return false;
+    }
+
     const tempIngredientOptions = new Map(ingredientOptions);
     tempIngredientOptions.set(ingredientOption.ingredientId, ingredientOption);
     setIngredientOptions(tempIngredientOptions);
+    return true;
   };
 
   function doesMenuItemHaveIngredient(ingredient: Ingredient) {
@@ -78,6 +140,29 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
             <div className="flex flex-row gap-2">
               <div className="p-3 w-full">{menuItem.description}</div>
             </div>
+          </div>
+        </div>
+
+        {/* Sizes */}
+        <div className="flex flex-col w-full justify-start items-start gap-2">
+          <div className="p-2 text-2xl">Sizes</div>
+          <div className="flex flex-row w-full justify-start items-start gap-2">
+            {sortMenuSize(menuItem.sizes).map((menuItemSize) => (
+              <button
+                key={menuItem.id + menuItemSize.size}
+                onClick={() => setSelectedSize(menuItemSize)}
+                className={clsx(
+                  selectedSize && selectedSize.size == menuItemSize.size
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-gray-600 hover:bg-orange-700",
+                  "outline-1 outline-black text-white px-1 rounded"
+                )}
+              >
+                {menuItemSize.size === "NONE"
+                  ? `$${menuItemSize.price.toFixed(2)}`
+                  : `${menuItemSize.size} - $${menuItemSize.price.toFixed(2)}`}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -115,6 +200,11 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
             className="max-w-[90vw] max-h-[90vh] object-contain"
             onClick={(e) => e.stopPropagation()}
           />
+        </div>
+      )}
+      {error && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm animate-fade-in">
+          {error}
         </div>
       )}
     </>

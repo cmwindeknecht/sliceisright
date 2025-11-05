@@ -29,18 +29,20 @@ export default function MenuItemOverviewCustom({
         <div className="h-9/16 w-full bg-orange-400 p-1 text-sm">{menuItem.description || " "}</div>
         <div className="h-5/16 w-full bg-orange-600 flex flex-col items-end gap-2">
           <div className="flex flex-col w-full justify-between items-center h-full">
-            {sortMenuSize(menuItem.sizes).map((menuItemSize) => (
-              <div
-                key={menuItem.id + menuItemSize.size}
-                className={clsx(
-                  "text-black px-1 rounded flex flex-row items-center justify-between gap-2"
-                )}
-              >
-                {menuItemSize.size === "NONE"
-                  ? `$${menuItemSize.price.toFixed(2)}`
-                  : `${menuItemSize.size} - $${menuItemSize.price.toFixed(2)}`}
-              </div>
-            ))}
+            <div className="flex flex-row w-full justify-center items-center gap-2">
+              {sortMenuSize(menuItem.sizes).map((menuItemSize) => (
+                <div
+                  key={menuItem.id + menuItemSize.size}
+                  className={clsx(
+                    "text-black px-1 rounded flex flex-row items-center justify-between gap-2"
+                  )}
+                >
+                  {menuItemSize.size === "NONE"
+                    ? `$${menuItemSize.price.toFixed(2)}`
+                    : `${menuItemSize.size} - $${menuItemSize.price.toFixed(2)}`}
+                </div>
+              ))}
+            </div>
             <button
               onClick={() => setMenuItemToCustomize(menuItem)}
               className={clsx(

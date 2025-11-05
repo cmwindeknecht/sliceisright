@@ -113,7 +113,7 @@ export default function MenuItemOverviewSize({ menuItem }: MenuItemOverviewSizeP
                   className={clsx(
                     selectedSize && selectedSize.size == menuItemSize.size
                       ? "bg-red-600 hover:bg-red-700"
-                      : "bg-orange-600 hover:bg-orange-700",
+                      : "bg-gray-600 hover:bg-orange-700",
                     "outline-1 outline-black text-white px-1 rounded"
                   )}
                 >

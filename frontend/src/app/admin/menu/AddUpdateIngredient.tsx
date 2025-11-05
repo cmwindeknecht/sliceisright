@@ -17,10 +17,13 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
   const [selected, setSelected] = useState<Ingredient | null>(null);
   const [id, setId] = useState<number | null>(null);
   const [name, setName] = useState<string>("");
+  const [imageUrl, setImageUrl] = useState<string>("");
   const [sizes, setSizes] = useState<IngredientSize[]>([]);
   const [category, setCategory] = useState<Ingredient["category"]>("MEAT");
   const [canBeRemoved, setCanBeRemoved] = useState<boolean>(false);
   const [canBeDoubled, setCanBeDoubled] = useState<boolean>(false);
+  const [canBeHalved, setCanBeHalved] = useState<boolean>(false);
+  const [canBeLight, setCanBeLight] = useState<boolean>(false);
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean | null>(null);
@@ -46,14 +49,20 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
       setCategory(ingredient ? ingredient.category : "MEAT");
       setCanBeDoubled(ingredient ? ingredient.canBeDoubled : false);
       setCanBeRemoved(ingredient ? ingredient.canBeRemoved : false);
+      setCanBeHalved(ingredient ? ingredient.canBeHalved : false);
+      setCanBeLight(ingredient ? ingredient.canBeLight : false);
     }
   }, [selectedIngredientName, ingredients]);
 
   const resetOnSuccess = () => {
     setName("");
+    setImageUrl("");
     setSizes([]);
+    setCategory("MEAT");
     setCanBeDoubled(false);
     setCanBeRemoved(false);
+    setCanBeHalved(false);
+    setCanBeLight(false);
     setSelectedIngredientName("");
     setSuccess(true);
     setReload(true);
@@ -74,10 +83,13 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
       const ingredient: Ingredient = {
         id: id ?? Math.random(),
         name,
+        imageUrl,
         sizes,
         category,
         canBeDoubled,
         canBeRemoved,
+        canBeHalved,
+        canBeLight,
       };
 
       let response;
@@ -133,12 +145,6 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
     if (sizes.length <= 0) {
       throw new Error("At least one size is required!");
     }
-
-    sizes.forEach((sizeOption) => {
-      if (sizeOption.price <= 0) {
-        throw new Error(`Price for ${sizeOption.size} must be greater than 0!`);
-      }
-    });
   };
 
   const validateNonExistingOnCreate = (ingredient: Ingredient) => {
@@ -164,7 +170,6 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
         defaultText="-- Create New Ingredient --"
       />
 
-      {/* Name */}
       <div>
         <label className="block mb-1 font-medium">Name</label>
         <input
@@ -173,6 +178,17 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
           className="border p-2 rounded w-full"
           value={name}
           onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className="block mb-1 font-medium">Image URL</label>
+        <input
+          type="text"
+          placeholder="Name"
+          className="border p-2 rounded w-full"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
         />
       </div>
 
@@ -200,6 +216,24 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
           onChange={(e) => setCanBeRemoved(e.target.checked)}
         />
         <div className="pl-1">Can be removed? </div>
+      </div>
+
+      <div className="flex flex-row">
+        <input
+          type="checkbox"
+          checked={canBeHalved}
+          onChange={(e) => setCanBeHalved(e.target.checked)}
+        />
+        <div className="pl-1">Can be halved? </div>
+      </div>
+
+      <div className="flex flex-row">
+        <input
+          type="checkbox"
+          checked={canBeLight}
+          onChange={(e) => setCanBeLight(e.target.checked)}
+        />
+        <div className="pl-1">Can be light? </div>
       </div>
 
       {/* Submit and Delete Buttons */}

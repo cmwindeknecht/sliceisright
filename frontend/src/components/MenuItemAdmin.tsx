@@ -14,19 +14,11 @@ export default function MenuItemAdmin({ menuItem }: MenuItemAdminProps) {
       <div className="flex gap-4 p-4 border rounded-lg shadow bg-orange-600 w-[90vw] h-fit">
         {/* Left: Image */}
         <div className="flex-shrink-0 cursor-pointer" onClick={() => setShowImageOverlay(true)}>
-          {menuItem.imageUrl ? (
-            <img
-              src={menuItem.imageUrl}
-              alt={menuItem.name}
-              className="w-32 h-full object-cover rounded hover:opacity-90 transition-opacity"
-            />
-          ) : (
-            <img
-              src="/queens.jpg"
-              alt="default"
-              className="w-32 h-full object-cover rounded hover:opacity-90 transition-opacity"
-            />
-          )}
+          <img
+            src={menuItem.imageUrl || "/queens.jpg"}
+            alt={menuItem.name}
+            className="w-32 h-full object-cover rounded hover:opacity-90 transition-opacity"
+          />
         </div>
 
         <div className="flex flex-col flex-1 gap-3">

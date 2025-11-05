@@ -67,8 +67,11 @@ public class Helper {
         return IngredientDTO.builder()
                 .id(ingredient.id)
                 .name(ingredient.name)
+                .imageUrl(ingredient.imageUrl)
                 .canBeDoubled(ingredient.canBeDoubled)
                 .canBeRemoved(ingredient.canBeRemoved)
+                .canBeHalved(ingredient.canBeHalved)
+                .canBeLight(ingredient.canBeLight)
                 .category(ingredient.category)
                 .sizes(
                     ingredient.sizes.stream()

@@ -16,8 +16,11 @@ public class IngredientDTO {
     @Getter
     public Long id;
     public String name;
+    public String imageUrl;
     public List<IngredientSizeDTO> sizes;
     public IngredientCategory category;
     public Boolean canBeRemoved;
     public Boolean canBeDoubled;
+    public Boolean canBeHalved;
+    public Boolean canBeLight;
 }

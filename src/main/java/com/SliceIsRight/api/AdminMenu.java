@@ -257,9 +257,12 @@ public class AdminMenu {
 
     private void updateIngredientFromRequest(Ingredient toUpdate, IngredientDTO request) throws Exception {
         toUpdate.name = request.name;
+        toUpdate.imageUrl = request.imageUrl;
         toUpdate.category = request.category;
         toUpdate.canBeDoubled = request.canBeDoubled;
         toUpdate.canBeRemoved = request.canBeRemoved;
+        toUpdate.canBeHalved = request.canBeHalved;
+        toUpdate.canBeLight = request.canBeLight;
 
         if (request.sizes.size() < 0) {
             throw new Exception("Ingredient update contained zero sizes!");
