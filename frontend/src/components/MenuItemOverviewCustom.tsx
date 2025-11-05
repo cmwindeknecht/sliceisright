@@ -1,13 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { MenuItemSize, MenuItem as MenuItemType, OrderItem } from "@/types/MenuItem";
+import { MenuItem as MenuItemType } from "@/types/MenuItem";
 import clsx from "clsx";
 import OverlayImageWithFadeIn from "./OverlayImageWithFadeIn";
-import { useMenu } from "./context/Menu";
 import { sortMenuSize } from "@/misc/helper";
-import { Minus, Plus } from "lucide-react";
-import PlusMinus from "./PlusMinus";
 
 export interface MenuItemOverviewCustomProps {
   menuItem: MenuItemType;
@@ -18,38 +14,6 @@ export default function MenuItemOverviewCustom({
   menuItem,
   setMenuItemToCustomize,
 }: MenuItemOverviewCustomProps) {
-  const { addOrderItem } = useMenu();
-
-  const [currentOrderItem, setCurrentOrderItem] = useState<OrderItem | null>(null);
-  const [added, setAdded] = useState<Map<MenuItemSize, number>>(new Map());
-  const [selectedSize, setSelectedSize] = useState<MenuItemSize | null>(null);
-
-  const increaseOrderItemQuantity = () => {
-    setAdded((prev) => {
-      if (selectedSize == null) {
-        return prev;
-      }
-
-      const newMap = new Map(prev);
-      const currentCount = newMap.get(selectedSize) || 0;
-      newMap.set(selectedSize, currentCount + 1);
-      return newMap;
-    });
-  };
-
-  const decreaseOrderItemQuantity = () => {
-    setAdded((prev) => {
-      if (selectedSize == null) {
-        return prev;
-      }
-
-      const newMap = new Map(prev);
-      const currentCount = newMap.get(selectedSize) || 0;
-      newMap.set(selectedSize, currentCount - 1);
-      return newMap;
-    });
-  };
-
   return (
     <div
       className={clsx(
@@ -57,7 +21,7 @@ export default function MenuItemOverviewCustom({
       )}
     >
       <OverlayImageWithFadeIn
-        menuItemName={menuItem.name}
+        itemName={menuItem.name}
         wrapperClass="flex-shrink-0 cursor-pointer h-1/2 w-full"
       />
       <div className="h-1/2 w-full flex flex-col items-center">
@@ -68,7 +32,6 @@ export default function MenuItemOverviewCustom({
             {sortMenuSize(menuItem.sizes).map((menuItemSize) => (
               <div
                 key={menuItem.id + menuItemSize.size}
-                onClick={() => setSelectedSize(menuItemSize)}
                 className={clsx(
                   "text-black px-1 rounded flex flex-row items-center justify-between gap-2"
                 )}

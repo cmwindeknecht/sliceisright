@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import clsx from "clsx";
 
 export interface ImageFadeInProps {
-  menuItemName: string;
+  itemName: string;
   wrapperClass: string;
   imageUrl?: string;
   useOverlay?: boolean;
@@ -12,7 +13,7 @@ export interface ImageFadeInProps {
 
 export default function OverlayImageWithFadeIn({
   imageUrl,
-  menuItemName,
+  itemName,
   wrapperClass,
   useOverlay = true,
 }: ImageFadeInProps) {
@@ -21,10 +22,13 @@ export default function OverlayImageWithFadeIn({
 
   return (
     <>
-      <div className={wrapperClass} onClick={() => setShowImageOverlay(true)}>
+      <div
+        className={clsx(wrapperClass, useOverlay ? "cursor-pointer" : "cursor-default")}
+        {...(useOverlay && { onClick: () => setShowImageOverlay(true) })}
+      >
         <Image
           src={imageUrl || "/queens.jpg"}
-          alt={menuItemName}
+          alt={itemName}
           width={1536}
           height={2048}
           className="object-cover h-full"
@@ -47,7 +51,7 @@ export default function OverlayImageWithFadeIn({
 
           <img
             src={imageUrl || "/queens.jpg"}
-            alt={menuItemName}
+            alt={itemName}
             className="max-w-[90vw] max-h-[90vh] object-contain"
             onClick={(e) => e.stopPropagation()}
           />

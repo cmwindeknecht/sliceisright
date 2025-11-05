@@ -1,7 +1,7 @@
 "use client";
 
 import { useMenu } from "@/components/context/Menu";
-import MenuItem from "@/components/MenuItem";
+import MenuItemDeprecated from "@/components/MenuItemDeprecated";
 import MenuItemOverviewSize from "@/components/MenuItemOverviewSize";
 import MenuItemOverviewSimple from "@/components/MenuItemOverviewSimple";
 import { sortMenuItemsByCategory } from "@/misc/helper";
@@ -10,6 +10,7 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 import MenuItemOverviewSizeCustom from "@/components/MenuItemOverviewSizeCustom";
 import MenuItemOverviewCustom from "@/components/MenuItemOverviewCustom";
+import MenuItem from "@/components/MenuItem";
 
 export default function MenuPage() {
   const { menuItems, ingredients, getMenuItems, getIngredients } = useMenu();

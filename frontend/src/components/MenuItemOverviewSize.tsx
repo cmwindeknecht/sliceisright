@@ -97,7 +97,7 @@ export default function MenuItemOverviewSize({ menuItem }: MenuItemOverviewSizeP
       )}
     >
       <OverlayImageWithFadeIn
-        menuItemName={menuItem.name}
+        itemName={menuItem.name}
         wrapperClass="flex-shrink-0 cursor-pointer h-1/2 w-full"
       />
       <div className="h-1/2 w-full flex flex-col items-center">

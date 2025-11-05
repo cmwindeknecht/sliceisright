@@ -41,6 +41,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
       setId(ingredient ? ingredient.id : null);
       setName(ingredient ? ingredient.name : "");
       setSizes(ingredient ? ingredient.sizes : []);
+      setCategory(ingredient ? ingredient.category : "MEAT");
       setCanBeDoubled(ingredient ? ingredient.canBeDoubled : false);
       setCanBeRemoved(ingredient ? ingredient.canBeRemoved : false);
     }

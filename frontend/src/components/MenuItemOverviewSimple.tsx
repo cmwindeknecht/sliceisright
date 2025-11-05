@@ -79,7 +79,7 @@ export default function MenuItemOverviewSimple({ menuItem }: MenuItemOverviewSim
       <div className="h-full w-full flex flex-col items-center">
         <OverlayImageWithFadeIn
           imageUrl={menuItem.imageUrl}
-          menuItemName={menuItem.name}
+          itemName={menuItem.name}
           wrapperClass="flex-shrink-0 cursor-pointer h-1/2 w-full"
         />
         <div className="h-1/8 w-full bg-orange-600 p-1 font-bold">{menuItem.name}</div>
