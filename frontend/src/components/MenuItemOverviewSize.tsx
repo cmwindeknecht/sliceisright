@@ -50,7 +50,7 @@ export default function MenuItemOverviewSize({ menuItem }: MenuItemOverviewSizeP
       orderItemToUpdate = {
         ...menuItem,
         orderItemId: Math.random(),
-        modifiedIngredients: [],
+        ingredientOptions: [],
         chosenSize: selectedSize,
         quantity: 1,
       };
@@ -112,7 +112,7 @@ export default function MenuItemOverviewSize({ menuItem }: MenuItemOverviewSizeP
                   onClick={() => setSelectedSize(menuItemSize)}
                   className={clsx(
                     selectedSize && selectedSize.size == menuItemSize.size
-                      ? "bg-red-600 hover:bg-red-700"
+                      ? "bg-red-600 hover:bg-red-700 outline-4 outline-black"
                       : "bg-gray-600 hover:bg-orange-700",
                     "outline-1 outline-black text-white px-1 rounded"
                   )}

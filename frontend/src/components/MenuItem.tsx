@@ -1,24 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MenuItemSize, MenuItem as MenuItemType } from "@/types/MenuItem";
+import { MenuItemSize, MenuItem as MenuItemType, OrderItem } from "@/types/MenuItem";
 import { Ingredient } from "@/types/Ingredient";
 import clsx from "clsx";
 import OverlayImageWithFadeIn from "./OverlayImageWithFadeIn";
 import MenuItemIngredient, { IngredientOption } from "./MenuItemIngredient";
 import { sortIngredientsByCategory, sortMenuSize } from "@/misc/helper";
+import { useMenu } from "./context/Menu";
 
 export interface MenuItemProps {
   menuItem: MenuItemType;
   ingredients: Ingredient[];
+  returnToMenu: (item: MenuItemType | null) => void;
 }
 
-export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
+export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuItemProps) {
+  const { addOrderItem } = useMenu();
+
   const initialSize = sortMenuSize(menuItem.sizes)[0];
   if (!initialSize) {
     throw new Error("No Size on Menu Item!");
   }
 
+  const [notes, setNotes] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<MenuItemSize>(initialSize);
   const [showImageOverlay, setShowImageOverlay] = useState<boolean>(false);
   const [ingredientOptions, setIngredientOptions] = useState<Map<number, IngredientOption>>(
@@ -27,7 +32,6 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
   const [categorizedIngredients, setCategorizedIngredients] = useState<Map<string, Ingredient[]>>(
     new Map()
   );
-
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -89,9 +93,11 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
   }, [error]);
 
   const updateIngredientOptions = (ingredientOption: IngredientOption) => {
+    const tempIngredientOptions = new Map(ingredientOptions);
+    tempIngredientOptions.set(ingredientOption.ingredientId, ingredientOption);
     let ingredientCount = 0;
 
-    ingredientOptions.values().forEach((ingredientOption) => {
+    tempIngredientOptions.values().forEach((ingredientOption) => {
       if (ingredientOption.isWholePizza) {
         ingredientCount += ingredientOption.isDoubled ? 2 : 1;
       } else if (ingredientOption.isLeftHalf || ingredientOption.isRightHalf) {
@@ -101,14 +107,11 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
       }
     });
 
-    // TODO hmm somehow this happened when I created a new ingredient, so something fucked up is going on
-    if (ingredientCount) {
+    if (ingredientCount > 10) {
       setError("Maximum number (10) of ingredients has been reached");
       return false;
     }
 
-    const tempIngredientOptions = new Map(ingredientOptions);
-    tempIngredientOptions.set(ingredientOption.ingredientId, ingredientOption);
     setIngredientOptions(tempIngredientOptions);
     return true;
   };
@@ -120,6 +123,26 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
       ) != null
     );
   }
+
+  const addToOrder = () => {
+    const orderItem: OrderItem = {
+      ...menuItem,
+      orderItemId: Math.random(),
+      ingredientOptions: Array.from(ingredientOptions.values()),
+      chosenSize: selectedSize,
+      quantity: 1,
+      notes,
+    };
+    addOrderItem(orderItem);
+    returnToMenu(null);
+  };
+
+  const handleNoteUpdate = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    // Enforce max 100 characters
+    if (e.target.value.length <= 100) {
+      setNotes(e.target.value);
+    }
+  };
 
   return (
     <>
@@ -153,7 +176,7 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
                 onClick={() => setSelectedSize(menuItemSize)}
                 className={clsx(
                   selectedSize && selectedSize.size == menuItemSize.size
-                    ? "bg-red-600 hover:bg-red-700"
+                    ? "bg-red-600 hover:bg-red-700 outline-4 outline-black"
                     : "bg-gray-600 hover:bg-orange-700",
                   "outline-1 outline-black text-white px-1 rounded"
                 )}
@@ -186,6 +209,32 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
               </div>
             )
           )}
+        </div>
+        <div className="h-5 w-full rounded bg-orange-600 my-3" />
+        <div className="flex flex-row justify-around w-full gap-5">
+          <div className="flex flex-col w-full max-w-md">
+            <label htmlFor="notes" className="mb-1 font-medium text-gray-700">
+              Special Requests ({notes.length}/100):
+            </label>
+            <textarea
+              id="notes"
+              value={notes}
+              onChange={handleNoteUpdate}
+              rows={2}
+              placeholder="Add order notes..."
+              className="resize-none border bg-white border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+            />
+            <div className="text-right text-sm text-gray-500 mt-1"></div>
+          </div>
+          <button
+            onClick={() => addToOrder()}
+            className={clsx(
+              "bg-red-600 hover:bg-orange-700 text-white",
+              "flex items-center justify-center w-25 h-6 outline-1 outline-black rounded disabled:opacity-50 px-1"
+            )}
+          >
+            Add to Cart
+          </button>
         </div>
       </div>
       {showImageOverlay && (

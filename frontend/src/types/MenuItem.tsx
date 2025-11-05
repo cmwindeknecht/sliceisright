@@ -1,3 +1,4 @@
+import { IngredientOption } from "@/components/MenuItemIngredient";
 import { Ingredient } from "./Ingredient";
 
 export interface MenuItem {
@@ -19,12 +20,14 @@ export interface MenuItemSize {
 
 export interface OrderItem extends MenuItem {
   orderItemId: number | null;
-  modifiedIngredients: Ingredient[];
+  ingredientOptions: IngredientOption[];
   chosenSize: MenuItemSize;
   quantity: number;
+  notes: string | null;
 }
 
 export interface Order {
   orderId: number | null;
   orderItems: OrderItem[];
+  price: number;
 }

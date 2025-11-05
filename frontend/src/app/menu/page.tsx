@@ -79,7 +79,11 @@ export default function MenuPage() {
           >
             Return to Menu
           </button>
-          <MenuItem menuItem={menuItemToCustomize} ingredients={ingredients} />
+          <MenuItem
+            menuItem={menuItemToCustomize}
+            ingredients={ingredients}
+            returnToMenu={setMenuItemToCustomize}
+          />
         </div>
       ) : (
         <div>
