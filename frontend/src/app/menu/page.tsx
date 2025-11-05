@@ -1,7 +1,6 @@
 "use client";
 
 import { useMenu } from "@/components/context/Menu";
-import MenuItemDeprecated from "@/components/MenuItemDeprecated";
 import MenuItemOverviewSize from "@/components/MenuItemOverviewSize";
 import MenuItemOverviewSimple from "@/components/MenuItemOverviewSimple";
 import { sortMenuItemsByCategory } from "@/misc/helper";
@@ -35,6 +34,7 @@ export default function MenuPage() {
   useEffect(() => {
     categorizeMenuItems();
   }, [menuItems]);
+
   useEffect(() => {
     categorizeMenuItems();
   }, [ingredients]);
@@ -46,8 +46,6 @@ export default function MenuPage() {
       if (!categorized.has(menuItem.category)) {
         categorized.set(menuItem.category, []);
       }
-
-      // Get the array and push the item into it
       categorized.get(menuItem.category)!.push(menuItem);
     });
     setCategorizedMenu(categorized);
@@ -81,7 +79,6 @@ export default function MenuPage() {
     return <MenuItemOverviewSimple key={menuItem.name + menuItem.id} menuItem={menuItem} />;
   };
 
-  // TODO get the current order and populate the quantities in the overview cards
   return (
     <div className="m-3">
       {menuItemToCustomize ? (

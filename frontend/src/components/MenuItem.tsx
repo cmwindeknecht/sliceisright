@@ -6,7 +6,7 @@ import { Ingredient } from "@/types/Ingredient";
 import clsx from "clsx";
 import OverlayImageWithFadeIn from "./OverlayImageWithFadeIn";
 import MenuItemIngredient, { IngredientOption } from "./MenuItemIngredient";
-import { sortMenuSize } from "@/misc/helper";
+import { sortIngredientsByCategory, sortMenuSize } from "@/misc/helper";
 
 export interface MenuItemProps {
   menuItem: MenuItemType;
@@ -24,6 +24,26 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
   const [ingredientOptions, setIngredientOptions] = useState<Map<number, IngredientOption>>(
     new Map()
   );
+  const [categorizedIngredients, setCategorizedIngredients] = useState<Map<string, Ingredient[]>>(
+    new Map()
+  );
+
+  useEffect(() => {
+    const ingredientMap = new Map(categorizedIngredients);
+
+    ingredients.forEach((ingredient) => {
+      const key = doesMenuItemHaveIngredient(ingredient) ? "INCLUDED" : ingredient.category;
+      const ingredientList = ingredientMap.get(key) ?? [];
+      ingredientList.push(ingredient);
+      ingredientMap.set(key, ingredientList);
+    });
+
+    for (const ingredientList of ingredientMap.values()) {
+      ingredientList.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    setCategorizedIngredients(ingredientMap);
+  }, [ingredients]);
 
   const updateIngredientOptions = (ingredientOption: IngredientOption) => {
     const tempIngredientOptions = new Map(ingredientOptions);
@@ -62,20 +82,25 @@ export default function MenuItem({ menuItem, ingredients }: MenuItemProps) {
         </div>
 
         {/* Toppings */}
-        {/* TODO Have the toppings like Outbound dashboard 
-          At top is a list of already included ingredients to be modified
-          Next is a list of ingredients that can be added
-          */}
-        <div className="flex flex-col w-full justify-start items-start">
-          {ingredients.map((ingredient) => (
-            <MenuItemIngredient
-              key={ingredient.id}
-              ingredient={ingredient}
-              selectedSize={selectedSize}
-              canBeRemoved={doesMenuItemHaveIngredient(ingredient)}
-              updateIngredientOptions={updateIngredientOptions}
-            />
-          ))}
+        <div className="flex flex-col w-full gap-4">
+          {Array.from(sortIngredientsByCategory(categorizedIngredients).entries()).map(
+            ([category, ingredientList]) => (
+              <div key={category} className="flex flex-col w-full">
+                <div className="p-2 text-2xl">{category} TOPPINGS</div>
+                <div className="flex flex-col w-full justify-start items-start gap-2">
+                  {ingredientList.map((ingredient) => (
+                    <MenuItemIngredient
+                      key={ingredient.id}
+                      ingredient={ingredient}
+                      selectedSize={selectedSize}
+                      canBeRemoved={doesMenuItemHaveIngredient(ingredient)}
+                      updateIngredientOptions={updateIngredientOptions}
+                    />
+                  ))}
+                </div>
+              </div>
+            )
+          )}
         </div>
       </div>
       {showImageOverlay && (

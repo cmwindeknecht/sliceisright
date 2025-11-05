@@ -31,6 +31,8 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
   const isUpdateMode = selectedIngredientName !== "";
 
   // Load selected ingredient data when dropdown changes
+
+  // TODO add image URL, canBeHalved (cheese, sauce can't really be on half), canBeLight (sauce, cheese)
   useEffect(() => {
     if (selectedIngredientName) {
       const ingredient = ingredients.find(

@@ -16,7 +16,16 @@ export const sortMenuItemsByCategory = (menuItems: MenuItem[]) => {
   return [...menuItems].sort((a, b) => order.indexOf(a.category) - order.indexOf(b.category));
 };
 
-export const sortIngredientsByCategory = (ingredients: Ingredient[]) => {
-  const order = ["MEAT", "VEGETABLE", "FRUIT", "OTHER"];
-  return [...ingredients].sort((a, b) => order.indexOf(a.category) - order.indexOf(b.category));
+export const sortIngredientsByCategory = (
+  ingredientMap: Map<string, Ingredient[]>
+): Map<string, Ingredient[]> => {
+  const order = ["INCLUDED", "MEAT", "VEGETABLE", "FRUIT", "OTHER"];
+
+  // Convert to array of [key, value] pairs
+  const sortedEntries = [...ingredientMap.entries()].sort(
+    ([keyA], [keyB]) => order.indexOf(keyA) - order.indexOf(keyB)
+  );
+
+  // Return a new Map with the sorted order
+  return new Map(sortedEntries);
 };

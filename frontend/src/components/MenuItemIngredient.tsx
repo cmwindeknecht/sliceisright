@@ -67,8 +67,8 @@ export default function MenuItemIngredient({
   };
 
   return (
-    <div className="flex flex-row items-center gap-2 mt-2 w-full">
-      <div className="flex flex-row items-center w-1/5 gap-2 z-1 bg-orange-600">
+    <div className="flex flex-row items-center mt-2 w-full h-15">
+      <div className="h-full flex flex-row items-center w-1/5 gap-2 z-1 bg-orange-600">
         <OverlayImageWithFadeIn
           imageUrl=""
           itemName={ingredient.name}
@@ -92,7 +92,7 @@ export default function MenuItemIngredient({
       </div>
 
       {showOptions && (
-        <div className="flex flex-row gap-3 px-3 items-center slide-in-left bg-red-600">
+        <div className="flex flex-row gap-3 h-full px-3 items-center slide-in-left bg-red-600">
           <button
             onClick={() =>
               handleIngredientOptionUpdate({
@@ -103,10 +103,10 @@ export default function MenuItemIngredient({
             }
             className={clsx(
               ingredientOption.isRemoved
-                ? "bg-gray-600 text-black"
+                ? "bg-gray-600 text-black cursor-default"
                 : ingredientOption.isLeftHalf
-                  ? "ring-2 ring-black ring-inset bg-orange-700 hover:bg-orange-800"
-                  : "bg-orange-600 hover:bg-orange-700",
+                  ? "ring-2 ring-black ring-inset bg-orange-700 hover:bg-orange-800 cursor-pointer"
+                  : "bg-orange-600 hover:bg-orange-700 cursor-pointer",
               "m-w-20 w-20 flex flex-col items-center text-white rounded-lg p-1"
             )}
           >
@@ -122,10 +122,10 @@ export default function MenuItemIngredient({
             }
             className={clsx(
               ingredientOption.isRemoved
-                ? "bg-gray-600 text-black"
+                ? "bg-gray-600 text-black  cursor-default"
                 : ingredientOption.isWholePizza
-                  ? "ring-2 ring-black ring-inset bg-orange-700 hover:bg-orange-800"
-                  : "bg-orange-600 hover:bg-orange-700",
+                  ? "ring-2 ring-black ring-inset bg-orange-700 hover:bg-orange-800 cursor-pointer"
+                  : "bg-orange-600 hover:bg-orange-700 cursor-pointer",
               "m-w-20 w-20 flex flex-col items-center text-white rounded-lg p-1"
             )}
           >
@@ -141,10 +141,10 @@ export default function MenuItemIngredient({
             }
             className={clsx(
               ingredientOption.isRemoved
-                ? "bg-gray-600 text-black"
+                ? "bg-gray-600 text-black cursor-default"
                 : ingredientOption.isRightHalf
-                  ? "ring-2 ring-black ring-inset bg-orange-700 hover:bg-orange-800"
-                  : "bg-orange-600 hover:bg-orange-700",
+                  ? "ring-2 ring-black ring-inset bg-orange-700 hover:bg-orange-800 cursor-pointer"
+                  : "bg-orange-600 hover:bg-orange-700 cursor-pointer",
               "m-w-20 w-20 flex flex-col items-center text-white rounded-lg p-1"
             )}
           >
@@ -160,25 +160,47 @@ export default function MenuItemIngredient({
                 }
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-gray-400 rounded-full transition-colors peer-checked:bg-orange-600 peer-checked:border-2 peer-checked:border-orange-700" />
-              <div className="absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full shadow transition-transform duration-300 peer-checked:translate-x-5" />
+              <div className="w-11 h-6 bg-gray-400 border-2 border-gray-600 rounded-full transition-colors peer-checked:bg-orange-600 peer-checked:border-2 peer-checked:border-orange-700" />
+              <div className="absolute top-0.5 left-0.5 bg-white  w-5 h-5 rounded-full shadow transition-transform duration-300 peer-checked:translate-x-5" />
             </label>
             <span className="text-xs text-white">Double</span>
           </div>
           <div className="flex flex-col items-center">
-            <label className="relative inline-flex items-center cursor-pointer">
+            <label
+              className={clsx(
+                !canBeRemoved ? "cursor-default" : "cursor-pointer",
+                "relative inline-flex items-center"
+              )}
+            >
               <input
                 type="checkbox"
                 checked={ingredientOption.isRemoved}
+                disabled={!canBeRemoved}
                 onChange={(e) =>
                   handleIngredientOptionUpdate({ isRemoved: e.target.checked, isDoubled: false })
                 }
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-gray-400 rounded-full transition-colors peer-checked:bg-orange-600 peer-checked:border-2 peer-checked:border-orange-700" />
-              <div className="absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full shadow transition-transform duration-300 peer-checked:translate-x-5" />
+              <div
+                className={clsx(
+                  !canBeRemoved ? "bg-gray-600 border-black" : "bg-gray-400 border-gray-600",
+                  "w-11 h-6 rounded-full transition-colors border-2",
+                  "peer-checked:bg-orange-600 peer-checked: peer-checked:border-orange-700"
+                )}
+              />
+              <div
+                className={clsx(
+                  !canBeRemoved ? "bg-black" : "bg-white",
+                  "absolute top-0.5 left-0.5 w-5 h-5 rounded-full shadow transition-transform duration-300",
+                  "peer-checked:translate-x-5"
+                )}
+              />
             </label>
-            <span className="text-xs text-white">Remove</span>
+            <span
+              className={clsx(!canBeRemoved ? "text-black line-through" : "text-white", "text-xs")}
+            >
+              Remove
+            </span>
           </div>
         </div>
       )}
