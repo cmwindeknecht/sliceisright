@@ -33,7 +33,8 @@ public class Constants {
         PIZZA("Signature Pizza"),
         ITEMS("Specialty Items"),
         DESSERTS("Desserts"),
-        BEVERAGES("Beverages");
+        BEVERAGES("Beverages"),
+        DEALS("Deals");
 
         private final String value;
         

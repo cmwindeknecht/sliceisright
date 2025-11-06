@@ -32,6 +32,8 @@ public class Ingredient extends PanacheEntity {
     @Setter @Getter
     public String name;
 
+    public String imageUrl;
+
     @OneToMany(mappedBy = "ingredient", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<IngredientSize> sizes = new ArrayList<>();
 
@@ -40,4 +42,6 @@ public class Ingredient extends PanacheEntity {
 
     public Boolean canBeRemoved;
     public Boolean canBeDoubled;
+    public Boolean canBeHalved;
+    public Boolean canBeLight;
 }

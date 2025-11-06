@@ -11,26 +11,18 @@ export default function MenuItemAdmin({ menuItem }: MenuItemAdminProps) {
 
   return (
     <>
-      <div className="flex gap-4 p-4 border rounded-lg shadow bg-orange-600 min-w-5xl h-fit">
+      <div className="flex gap-4 p-4 border rounded-lg shadow bg-orange-600 w-[90vw] h-fit">
         {/* Left: Image */}
         <div className="flex-shrink-0 cursor-pointer" onClick={() => setShowImageOverlay(true)}>
-          {menuItem.imageUrl ? (
-            <img
-              src={menuItem.imageUrl}
-              alt={menuItem.name}
-              className="w-32 h-full object-cover rounded hover:opacity-90 transition-opacity"
-            />
-          ) : (
-            <img
-              src="/queens.jpg"
-              alt="default"
-              className="w-32 h-full object-cover rounded hover:opacity-90 transition-opacity"
-            />
-          )}
+          <img
+            src={menuItem.imageUrl || "/queens.jpg"}
+            alt={menuItem.name}
+            className="w-32 h-full object-cover rounded hover:opacity-90 transition-opacity"
+          />
         </div>
 
         <div className="flex flex-col flex-1 gap-3">
-          <div className="flex gap-4 h-1/3 bg-red-600 rounded-2xl p-2">
+          <div className="flex p-2 pb-6 gap-4 h-1/3 bg-red-600 rounded-2xl">
             {/* Name */}
             <div className="flex flex-col w-1/4  text-sm">
               <div>
@@ -75,6 +67,10 @@ export default function MenuItemAdmin({ menuItem }: MenuItemAdminProps) {
                 <div className="flex flex-row items-center">
                   <input type="checkbox" checked={menuItem.isCustomizable} readOnly />
                   <div className="pl-1 text-sm">Can be customized by customer?</div>
+                </div>
+                <div className="flex flex-row items-center">
+                  <input type="checkbox" checked={menuItem.isAvailable} readOnly />
+                  <div className="pl-1 text-sm">Is available for the menu?</div>
                 </div>
               </div>
               {menuItem.ingredients && menuItem.ingredients.length > 0 && (

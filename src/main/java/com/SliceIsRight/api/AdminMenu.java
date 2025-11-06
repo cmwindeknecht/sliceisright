@@ -1,10 +1,10 @@
 package com.SliceIsRight.api;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
@@ -29,9 +29,13 @@ import com.SliceIsRight.database.entities.MenuItem;
 import com.SliceIsRight.database.entities.MenuItemSize;
 import com.SliceIsRight.database.repositories.MenuItemRepository;
 import com.SliceIsRight.api.responses.ResponseFactory;
+import com.SliceIsRight.Constants.Size;
 import com.SliceIsRight.Helper;
+import com.SliceIsRight.MenuUpdates;
 import com.SliceIsRight.api.model.IngredientDTO;
+import com.SliceIsRight.api.model.IngredientSizeDTO;
 import com.SliceIsRight.api.model.MenuItemDTO;
+import com.SliceIsRight.api.model.MenuItemSizeDTO;
 
 @Path("/admin/menu")
 public class AdminMenu {
@@ -39,6 +43,9 @@ public class AdminMenu {
 
     @Inject
     JsonWebToken jwt; 
+
+    @Inject
+    MenuUpdates broadcaster;
 
     @Path("/menuItem")
     @POST
@@ -58,6 +65,7 @@ public class AdminMenu {
             updateMenuItemFromRequest(menuItem, request);
             MenuItem.persist(menuItem);
 
+            broadcaster.broadcast("refreshMenuItems");
             return ResponseFactory.GetCreatedResponse(helper.buildMenuItemDTO(menuItem), "Successfully created MenuItem");
         } catch (Exception exception) {
             System.out.println(String.format("Failed to create MenuItem due to exception %s for request %s", exception.getMessage(), request.toString()));
@@ -82,6 +90,7 @@ public class AdminMenu {
             
             updateMenuItemFromRequest(existingMenuItem, request);
 
+            broadcaster.broadcast("refreshMenuItems");
             return ResponseFactory.GetCreatedResponse(helper.buildMenuItemDTO(existingMenuItem), "Successfully created MenuItem");
         } catch (Exception exception) {
             System.out.println(String.format("Failed to update MenuItem due to exception %s for request %s", exception.getMessage(), request.toString()));
@@ -102,6 +111,7 @@ public class AdminMenu {
             
             existingMenuItem.delete();
 
+            broadcaster.broadcast("refreshMenuItems");
             return ResponseFactory.GetCreatedResponse(helper.buildMenuItemDTO(existingMenuItem), "Successfully deleted MenuItem");
         } catch (Exception exception) {
             System.out.println(String.format("Failed to delete MenuItem due to exception %s for requested id %s", exception.getMessage(), menuItemId));
@@ -110,6 +120,7 @@ public class AdminMenu {
     }
 
     private void updateMenuItemFromRequest(MenuItem toUpdate, MenuItemDTO request) throws Exception {
+        // update the basic data
         toUpdate.name = request.name;
         toUpdate.description = request.description;
         toUpdate.imageUrl = request.imageUrl;
@@ -117,10 +128,13 @@ public class AdminMenu {
         toUpdate.isAvailable = request.isAvailable;
         toUpdate.isCustomizable = request.isCustomizable;
 
+        // ensure there is at least one size present in the request - every menu item should have a size (even NONE)
         if (request.sizes.size() < 0) {
             throw new Exception("Menu Item update contained zero sizes!");
         }
 
+        // Pull all the associations for the ingredients
+        toUpdate.ingredients.clear();
         Set<Ingredient> ingredients = Ingredient
             .<Ingredient>find(
                 "id in ?1",
@@ -133,24 +147,30 @@ public class AdminMenu {
             .collect(Collectors.toSet());
         toUpdate.ingredients.addAll(ingredients);
 
+        // Ensure that all ingredient associations that were expected from the frontend are present in the backend
         if (ingredients.size() != request.ingredients.size()) {
             throw new Exception(String.format("Failed to find all ingredients in DB to create MenuItem - request size = %s found size = %s", request.ingredients.size(), ingredients.size()));
         }
 
-        Map<Long, MenuItemSize> existingMenuItemSizes = MenuItemSize
-            .<MenuItemSize>find(
-                "id in ?1",
-                request.sizes.stream()
-                    .map(dto -> dto.id)
-                    .collect(Collectors.toList())
-            )
-            .list()
-            .stream()
-            .collect(Collectors.toMap(size -> size.id, size -> size));
+        // check if the request is removing a size - delete the menu item size association if its not in the request
+        Map<Size, MenuItemSize> existingMenuItemSizes = new HashMap<Size, MenuItemSize>();
+        Iterator<MenuItemSize> menuItemSizeIterator = toUpdate.sizes.iterator();
+        while (menuItemSizeIterator.hasNext()) {
+            MenuItemSize menuItemSize = menuItemSizeIterator.next();
+            Optional<MenuItemSizeDTO> matchingSizeMaybe = request.sizes.stream()
+                .filter(requestSize -> requestSize.size == menuItemSize.size)
+                .findFirst();
+            if (matchingSizeMaybe.isEmpty()) {
+                menuItemSizeIterator.remove();
+            } else {
+                existingMenuItemSizes.put(menuItemSize.size, menuItemSize);
+            }
+        }
         
+        // update or create new size associations
         Set<MenuItemSize> updatedSizes = request.sizes.stream()
             .map(requestSize -> {
-                MenuItemSize menuItemSize = existingMenuItemSizes.getOrDefault(requestSize.id, new MenuItemSize());
+                MenuItemSize menuItemSize = existingMenuItemSizes.getOrDefault(requestSize.size, new MenuItemSize());
                 menuItemSize.menuItem = toUpdate;
                 menuItemSize.price = requestSize.price;
                 menuItemSize.size = requestSize.size;
@@ -179,6 +199,7 @@ public class AdminMenu {
             updateIngredientFromRequest(ingredient, request);
             Ingredient.persist(ingredient);
 
+            broadcaster.broadcast("refreshIngredients");
             return ResponseFactory.GetCreatedResponse(helper.buildIngredientDTO(ingredient), "Successfully created Ingredient");
         } catch (Exception exception) {
             System.out.println(String.format("Failed to create MenuItem due to exception %s for request %s", exception.getMessage(), request.toString()));
@@ -200,6 +221,7 @@ public class AdminMenu {
 
             updateIngredientFromRequest(existingIngredient, request);
 
+            broadcaster.broadcast("refreshIngredients");
             return ResponseFactory.GetCreatedResponse(helper.buildIngredientDTO(existingIngredient), "Successfully updated Ingredient");
         } catch (Exception exception) {
             System.out.println(String.format("Failed to update Ingredient due to exception %s for request %s", exception.getMessage(), request.toString()));
@@ -225,6 +247,7 @@ public class AdminMenu {
             
             existingIngredient.delete();
 
+            broadcaster.broadcast("refreshIngredients");
             return ResponseFactory.GetCreatedResponse(helper.buildIngredientDTO(existingIngredient), "Successfully deleted Ingredient");
         } catch (Exception exception) {
             System.out.println(String.format("Failed to delete Ingredient due to exception %s for requested id %s", exception.getMessage(), ingredientId));
@@ -234,28 +257,36 @@ public class AdminMenu {
 
     private void updateIngredientFromRequest(Ingredient toUpdate, IngredientDTO request) throws Exception {
         toUpdate.name = request.name;
+        toUpdate.imageUrl = request.imageUrl;
         toUpdate.category = request.category;
         toUpdate.canBeDoubled = request.canBeDoubled;
         toUpdate.canBeRemoved = request.canBeRemoved;
+        toUpdate.canBeHalved = request.canBeHalved;
+        toUpdate.canBeLight = request.canBeLight;
 
         if (request.sizes.size() < 0) {
             throw new Exception("Ingredient update contained zero sizes!");
         }
+
+        // check if the request is removing a size - delete the ingredient size association if its not in the request
+        Map<Size, IngredientSize> existingIngredientSizes = new HashMap<Size, IngredientSize>();
+        Iterator<IngredientSize> menuItemSizeIterator = toUpdate.sizes.iterator();
+        while (menuItemSizeIterator.hasNext()) {
+            IngredientSize ingredientSize = menuItemSizeIterator.next();
+            Optional<IngredientSizeDTO> matchingSizeMaybe = request.sizes.stream()
+                .filter(requestSize -> requestSize.size == ingredientSize.size)
+                .findFirst();
+            if (matchingSizeMaybe.isEmpty()) {
+                menuItemSizeIterator.remove();
+            } else {
+                existingIngredientSizes.put(ingredientSize.size, ingredientSize);
+            }
+        }
         
-        Map<Long, IngredientSize> existingIngredientSizes = IngredientSize
-            .<IngredientSize>find(
-                "id in ?1",
-                request.sizes.stream()
-                    .map(dto -> dto.id)
-                    .collect(Collectors.toList())
-            )
-            .list()
-            .stream()
-            .collect(Collectors.toMap(size -> size.id, size -> size));
-        
+        // update or create new size associations
         Set<IngredientSize> updatedSizes = request.sizes.stream()
             .map(requestSize -> {
-                IngredientSize ingredientSize = existingIngredientSizes.getOrDefault(requestSize.id, new IngredientSize());
+                IngredientSize ingredientSize = existingIngredientSizes.getOrDefault(requestSize.size, new IngredientSize());
                 ingredientSize.ingredient = toUpdate;
                 ingredientSize.price = requestSize.price;
                 ingredientSize.size = requestSize.size;

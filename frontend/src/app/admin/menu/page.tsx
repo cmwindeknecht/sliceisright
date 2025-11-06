@@ -33,9 +33,9 @@ export default function AdminMenuPage() {
   }, [reload]);
 
   const reloadMenu = async () => {
+    setReload(false);
     await getMenuItems();
     await getIngredients();
-    setReload(false);
   };
 
   return (

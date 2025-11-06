@@ -1,3 +1,4 @@
+import { IngredientOption } from "@/components/MenuItemIngredient";
 import { Ingredient } from "./Ingredient";
 
 export interface MenuItem {
@@ -9,16 +10,24 @@ export interface MenuItem {
   isCustomizable: boolean;
   ingredients: Ingredient[];
   sizes: MenuItemSize[];
-  category: "PIZZA" | "ITEMS" | "DESSERTS" | "BEVERAGES";
+  category: "PIZZA" | "ITEMS" | "DESSERTS" | "BEVERAGES" | "DEALS";
 }
 
 export interface MenuItemSize {
-  size: "None" | "S" | "M" | "L" | "XL";
+  size: "NONE" | "S" | "M" | "L" | "XL";
   price: number;
 }
 
 export interface OrderItem extends MenuItem {
-  orderItemId: string | null;
-  modifiedIngredients: Ingredient[];
-  chosenSize: MenuItem;
+  orderItemId: number | null;
+  ingredientOptions: IngredientOption[];
+  chosenSize: MenuItemSize;
+  quantity: number;
+  notes: string | null;
+}
+
+export interface Order {
+  orderId: number | null;
+  orderItems: OrderItem[];
+  price: number;
 }

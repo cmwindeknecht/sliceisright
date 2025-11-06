@@ -155,6 +155,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch (e) {
       console.error("Invalid token:", e);
       logout();
+      return false;
     }
   };
 

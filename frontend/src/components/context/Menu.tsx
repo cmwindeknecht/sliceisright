@@ -31,14 +31,48 @@ const MenuContext = createContext<MenuContext | null>(null);
 
 interface MenuProviderProps {
   children: ReactNode;
+  setToastMessage: (message: string | null) => void;
 }
 
-export const MenuProvider = ({ children }: MenuProviderProps) => {
+export const MenuProvider = ({ children, setToastMessage }: MenuProviderProps) => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [currentOrder, setCurrentOrder] = useState<OrderItem[]>([]);
 
+  useEffect(() => {
+    const stored = localStorage.getItem("currentOrder");
+    if (stored) {
+      setCurrentOrder(JSON.parse(stored));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("currentOrder", JSON.stringify(currentOrder));
+  }, [currentOrder]);
+
+  useEffect(() => {
+    const eventSource = new EventSource("http://localhost:8080/menu/updates");
+
+    eventSource.onmessage = (event) => {
+      console.log(`Received event data ${event.data}`);
+      if (event.data === "refreshMenuItems") {
+        getMenuItems();
+      }
+      if (event.data === "refreshIngredients") {
+        getIngredients();
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.warn("SSE error:", error);
+    };
+
+    return () => eventSource.close();
+  }, []);
+
   const getMenuItems = async () => {
+    logTrace("getMenuItems");
+
     try {
       const res = await fetch(`${apiUrl}/menu/menuItems`);
 
@@ -56,6 +90,8 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
   };
 
   const getIngredients = async () => {
+    logTrace("getIngredients");
+
     try {
       const res = await fetch(`${apiUrl}/menu/ingredients`);
 
@@ -204,8 +240,10 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
 
   const addOrderItem = (orderItem: OrderItem) => {
     try {
-      const orderItemWithId: OrderItem = { ...orderItem, orderItemId: crypto.randomUUID() };
       setCurrentOrder((prev) => (prev ? [...prev, orderItem] : [orderItem]));
+      setToastMessage(
+        `Added ${orderItem.name} ${orderItem.chosenSize.size == "NONE" ? "" : `(${orderItem.chosenSize.size})`} to cart`
+      );
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message };
@@ -217,6 +255,9 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
       setCurrentOrder((prev) =>
         prev.map((item) => (item.orderItemId === orderItem.orderItemId ? { ...orderItem } : item))
       );
+      setToastMessage(
+        `Updated ${orderItem.name} ${orderItem.chosenSize.size == "NONE" ? "" : `(${orderItem.chosenSize.size})`} in cart`
+      );
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message };
@@ -226,10 +267,22 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
   const deleteOrderItem = (orderItem: OrderItem) => {
     try {
       setCurrentOrder((prev) => prev.filter((item) => item.orderItemId !== orderItem.orderItemId));
+      setToastMessage(
+        `Removed ${orderItem.name} ${orderItem.chosenSize.size == "NONE" ? "" : `(${orderItem.chosenSize.size})`} from cart`
+      );
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message };
     }
+  };
+
+  const logTrace = (prefix: string) => {
+    const stack = new Error().stack
+      ?.split("\n")
+      .slice(2, 5)
+      .map((s) => s.trim());
+
+    console.log(`${prefix} called from:\n`, stack?.join("\n"));
   };
 
   const validateJWT = () => {
