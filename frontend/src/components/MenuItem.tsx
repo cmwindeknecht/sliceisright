@@ -6,7 +6,12 @@ import { Ingredient } from "@/types/Ingredient";
 import clsx from "clsx";
 import OverlayImageWithFadeIn from "./OverlayImageWithFadeIn";
 import MenuItemIngredient, { IngredientOption } from "./MenuItemIngredient";
-import { sortIngredientsByCategory, sortMenuSize } from "@/misc/helper";
+import {
+  getPriceOfIngredientOption,
+  showPriceOfIngredient,
+  sortIngredientsByCategory,
+  sortMenuSize,
+} from "@/misc/helper";
 import { useMenu } from "./context/Menu";
 
 export interface MenuItemProps {
@@ -23,18 +28,50 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
     throw new Error("No Size on Menu Item!");
   }
 
+  const [showImageOverlay, setShowImageOverlay] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [notes, setNotes] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<MenuItemSize>(initialSize);
-  const [showImageOverlay, setShowImageOverlay] = useState<boolean>(false);
+  const [currentPrice, setCurrentPrice] = useState<number>(0);
   const [ingredientOptions, setIngredientOptions] = useState<Map<number, IngredientOption>>(
     new Map()
   );
   const [categorizedIngredients, setCategorizedIngredients] = useState<Map<string, Ingredient[]>>(
     new Map()
   );
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    categorizeIngredients();
+  }, [ingredients]);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    calculatePrice();
+  }, [ingredientOptions, selectedSize]);
+
+  const calculatePrice = () => {
+    let price = selectedSize.price;
+
+    for (const ingredientOption of [...ingredientOptions.values()]) {
+      if (showPriceOfIngredient(ingredientOption)) {
+        price += getPriceOfIngredientOption(ingredientOption);
+      }
+    }
+
+    setCurrentPrice(price);
+  };
+
+  const categorizeIngredients = () => {
     const ingredientMap = new Map<string, Ingredient[]>();
 
     for (const ingredient of ingredients) {
@@ -60,11 +97,12 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
           basePrice: ingredientSelectedSize.price,
           isRemoved: false,
           isLight: false,
-          isRegular: true,
+          isRegular: ingredient.canBeLight,
           isDoubled: false,
           isLeftHalf: false,
           isRightHalf: false,
-          isWholePizza: true,
+          isWholeItem: ingredient.canBeHalved,
+          isIncluded: true,
         });
       } else {
         key = ingredient.category;
@@ -80,17 +118,7 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
     }
 
     setCategorizedIngredients(ingredientMap);
-  }, [ingredients]);
-
-  useEffect(() => {
-    if (error) {
-      const timer = setTimeout(() => {
-        setError(null);
-      }, 5000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [error]);
+  };
 
   const updateIngredientOptions = (ingredientOption: IngredientOption) => {
     const tempIngredientOptions = new Map(ingredientOptions);
@@ -98,7 +126,7 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
     let ingredientCount = 0;
 
     tempIngredientOptions.values().forEach((ingredientOption) => {
-      if (ingredientOption.isWholePizza) {
+      if (ingredientOption.isWholeItem) {
         ingredientCount += ingredientOption.isDoubled ? 2 : 1;
       } else if (ingredientOption.isLeftHalf || ingredientOption.isRightHalf) {
         ingredientCount += ingredientOption.isDoubled ? 1 : 0.5;
@@ -116,13 +144,19 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
     return true;
   };
 
-  function doesMenuItemHaveIngredient(ingredient: Ingredient) {
+  const removeIngredientOption = (ingredientOption: IngredientOption) => {
+    const tempIngredientOptions = new Map(ingredientOptions);
+    tempIngredientOptions.delete(ingredientOption.ingredientId);
+    setIngredientOptions(tempIngredientOptions);
+  };
+
+  const doesMenuItemHaveIngredient = (ingredient: Ingredient) => {
     return (
       menuItem.ingredients.find(
         (menuItemIngredient) => menuItemIngredient.name == ingredient.name
       ) != null
     );
-  }
+  };
 
   const addToOrder = () => {
     const orderItem: OrderItem = {
@@ -148,7 +182,7 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
     <>
       <div
         className={clsx(
-          "flex flex-col w-[95vw] justify-center items-center outline-1 outline-orange-600 bg-yellow-100"
+          "flex flex-col w-[95vw] justify-center items-center outline-1 outline-orange-600 bg-yellow-100 px-2 mb-30"
         )}
       >
         {/* Image / Name & Description */}
@@ -168,16 +202,18 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
 
         {/* Sizes */}
         <div className="flex flex-col w-full justify-start items-start gap-2">
-          <div className="p-2 text-2xl">Sizes</div>
+          <div className="text-2xl">Sizes</div>
           <div className="flex flex-row w-full justify-start items-start gap-2">
             {sortMenuSize(menuItem.sizes).map((menuItemSize) => (
               <button
                 key={menuItem.id + menuItemSize.size}
                 onClick={() => setSelectedSize(menuItemSize)}
                 className={clsx(
-                  selectedSize && selectedSize.size == menuItemSize.size
-                    ? "bg-red-600 hover:bg-red-700 outline-4 outline-black"
-                    : "bg-gray-600 hover:bg-orange-700",
+                  selectedSize && selectedSize.size == "NONE"
+                    ? "bg-red-600 hover:bg-red-700"
+                    : selectedSize.size == menuItemSize.size
+                      ? "bg-red-600 hover:bg-red-700 outline-4 outline-black"
+                      : "bg-gray-600 hover:bg-orange-700",
                   "outline-1 outline-black text-white px-1 rounded"
                 )}
               >
@@ -194,7 +230,7 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
           {Array.from(sortIngredientsByCategory(categorizedIngredients).entries()).map(
             ([category, ingredientList]) => (
               <div key={category} className="flex flex-col w-full">
-                <div className="p-2 text-2xl">{category} TOPPINGS</div>
+                <div className="text-2xl">{category} TOPPINGS</div>
                 <div className="flex flex-col w-full justify-start items-start gap-2">
                   {ingredientList.map((ingredient) => (
                     <MenuItemIngredient
@@ -203,6 +239,7 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
                       selectedSize={selectedSize}
                       canBeRemoved={doesMenuItemHaveIngredient(ingredient)}
                       updateIngredientOptions={updateIngredientOptions}
+                      removeIngredientOption={removeIngredientOption}
                     />
                   ))}
                 </div>
@@ -210,31 +247,38 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
             )
           )}
         </div>
-        <div className="h-5 w-full rounded bg-orange-600 my-3" />
-        <div className="flex flex-row justify-around w-full gap-5">
-          <div className="flex flex-col w-full max-w-md">
-            <label htmlFor="notes" className="mb-1 font-medium text-gray-700">
-              Special Requests ({notes.length}/100):
-            </label>
-            <textarea
-              id="notes"
-              value={notes}
-              onChange={handleNoteUpdate}
-              rows={2}
-              placeholder="Add order notes..."
-              className="resize-none border bg-white border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
-            />
-            <div className="text-right text-sm text-gray-500 mt-1"></div>
+
+        {/* Footer */}
+        <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-lg z-50 h-30">
+          <div className="flex flex-row justify-around items-center w-full max-w-4xl mx-auto p-4 gap-5">
+            <div className="flex flex-col w-full max-w-md">
+              <label htmlFor="notes" className="mb-1 font-medium text-gray-700">
+                Special Requests ({notes.length}/100):
+              </label>
+              <textarea
+                id="notes"
+                value={notes}
+                onChange={handleNoteUpdate}
+                rows={2}
+                maxLength={100}
+                placeholder="Add order notes..."
+                className="resize-none border bg-white border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+              />
+              <div className="text-right text-sm text-gray-500 mt-1"></div>
+            </div>
+
+            <div className="font-semibold text-lg">Price ${currentPrice.toFixed(2)}</div>
+
+            <button
+              onClick={() => addToOrder()}
+              className={clsx(
+                "bg-red-600 hover:bg-orange-700 text-white",
+                "flex items-center justify-center h-10 px-4 rounded shadow-md outline-1 outline-black disabled:opacity-50"
+              )}
+            >
+              Add to Cart
+            </button>
           </div>
-          <button
-            onClick={() => addToOrder()}
-            className={clsx(
-              "bg-red-600 hover:bg-orange-700 text-white",
-              "flex items-center justify-center w-25 h-6 outline-1 outline-black rounded disabled:opacity-50 px-1"
-            )}
-          >
-            Add to Cart
-          </button>
         </div>
       </div>
       {showImageOverlay && (

@@ -15,12 +15,14 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 import { MenuItemSize } from "@/types/MenuItem";
+import { getPriceOfIngredientOption, showPriceOfIngredient } from "@/misc/helper";
 
 export interface MenuItemIngredientProps {
   ingredient: Ingredient;
   selectedSize: MenuItemSize;
   canBeRemoved: boolean;
   updateIngredientOptions: (ingredientOption: IngredientOption) => boolean;
+  removeIngredientOption: (ingredientOption: IngredientOption) => void;
 }
 
 export interface IngredientOption {
@@ -32,7 +34,8 @@ export interface IngredientOption {
   isDoubled: boolean;
   isLeftHalf: boolean;
   isRightHalf: boolean;
-  isWholePizza: boolean;
+  isWholeItem: boolean;
+  isIncluded: boolean;
 }
 
 export default function MenuItemIngredient({
@@ -40,6 +43,7 @@ export default function MenuItemIngredient({
   selectedSize,
   canBeRemoved,
   updateIngredientOptions,
+  removeIngredientOption,
 }: MenuItemIngredientProps) {
   const defaultIngedientOption: IngredientOption = {
     ingredientId:
@@ -54,20 +58,27 @@ export default function MenuItemIngredient({
       })(),
     isRemoved: false,
     isLight: false,
-    isRegular: true,
+    isRegular: ingredient.canBeLight,
     isDoubled: false,
     isLeftHalf: false,
     isRightHalf: false,
-    isWholePizza: true,
+    isWholeItem: ingredient.canBeHalved,
+    isIncluded: canBeRemoved,
   };
 
   const [showOptions, setShowOptions] = useState<boolean>(false);
   const [ingredientOption, setIngredientOption] =
     useState<IngredientOption>(defaultIngedientOption);
 
-  const handleAddedIngredient = () => {
-    if (updateIngredientOptions(ingredientOption)) {
-      setShowOptions((prev) => !prev);
+  const toggleIngredient = () => {
+    if (showOptions) {
+      removeIngredientOption(ingredientOption);
+      setShowOptions(false);
+    } else {
+      const success = updateIngredientOptions(ingredientOption);
+      if (success) {
+        setShowOptions(true);
+      }
     }
   };
 
@@ -82,19 +93,28 @@ export default function MenuItemIngredient({
   };
 
   return (
-    <div className="flex flex-row items-center mt-2 w-full h-15">
-      <div className="h-full flex flex-row items-center w-1/5 gap-2 z-1 bg-orange-600">
+    <div className="flex flex-row mt-2 w-full h-15">
+      <div className="h-full flex flex-row justify-between items-center w-1/5 gap-2 z-1 bg-orange-600">
         <OverlayImageWithFadeIn
           imageUrl={ingredient.imageUrl || ""}
           itemName={ingredient.name}
           useOverlay={false}
           wrapperClass="w-[5vw] relative bg-gray-300"
         />
-        <span className="flex-1">{ingredient.name}</span>
-
+        <div className="flex flex-col items-start w-3/4">
+          <span className="">{ingredient.name}</span>
+          <span
+            className={clsx(
+              "text-sm text-white",
+              !showPriceOfIngredient(ingredientOption) && "invisible"
+            )}
+          >
+            ${getPriceOfIngredientOption(ingredientOption).toFixed(2)}
+          </span>
+        </div>
         <button
           type="button"
-          onClick={() => handleAddedIngredient()}
+          onClick={() => toggleIngredient()}
           className={clsx(
             showOptions
               ? "bg-green-600 hover:bg-green-700 ring-4 ring-green-800"
@@ -115,7 +135,7 @@ export default function MenuItemIngredient({
                   handleIngredientOptionUpdate({
                     isLeftHalf: true,
                     isRightHalf: false,
-                    isWholePizza: false,
+                    isWholeItem: false,
                   })
                 }
                 className={clsx(
@@ -134,13 +154,13 @@ export default function MenuItemIngredient({
                   handleIngredientOptionUpdate({
                     isLeftHalf: false,
                     isRightHalf: false,
-                    isWholePizza: true,
+                    isWholeItem: true,
                   })
                 }
                 className={clsx(
                   ingredientOption.isRemoved
                     ? "bg-gray-600 text-black  cursor-default"
-                    : ingredientOption.isWholePizza
+                    : ingredientOption.isWholeItem
                       ? "ring-2 ring-black ring-inset bg-orange-700 hover:bg-orange-800 cursor-pointer"
                       : "bg-orange-600 hover:bg-orange-700 cursor-pointer",
                   "m-w-20 w-20 flex flex-col items-center text-white rounded-lg p-1"
@@ -153,7 +173,7 @@ export default function MenuItemIngredient({
                   handleIngredientOptionUpdate({
                     isLeftHalf: false,
                     isRightHalf: true,
-                    isWholePizza: false,
+                    isWholeItem: false,
                   })
                 }
                 className={clsx(
@@ -174,8 +194,6 @@ export default function MenuItemIngredient({
                     checked={ingredientOption.isDoubled}
                     onChange={(e) =>
                       handleIngredientOptionUpdate({
-                        isLight: false,
-                        isRegular: false,
                         isRemoved: false,
                         isDoubled: e.target.checked,
                       })
@@ -268,7 +286,7 @@ export default function MenuItemIngredient({
                   onChange={(e) => {
                     if (e.target.checked) {
                       handleIngredientOptionUpdate({
-                        isWholePizza: false,
+                        isWholeItem: false,
                         isLeftHalf: false,
                         isRightHalf: false,
                         isLight: false,

@@ -53,6 +53,7 @@ export default function MenuItemOverviewSize({ menuItem }: MenuItemOverviewSizeP
         ingredientOptions: [],
         chosenSize: selectedSize,
         quantity: 1,
+        notes: "",
       };
       addOrderItem(orderItemToUpdate);
     } else {
@@ -112,7 +113,7 @@ export default function MenuItemOverviewSize({ menuItem }: MenuItemOverviewSizeP
                   onClick={() => setSelectedSize(menuItemSize)}
                   className={clsx(
                     selectedSize && selectedSize.size == menuItemSize.size
-                      ? "bg-red-600 hover:bg-red-700 outline-4 outline-black"
+                      ? "bg-red-600 hover:bg-red-700 outline-2 outline-green-700"
                       : "bg-gray-600 hover:bg-orange-700",
                     "outline-1 outline-black text-white px-1 rounded"
                   )}

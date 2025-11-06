@@ -38,6 +38,7 @@ export default function MenuItemOverviewSimple({ menuItem }: MenuItemOverviewSim
         ingredientOptions: [],
         chosenSize: menuItem.sizes[0],
         quantity: 1,
+        notes: "",
       };
       addOrderItem(orderItem);
     } else {

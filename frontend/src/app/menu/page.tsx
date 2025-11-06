@@ -7,7 +7,6 @@ import { sortMenuItemsByCategory } from "@/misc/helper";
 import { MenuItem as MenuItemType } from "@/types/MenuItem";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
-import MenuItemOverviewSizeCustom from "@/components/MenuItemOverviewSizeCustom";
 import MenuItemOverviewCustom from "@/components/MenuItemOverviewCustom";
 import MenuItem from "@/components/MenuItem";
 
