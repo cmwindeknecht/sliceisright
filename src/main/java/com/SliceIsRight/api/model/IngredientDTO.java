@@ -3,6 +3,7 @@ package com.SliceIsRight.api.model;
 import java.util.List;
 
 import com.SliceIsRight.Constants.IngredientCategory;
+import com.SliceIsRight.Constants.MenuItemCategory;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +20,7 @@ public class IngredientDTO {
     public String imageUrl;
     public List<IngredientSizeDTO> sizes;
     public IngredientCategory category;
+    public MenuItemCategory menuItemCategory;
     public Boolean canBeRemoved;
     public Boolean canBeDoubled;
     public Boolean canBeHalved;

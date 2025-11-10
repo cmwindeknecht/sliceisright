@@ -26,6 +26,7 @@ export interface MenuItemIngredientProps {
 }
 
 export interface IngredientOption {
+  name: string;
   ingredientId: number;
   basePrice: number;
   isRemoved: boolean;
@@ -56,6 +57,7 @@ export default function MenuItemIngredient({
       (() => {
         throw new Error(`No matching size found for ${selectedSize.size}`);
       })(),
+    name: ingredient.name,
     isRemoved: false,
     isLight: false,
     isRegular: ingredient.canBeLight,
@@ -187,24 +189,6 @@ export default function MenuItemIngredient({
               >
                 <CircleArrowRight /> <span className="text-xs">Right Half</span>
               </button>
-              <div className="flex flex-col items-center">
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={ingredientOption.isDoubled}
-                    onChange={(e) =>
-                      handleIngredientOptionUpdate({
-                        isRemoved: false,
-                        isDoubled: e.target.checked,
-                      })
-                    }
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-gray-400 border-2 border-gray-600 rounded-full transition-colors peer-checked:bg-orange-600 peer-checked:border-2 peer-checked:border-orange-700" />
-                  <div className="absolute top-0.5 left-0.5 bg-white  w-5 h-5 rounded-full shadow transition-transform duration-300 peer-checked:translate-x-5" />
-                </label>
-                <span className="text-xs text-white">Double</span>
-              </div>
             </>
           )}
           {ingredient.canBeLight && (
@@ -270,6 +254,26 @@ export default function MenuItemIngredient({
                 <SignalHigh /> <span className="text-xs">Double</span>
               </button>
             </>
+          )}
+          {ingredient.canBeDoubled && (
+            <div className="flex flex-col items-center">
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={ingredientOption.isDoubled}
+                  onChange={(e) =>
+                    handleIngredientOptionUpdate({
+                      isRemoved: false,
+                      isDoubled: e.target.checked,
+                    })
+                  }
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-400 border-2 border-gray-600 rounded-full transition-colors peer-checked:bg-orange-600 peer-checked:border-2 peer-checked:border-orange-700" />
+                <div className="absolute top-0.5 left-0.5 bg-white  w-5 h-5 rounded-full shadow transition-transform duration-300 peer-checked:translate-x-5" />
+              </label>
+              <span className="text-xs text-white">Double</span>
+            </div>
           )}
           {canBeRemoved && (
             <div className="flex flex-col items-center">

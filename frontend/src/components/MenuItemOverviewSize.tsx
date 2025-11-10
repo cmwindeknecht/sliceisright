@@ -5,7 +5,7 @@ import { MenuItemSize, MenuItem as MenuItemType, OrderItem } from "@/types/MenuI
 import clsx from "clsx";
 import OverlayImageWithFadeIn from "./OverlayImageWithFadeIn";
 import { useMenu } from "./context/Menu";
-import { sortMenuSize } from "@/misc/helper";
+import { doesMenuItemHaveIngredient, sortMenuSize } from "@/misc/helper";
 import PlusMinus from "./PlusMinus";
 
 export interface MenuItemOverviewSizeProps {
@@ -13,7 +13,7 @@ export interface MenuItemOverviewSizeProps {
 }
 
 export default function MenuItemOverviewSize({ menuItem }: MenuItemOverviewSizeProps) {
-  const { addOrderItem, updateOrderItem, deleteOrderItem, currentOrder } = useMenu();
+  const { ingredients, addOrderItem, updateOrderItem, deleteOrderItem, currentOrder } = useMenu();
 
   const [currentOrderItems, setCurrentOrderItems] = useState<Map<string, OrderItem>>(new Map());
   const [selectedSize, setSelectedSize] = useState<MenuItemSize | null>(null);
@@ -50,10 +50,11 @@ export default function MenuItemOverviewSize({ menuItem }: MenuItemOverviewSizeP
       orderItemToUpdate = {
         ...menuItem,
         orderItemId: Math.random(),
-        ingredientOptions: [],
+        ingredientOptions: getDefaultIngredientOptions(),
         chosenSize: selectedSize,
         quantity: 1,
         notes: "",
+        price: selectedSize.price,
       };
       addOrderItem(orderItemToUpdate);
     } else {
@@ -89,6 +90,44 @@ export default function MenuItemOverviewSize({ menuItem }: MenuItemOverviewSizeP
     }
 
     setCurrentOrderItems(currentOrderItemsUpdated);
+  };
+
+  const getDefaultIngredientOptions = () => {
+    const ingredientOptions = [];
+
+    for (const ingredient of ingredients) {
+      const ingredientSelectedSize = ingredient.sizes.find(
+        (ingredientSize) => ingredientSize.size != selectedSize?.size
+      );
+      if (!ingredientSelectedSize) {
+        console.warn(
+          `Ingredient ${ingredient.name} does not have the selected size and will not be listed`
+        );
+        continue;
+      }
+      if (ingredient.id == null) {
+        console.error(`Ingredient ${ingredient.name} does not have an id!`);
+        continue;
+      }
+
+      if (doesMenuItemHaveIngredient(menuItem, ingredient)) {
+        ingredientOptions.push({
+          ingredientId: ingredient.id,
+          name: ingredient.name,
+          basePrice: ingredientSelectedSize.price,
+          isRemoved: false,
+          isLight: false,
+          isRegular: ingredient.canBeLight,
+          isDoubled: false,
+          isLeftHalf: false,
+          isRightHalf: false,
+          isWholeItem: ingredient.canBeHalved,
+          isIncluded: true,
+        });
+      }
+    }
+
+    return ingredientOptions;
   };
 
   return (

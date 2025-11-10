@@ -20,22 +20,29 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
   const [imageUrl, setImageUrl] = useState<string>("");
   const [sizes, setSizes] = useState<IngredientSize[]>([]);
   const [category, setCategory] = useState<Ingredient["category"]>("MEAT");
+  const [menuItemCategory, setMenuItemCategory] =
+    useState<Ingredient["menuItemCategory"]>("PIZZAS");
   const [canBeRemoved, setCanBeRemoved] = useState<boolean>(false);
   const [canBeDoubled, setCanBeDoubled] = useState<boolean>(false);
   const [canBeHalved, setCanBeHalved] = useState<boolean>(false);
   const [canBeLight, setCanBeLight] = useState<boolean>(false);
 
+  const [isUpdateMode, setIsUpdateMode] = useState<boolean | null>(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean | null>(null);
   const [success, setSuccess] = useState(false);
 
   const categoryOptions: Ingredient["category"][] = ["MEAT", "VEGETABLE", "FRUIT", "OTHER"];
+  const menuItemCategoryOptions: Ingredient["menuItemCategory"][] = [
+    "PIZZAS",
+    "SUBS",
+    "APPETIZERS",
+    "DESSERTS",
+    "BEVERAGES",
+    "DEALS",
+  ];
   const sizeOptions: IngredientSize["size"][] = ["NONE", "S", "M", "L", "XL"];
-  const isUpdateMode = selectedIngredientName !== "";
 
-  // Load selected ingredient data when dropdown changes
-
-  // TODO add image URL, canBeHalved (cheese, sauce can't really be on half), canBeLight (sauce, cheese)
   useEffect(() => {
     if (selectedIngredientName) {
       const ingredient = ingredients.find(
@@ -47,10 +54,12 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
       setName(ingredient ? ingredient.name : "");
       setSizes(ingredient ? ingredient.sizes : []);
       setCategory(ingredient ? ingredient.category : "MEAT");
+      setMenuItemCategory(ingredient ? ingredient.menuItemCategory : "PIZZAS");
       setCanBeDoubled(ingredient ? ingredient.canBeDoubled : false);
       setCanBeRemoved(ingredient ? ingredient.canBeRemoved : false);
       setCanBeHalved(ingredient ? ingredient.canBeHalved : false);
       setCanBeLight(ingredient ? ingredient.canBeLight : false);
+      setIsUpdateMode(ingredient != null);
     }
   }, [selectedIngredientName, ingredients]);
 
@@ -59,6 +68,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
     setImageUrl("");
     setSizes([]);
     setCategory("MEAT");
+    setMenuItemCategory("PIZZAS");
     setCanBeDoubled(false);
     setCanBeRemoved(false);
     setCanBeHalved(false);
@@ -67,6 +77,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
     setSuccess(true);
     setReload(true);
     setSelected(null);
+    setIsUpdateMode(false);
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -86,6 +97,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
         imageUrl,
         sizes,
         category,
+        menuItemCategory,
         canBeDoubled,
         canBeRemoved,
         canBeHalved,
@@ -148,10 +160,16 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
   };
 
   const validateNonExistingOnCreate = (ingredient: Ingredient) => {
-    const exists = ingredients.some((item) => item.name.toLowerCase() === name.toLowerCase());
+    const exists = ingredients.some(
+      (item) =>
+        item.name.toLowerCase() === name.toLowerCase() &&
+        item.menuItemCategory == ingredient.menuItemCategory
+    );
 
     if (exists) {
-      throw new Error(`Name ${ingredient.name} already exists!`);
+      throw new Error(
+        `Name ${ingredient.name} and category ${ingredient.menuItemCategory} already exists!`
+      );
     }
   };
 
@@ -193,9 +211,17 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
       </div>
 
       <CategorySelector
+        title="Ingredient Category"
         value={category}
         onChange={(e) => setCategory(e.target.value as Ingredient["category"])}
         categoryOptions={categoryOptions}
+      />
+
+      <CategorySelector
+        title="Menu Item Category"
+        value={menuItemCategory}
+        onChange={(e) => setMenuItemCategory(e.target.value as Ingredient["menuItemCategory"])}
+        categoryOptions={menuItemCategoryOptions}
       />
 
       <AdminSizeSelector sizes={sizes} setSizes={setSizes} sizeOptions={sizeOptions} />

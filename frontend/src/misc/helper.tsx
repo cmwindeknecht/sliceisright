@@ -1,6 +1,6 @@
 import { IngredientOption } from "@/components/MenuItemIngredient";
 import { Ingredient, IngredientSize } from "@/types/Ingredient";
-import { MenuItem, MenuItemSize } from "@/types/MenuItem";
+import { MenuItem, MenuItemSize, OrderItem } from "@/types/MenuItem";
 
 export const sortMenuSize = (sizes: MenuItemSize[]) => {
   const order = ["None", "S", "M", "L", "XL"];
@@ -15,6 +15,11 @@ export const sortIngredientSize = (sizes: IngredientSize[]) => {
 export const sortMenuItemsByCategory = (menuItems: MenuItem[]) => {
   const order = ["PIZZA", "ITEMS", "BEVERAGES", "DESSERTS", "DEALS"];
   return [...menuItems].sort((a, b) => order.indexOf(a.category) - order.indexOf(b.category));
+};
+
+export const sortOrderItemsByCategory = (orderItems: OrderItem[]) => {
+  const order = ["PIZZA", "ITEMS", "BEVERAGES", "DESSERTS", "DEALS"];
+  return [...orderItems].sort((a, b) => order.indexOf(a.category) - order.indexOf(b.category));
 };
 
 export const sortIngredientsByCategory = (
@@ -65,4 +70,82 @@ export const showPriceOfIngredient = (ingredientOption: IngredientOption) => {
   }
 
   return true;
+};
+
+export const getIngredientOptionPreface = (ingredientOption: IngredientOption) => {
+  if (ingredientOption.isDoubled) {
+    return "2x";
+  }
+  if (ingredientOption.isRegular) {
+    return "1x";
+  }
+  if (ingredientOption.isLight) {
+    return "Light";
+  }
+  if (ingredientOption.isRemoved) {
+    return "(X)";
+  }
+};
+
+export const PIZZA_LEFT = "LEFT";
+export const PIZZA_RIGHT = "RIGHT";
+export const PIZZA_WHOLE = "WHOLE";
+export const getPizzaPortion = (orderItem: OrderItem) => {
+  return orderItem.ingredientOptions.reduce((memo, ingredientOption) => {
+    if (ingredientOption.isLeftHalf) {
+      if (!memo.has(PIZZA_LEFT)) {
+        memo.set(PIZZA_LEFT, []);
+      }
+      memo.get(PIZZA_LEFT)!.push(ingredientOption);
+    } else if (ingredientOption.isRightHalf) {
+      if (!memo.has(PIZZA_RIGHT)) {
+        memo.set(PIZZA_RIGHT, []);
+      }
+      memo.get(PIZZA_RIGHT)!.push(ingredientOption);
+    } else {
+      if (!memo.has(PIZZA_WHOLE)) {
+        memo.set(PIZZA_WHOLE, []);
+      }
+      memo.get(PIZZA_WHOLE)!.push(ingredientOption);
+    }
+
+    return memo;
+  }, new Map<string, IngredientOption[]>());
+};
+
+export const getDefaultIngredientOptions = (menuItem: MenuItem, selectedSize: MenuItemSize) => {
+  return menuItem.ingredients.map((ingredient) => {
+    const ingredientSelectedSize = ingredient.sizes.find(
+      (ingredientSize) => ingredientSize.size != selectedSize.size
+    );
+    if (!ingredientSelectedSize) {
+      console.warn(
+        `Ingredient ${ingredient.name} does not have the selected size and will not be listed`
+      );
+    }
+    if (ingredient.id == null) {
+      console.error(`Ingredient ${ingredient.name} does not have an id!`);
+    }
+
+    return {
+      ingredientId: ingredient.id,
+      name: ingredient.name,
+      basePrice: ingredientSelectedSize?.price || 0,
+      isRemoved: false,
+      isLight: false,
+      isRegular: ingredient.canBeLight,
+      isDoubled: false,
+      isLeftHalf: false,
+      isRightHalf: false,
+      isWholeItem: ingredient.canBeHalved,
+      isIncluded: true,
+    };
+  });
+};
+
+export const doesMenuItemHaveIngredient = (menuItem: MenuItem, ingredient: Ingredient) => {
+  return (
+    menuItem.ingredients.find((menuItemIngredient) => menuItemIngredient.name == ingredient.name) !=
+    null
+  );
 };

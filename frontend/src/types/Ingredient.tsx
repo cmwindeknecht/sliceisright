@@ -8,6 +8,7 @@ export interface Ingredient {
   canBeHalved: boolean;
   canBeLight: boolean;
   category: "MEAT" | "VEGETABLE" | "FRUIT" | "OTHER";
+  menuItemCategory: "PIZZAS" | "SUBS" | "APPETIZERS" | "DESSERTS" | "BEVERAGES" | "DEALS";
 }
 
 export interface IngredientSize {
