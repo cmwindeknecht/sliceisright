@@ -24,10 +24,10 @@ export default function OrderItemPizza({ orderItem }: OrderItemProps) {
   }, [orderItem]);
 
   return (
-    <div className="flex flex-col w-full m-h-30 bg-red-600">
-      <div className="flex flex-col w-full h-full border-black ">
+    <div className="flex flex-col w-full border-y border-black">
+      <div className="flex flex-col w-full h-full ">
         {pizzaPortions.has(PIZZA_LEFT) && (
-          <div className="flex flex-col flex-wrap">
+          <div className="flex flex-col flex-wrap  min-h-10">
             <OrderItemPizzaPortion
               ingredientOptions={pizzaPortions.get(PIZZA_LEFT) || []}
               portion={PIZZA_LEFT}
