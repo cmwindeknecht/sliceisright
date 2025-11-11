@@ -1,48 +1,40 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MenuItem as MenuItemType, OrderItem } from "@/types/MenuItem";
+import { MenuItemSize, MenuItem as MenuItemType, OrderItem } from "@/types/MenuItem";
 import clsx from "clsx";
 import { useMenu } from "../context/Menu";
 import PlusMinus from "../PlusMinus";
+import { createNewOrderItem } from "@/misc/helper";
 
-export interface MenuItemOverviewSimpleProps {
+export interface MenuItemOverviewAddToCartProps {
   menuItem: MenuItemType;
+  selectedSize: MenuItemSize | null;
 }
 
-export default function MenuItemOverviewAddToCart({ menuItem }: MenuItemOverviewSimpleProps) {
+export default function MenuItemOverviewAddToCart({
+  menuItem,
+  selectedSize,
+}: MenuItemOverviewAddToCartProps) {
   const { addOrderItem, updateOrderItem, deleteOrderItem, currentOrder } = useMenu();
   const [currentOrderItem, setCurrentOrderItem] = useState<OrderItem | null>(null);
 
   useEffect(() => {
-    for (const orderItem of currentOrder) {
-      if (orderItem.id === menuItem.id) {
-        setCurrentOrderItem(orderItem);
-        break;
-      }
-    }
-  }, [currentOrder]);
+    const foundOrderItem = currentOrder.find(
+      (orderItem) =>
+        orderItem.id === menuItem.id && orderItem.chosenSize.size === selectedSize?.size
+    );
+    setCurrentOrderItem(foundOrderItem ?? createNewOrderItem(menuItem, selectedSize ?? undefined));
+  }, [currentOrder, selectedSize]);
 
   const increaseOrderItemQuantity = () => {
-    let orderItem: OrderItem;
-
     if (currentOrderItem == null) {
-      orderItem = {
-        ...menuItem,
-        orderItemId: Math.random(),
-        ingredientOptions: [],
-        chosenSize: menuItem.sizes[0],
-        quantity: 1,
-        notes: "",
-        price: menuItem.sizes[0].price,
-      };
-      addOrderItem(orderItem);
-    } else {
-      orderItem = currentOrderItem;
-      orderItem.quantity++;
-      updateOrderItem(orderItem);
+      throw new Error("currentOrderItem is not set!");
     }
 
+    const orderItem = { ...currentOrderItem };
+    orderItem.quantity++;
+    orderItem.quantity == 1 ? addOrderItem(orderItem) : updateOrderItem(orderItem);
     setCurrentOrderItem(orderItem);
   };
 
@@ -51,7 +43,7 @@ export default function MenuItemOverviewAddToCart({ menuItem }: MenuItemOverview
       throw new Error("Tried updating order item when it was never set!");
     }
 
-    const orderItem = currentOrderItem;
+    const orderItem = { ...currentOrderItem };
     orderItem.quantity--;
 
     if (orderItem.quantity <= 0) {

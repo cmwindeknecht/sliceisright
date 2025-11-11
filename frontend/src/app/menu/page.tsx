@@ -5,7 +5,7 @@ import { sortMenuItemsByCategory } from "@/misc/helper";
 import { MenuItem as MenuItemType } from "@/types/MenuItem";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
-import MenuItem from "@/components/menu/MenuItem";
+import MenuItemCustomize from "@/components/menu/MenuItemCustomize";
 import MenuItemOverview from "@/components/menu/MenuItemOverview";
 
 export default function MenuPage() {
@@ -32,11 +32,7 @@ export default function MenuPage() {
 
   useEffect(() => {
     categorizeMenuItems();
-  }, [menuItems]);
-
-  useEffect(() => {
-    categorizeMenuItems();
-  }, [ingredients]);
+  }, [menuItems, ingredients]);
 
   const categorizeMenuItems = () => {
     const categorized = new Map<MenuItemType["category"], MenuItemType[]>();
@@ -60,7 +56,7 @@ export default function MenuPage() {
           >
             Return to Menu
           </button>
-          <MenuItem
+          <MenuItemCustomize
             menuItem={menuItemToCustomize}
             ingredients={ingredients}
             returnToMenu={setMenuItemToCustomize}
@@ -73,13 +69,7 @@ export default function MenuPage() {
             .map(([category, menuItems]) => (
               <div key={category}>
                 <div className="text-center text-3xl m-3">{categories.get(category)}</div>
-                <div
-                  className={clsx(
-                    // "flex flex-wrap justify-between items-stretch",
-                    // "after:content-[''] after:flex-auto",
-                    "grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4"
-                  )}
-                >
+                <div className={clsx("grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4")}>
                   {sortMenuItemsByCategory(menuItems)
                     .filter((menuItem) => menuItem.isAvailable)
                     .map((menuItem) => (

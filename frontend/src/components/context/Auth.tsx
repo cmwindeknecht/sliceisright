@@ -37,7 +37,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const router = useRouter();
 
-  // On page renders, check the status of the token
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
     if (savedToken) {

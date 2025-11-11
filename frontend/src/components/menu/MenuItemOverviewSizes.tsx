@@ -7,11 +7,15 @@ import { sortMenuSize } from "@/misc/helper";
 
 export interface MenuItemOverviewSizesProps {
   menuItem: MenuItemType;
+  selectedSize: MenuItemSize | null;
+  setSelectedSize: React.Dispatch<React.SetStateAction<MenuItemSize | null>>;
 }
 
-export default function MenuItemOverviewSizes({ menuItem }: MenuItemOverviewSizesProps) {
-  const [selectedSize, setSelectedSize] = useState<MenuItemSize | null>(null);
-
+export default function MenuItemOverviewSizes({
+  menuItem,
+  selectedSize,
+  setSelectedSize,
+}: MenuItemOverviewSizesProps) {
   useEffect(() => {
     const size: MenuItemSize | undefined = sortMenuSize(menuItem.sizes).shift();
 
@@ -29,7 +33,7 @@ export default function MenuItemOverviewSizes({ menuItem }: MenuItemOverviewSize
           key={menuItem.id + menuItemSize.size}
           onClick={() => setSelectedSize(menuItemSize)}
           className={clsx(
-            selectedSize && selectedSize.size == menuItemSize.size
+            selectedSize != null && selectedSize.size == menuItemSize.size
               ? "bg-red-600 hover:bg-red-700 outline-2 outline-green-700"
               : "bg-gray-600 hover:bg-orange-700",
             "outline-1 outline-black text-white px-1 rounded, text-sm"

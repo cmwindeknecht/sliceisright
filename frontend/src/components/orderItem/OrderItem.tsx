@@ -53,9 +53,12 @@ export default function OrderItemComplex({ orderItem }: OrderItemProps) {
           <div className="flex flex-row justify-between font-bold bg-red-600">
             <div>
               {orderItem.name}{" "}
-              {orderItem.chosenSize.size != "NONE" && <span>({orderItem.chosenSize.size})</span>}
+              {orderItem.chosenSize.size != "NONE" && <span>({orderItem.chosenSize.size})</span>}{" "}
+              --- ${orderItem.price.toFixed(2)} each
             </div>
-            <div>${orderItem.price.toFixed(2)}</div>
+            <div>
+              Qty: {orderItem.quantity} | Total ${(orderItem.price * orderItem.quantity).toFixed(2)}
+            </div>
           </div>
 
           {getOrderItemSubComponent()}

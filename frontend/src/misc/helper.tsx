@@ -149,3 +149,15 @@ export const doesMenuItemHaveIngredient = (menuItem: MenuItem, ingredient: Ingre
     null
   );
 };
+
+export const createNewOrderItem = (menuItem: MenuItem, selectedSize?: MenuItemSize) => {
+  return {
+    ...menuItem,
+    orderItemId: Math.random(),
+    ingredientOptions: [],
+    chosenSize: selectedSize ?? menuItem.sizes[0],
+    quantity: 0,
+    notes: "",
+    price: selectedSize?.price ?? menuItem.sizes[0].price,
+  };
+};

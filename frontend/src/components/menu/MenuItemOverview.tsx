@@ -1,11 +1,13 @@
 "use client";
 
-import { MenuItem as MenuItemType } from "@/types/MenuItem";
+import { MenuItemSize, MenuItem as MenuItemType } from "@/types/MenuItem";
 import clsx from "clsx";
 import OverlayImageWithFadeIn from "../OverlayImageWithFadeIn";
 import MenuItemOverviewSizes from "./MenuItemOverviewSizes";
 import MenuItemOverviewAddToCart from "./MenuItemOverviewAddToCart";
 import MenuItemOverviewCustomize from "./MenuItemOverviewCustomize";
+import { useState } from "react";
+import { sortMenuSize } from "@/misc/helper";
 
 export interface MenuItemOverviewCustomProps {
   menuItem: MenuItemType;
@@ -16,6 +18,13 @@ export default function MenuItemOverview({
   menuItem,
   setMenuItemToCustomize,
 }: MenuItemOverviewCustomProps) {
+  const initialSize = sortMenuSize(menuItem.sizes)[0];
+  if (!initialSize) {
+    throw new Error("No Size on Menu Item!");
+  }
+
+  const [selectedSize, setSelectedSize] = useState<MenuItemSize | null>(initialSize);
+
   const showSizes = () => menuItem.sizes.length > 1 && !menuItem.isCustomizable;
   const showAddToCart = () => !menuItem.isCustomizable;
   const showCustomize = () => menuItem.isCustomizable;
@@ -35,8 +44,16 @@ export default function MenuItemOverview({
       <div className="w-full flex flex-col">
         <div className="w-full p-1 font-bold">{menuItem.name}</div>
         <div className="w-full bg-orange-400 p-1 text-sm">{menuItem.description || " "}</div>
-        {showSizes() && <MenuItemOverviewSizes menuItem={menuItem} />}
-        {showAddToCart() && <MenuItemOverviewAddToCart menuItem={menuItem} />}
+        {showSizes() && (
+          <MenuItemOverviewSizes
+            menuItem={menuItem}
+            setSelectedSize={setSelectedSize}
+            selectedSize={selectedSize}
+          />
+        )}
+        {showAddToCart() && (
+          <MenuItemOverviewAddToCart menuItem={menuItem} selectedSize={selectedSize} />
+        )}
         {showCustomize() && (
           <MenuItemOverviewCustomize
             menuItem={menuItem}
