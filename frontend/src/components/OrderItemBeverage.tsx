@@ -4,6 +4,6 @@ export interface OrderItemProps {
   orderItem: OrderItemType;
 }
 
-export default function OrderItemDeal({ orderItem }: OrderItemProps) {
+export default function OrderItemBeverage({ orderItem }: OrderItemProps) {
   return <span />;
 }

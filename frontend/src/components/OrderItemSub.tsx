@@ -1,0 +1,33 @@
+import { OrderItem as OrderItemType } from "@/types/MenuItem";
+import OverlayImageWithFadeIn from "./OverlayImageWithFadeIn";
+import clsx from "clsx";
+import OrderItemPizza from "./OrderItemPizza";
+import {
+  getIngredientOptionPreface,
+  getPriceOfIngredientOption,
+  showPriceOfIngredient,
+} from "@/misc/helper";
+
+export interface OrderItemProps {
+  orderItem: OrderItemType;
+}
+
+export default function OrderItemSub({ orderItem }: OrderItemProps) {
+  return (
+    <div className="flex flex-col w-full border-y border-black">
+      <div className="flex flex-row h-full items-center text-white text-sm pl-1">
+        {orderItem.ingredientOptions.map((ingredientOption, index) => (
+          <span key={ingredientOption.ingredientId}>
+            ({getIngredientOptionPreface(ingredientOption)}) {ingredientOption.name}
+            {showPriceOfIngredient(ingredientOption) && (
+              <span>- ${getPriceOfIngredientOption(ingredientOption)}</span>
+            )}
+            {index < orderItem.ingredientOptions.length - 1 && (
+              <span className="font-semibold">,&nbsp;</span>
+            )}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}

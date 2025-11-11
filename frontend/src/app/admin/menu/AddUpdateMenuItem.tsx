@@ -12,7 +12,7 @@ import AdminSizeSelector from "@/components/AdminSizeSelector";
 export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }: UpdateMenuProps) {
   const { createMenuItem, updateMenuItem, deleteMenuItem } = useMenu();
 
-  const [selectedMenuItemName, setSelectedMenuItemName] = useState<string>("");
+  const [selectedMenuItemId, setSelectedMenuItemId] = useState<number | null>(null);
 
   const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null);
   const [id, setId] = useState<number | null>(null);
@@ -25,6 +25,7 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
   const [menuItemIngredients, setMenuItemIngredients] = useState<Ingredient[]>([]);
   const [category, setCategory] = useState<MenuItem["category"]>("PIZZAS");
 
+  const [isUpdateMode, setIsUpdateMode] = useState<boolean | null>(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean | null>(null);
   const [success, setSuccess] = useState(false);
@@ -40,15 +41,13 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
   const sizeOptions: MenuItemSize["size"][] = ["NONE", "S", "M", "L", "XL"];
   const defaultSelectorText = "-- Create New Menu Item --";
 
-  const isUpdateMode = selectedMenuItemName !== "";
-
   // Load selected menu item data when dropdown changes
   useEffect(() => {
     let menuItem = null;
-    if (selectedMenuItemName) {
-      menuItem = menuItems.find((item) => item.name?.toString() === selectedMenuItemName);
+    if (selectedMenuItemId) {
+      menuItem = menuItems.find((menuItem) => menuItem.id === selectedMenuItemId);
     }
-    setSelectedMenuItemName(menuItem ? menuItem.name : "");
+
     setSelectedMenuItem(menuItem ?? null);
     setId(menuItem ? menuItem.id : null);
     setName(menuItem ? menuItem.name : "");
@@ -59,7 +58,8 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
     setIsCustomizable(menuItem ? menuItem.isCustomizable : false);
     setIsAvailable(menuItem ? menuItem.isAvailable : false);
     setMenuItemIngredients(menuItem ? menuItem.ingredients : []);
-  }, [selectedMenuItemName, menuItems]);
+    setIsUpdateMode(menuItem != null);
+  }, [selectedMenuItemId, menuItems]);
 
   const resetOnSuccess = () => {
     setSuccess(true);
@@ -69,7 +69,7 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
     setImageUrl("");
     setIsCustomizable(false);
     setMenuItemIngredients([]);
-    setSelectedMenuItemName("");
+    setSelectedMenuItemId(null);
     setReload(true);
     setSelectedMenuItem(null);
   };
@@ -177,16 +177,10 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
 
       <ItemSelector
         label="Select Menu Item (optional)"
-        value={selectedMenuItemName}
-        onChange={(e) => {
-          if (e.target.value == defaultSelectorText) {
-            setSelectedMenuItemName("");
-          } else {
-            setSelectedMenuItemName(e.target.value);
-          }
-        }}
+        value={selectedMenuItemId?.toString() || ""}
+        onChange={(e) => setSelectedMenuItemId(Number(e.target.value))}
         items={menuItems}
-        defaultText={defaultSelectorText}
+        defaultText="-- Create New Menu Item --"
       />
 
       <div>

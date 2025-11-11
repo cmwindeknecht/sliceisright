@@ -12,7 +12,7 @@ import AdminSizeSelector from "@/components/AdminSizeSelector";
 export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMenuProps) {
   const { createIngredient, updateIngredient, deleteIngredient } = useMenu();
 
-  const [selectedIngredientName, setSelectedIngredientName] = useState<string>("");
+  const [selectedIngredientId, setSelectedIngredientId] = useState<number | null>(null);
 
   const [selected, setSelected] = useState<Ingredient | null>(null);
   const [id, setId] = useState<number | null>(null);
@@ -44,10 +44,8 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
   const sizeOptions: IngredientSize["size"][] = ["NONE", "S", "M", "L", "XL"];
 
   useEffect(() => {
-    if (selectedIngredientName) {
-      const ingredient = ingredients.find(
-        (item) => item.name?.toString() === selectedIngredientName
-      );
+    if (selectedIngredientId) {
+      const ingredient = ingredients.find((ingredient) => ingredient.id == selectedIngredientId);
 
       setSelected(ingredient ?? null);
       setId(ingredient ? ingredient.id : null);
@@ -61,7 +59,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
       setCanBeLight(ingredient ? ingredient.canBeLight : false);
       setIsUpdateMode(ingredient != null);
     }
-  }, [selectedIngredientName, ingredients]);
+  }, [selectedIngredientId, ingredients]);
 
   const resetOnSuccess = () => {
     setName("");
@@ -73,7 +71,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
     setCanBeRemoved(false);
     setCanBeHalved(false);
     setCanBeLight(false);
-    setSelectedIngredientName("");
+    setSelectedIngredientId(null);
     setSuccess(true);
     setReload(true);
     setSelected(null);
@@ -182,8 +180,8 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
 
       <ItemSelector
         label="Select Ingredient (optional)"
-        value={selectedIngredientName}
-        onChange={(e) => setSelectedIngredientName(e.target.value)}
+        value={selectedIngredientId?.toString() || ""}
+        onChange={(e) => setSelectedIngredientId(Number(e.target.value))}
         items={ingredients}
         defaultText="-- Create New Ingredient --"
       />
@@ -262,7 +260,6 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
         <div className="pl-1">Can be light? </div>
       </div>
 
-      {/* Submit and Delete Buttons */}
       <div className="flex justify-between gap-2">
         <button
           type="submit"
@@ -288,7 +285,6 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
         )}
       </div>
 
-      {/* Feedback Messages */}
       {error && <p className="text-red-500 text-sm text-center">{error}</p>}
       {success && (
         <p className="text-green-500 text-sm text-center">

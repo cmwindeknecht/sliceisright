@@ -21,6 +21,10 @@ import { useMenu } from "./context/Menu";
 import OrderItemPizza from "./OrderItemPizza";
 import OrderItemAppetizer from "./OrderItemAppetizer";
 import PlusMinus from "./PlusMinus";
+import OrderItemSub from "./OrderItemSub";
+import OrderItemBeverage from "./OrderItemBeverage";
+import OrderItemDessert from "./OrderItemDessert";
+import OrderItemDeal from "./OrderItemDeal";
 
 export interface OrderItemProps {
   orderItem: OrderItemType;
@@ -35,6 +39,18 @@ export default function OrderItemComplex({ orderItem }: OrderItemProps) {
     }
     if (orderItem.category == "APPETIZERS") {
       return <OrderItemAppetizer orderItem={orderItem} />;
+    }
+    if (orderItem.category == "SUBS") {
+      return <OrderItemSub orderItem={orderItem} />;
+    }
+    if (orderItem.category == "BEVERAGES") {
+      return <OrderItemBeverage orderItem={orderItem} />;
+    }
+    if (orderItem.category == "DESSERTS") {
+      return <OrderItemDessert orderItem={orderItem} />;
+    }
+    if (orderItem.category == "DEALS") {
+      return <OrderItemDeal orderItem={orderItem} />;
     }
 
     return <div>Test</div>;
@@ -60,6 +76,7 @@ export default function OrderItemComplex({ orderItem }: OrderItemProps) {
           {getOrderItemSubComponent()}
 
           <div className="flex justify-end items-end h-full w-full gap-4 mt-1">
+            {/* TODO go to customize component */}
             <button
               type="button"
               className={clsx(
@@ -71,6 +88,11 @@ export default function OrderItemComplex({ orderItem }: OrderItemProps) {
             </button>
             <button
               type="button"
+              onClick={() => {
+                if (confirm(`Are you sure you want to remove ${orderItem.name} from your order?`)) {
+                  deleteOrderItem(orderItem);
+                }
+              }}
               className={clsx(
                 "border-1 border-black flex flex-row justify-center items-center text-sm gap-2 p-2 bg-red-600 text-white py-2 rounded disabled:opacity-50 hover:bg-red-700"
               )}
@@ -91,7 +113,7 @@ export default function OrderItemComplex({ orderItem }: OrderItemProps) {
 
                   if (newQuantity <= 0) {
                     if (
-                      confirm(`Are you sure you want to delete ${orderItem.name} from your order?`)
+                      confirm(`Are you sure you want to remove ${orderItem.name} from your order?`)
                     ) {
                       deleteOrderItem(orderItem);
                     }

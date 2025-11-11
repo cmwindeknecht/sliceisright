@@ -21,8 +21,9 @@ export default function ItemSelector({
         {items
           .sort((a, b) => a.name.localeCompare(b.name))
           .map((item) => (
-            <option key={item["id"]} value={item["name"]?.toString()}>
-              {item["name"]} {item["menuItemCategory"] ? `--- ${item["menuItemCategory"]}` : ""}
+            <option key={item.id} value={item.id.toString()}>
+              {item.name}
+              {item.menuItemCategory ? ` --- ${item.menuItemCategory}` : ""}
             </option>
           ))}
       </select>
