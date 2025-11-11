@@ -1,19 +1,23 @@
 "use client";
 
 import { useMenu } from "@/components/context/Menu";
-import OrderItem from "@/components/OrderItem";
+import OrderItem from "@/components/orderItem/OrderItem";
 import { sortOrderItemsByCategory } from "@/misc/helper";
 import clsx from "clsx";
+import { useEffect, useState } from "react";
 
 export default function OrderPage() {
   const { currentOrder } = useMenu();
+  const [orderTotal, setOrderTotal] = useState<number>(0);
+
+  useEffect(() => {
+    setOrderTotal(getOrderTotal());
+  }, [currentOrder]);
 
   const getOrderTotal = () => {
-    return currentOrder
-      .reduce((memo, orderItem) => {
-        return memo + orderItem.price;
-      }, 0)
-      .toFixed(2);
+    return currentOrder.reduce((memo, orderItem) => {
+      return memo + orderItem.price * orderItem.quantity;
+    }, 0);
   };
 
   return (
@@ -25,7 +29,7 @@ export default function OrderPage() {
         <div>
           <div className="flex flex-col gap-3 items-center">
             {sortOrderItemsByCategory(currentOrder).map((orderItem) => (
-              <OrderItem key={orderItem.id} orderItem={orderItem} />
+              <OrderItem key={orderItem.orderItemId} orderItem={orderItem} />
             ))}
           </div>
         </div>
@@ -54,7 +58,7 @@ export default function OrderPage() {
         </button>
         <div className="text-lg">
           <span className="font-bold">Total:</span>
-          <span>&nbsp;${getOrderTotal()}</span>
+          <span>&nbsp;${orderTotal.toFixed(2)}</span>
         </div>
       </div>
     </>

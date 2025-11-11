@@ -1,6 +1,6 @@
 import { OrderItem as OrderItemType } from "@/types/MenuItem";
-import OverlayImageWithFadeIn from "./OverlayImageWithFadeIn";
-import { IngredientOption } from "./MenuItemIngredient";
+import OverlayImageWithFadeIn from "../OverlayImageWithFadeIn";
+import { IngredientOption } from "../menu/MenuItemIngredient";
 import { useEffect, useState } from "react";
 import { CircleArrowDown, CircleArrowLeft, CircleArrowRight, CircleDot } from "lucide-react";
 import {

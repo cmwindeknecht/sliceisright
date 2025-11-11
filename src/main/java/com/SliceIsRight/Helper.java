@@ -49,16 +49,7 @@ public class Helper {
                 .map(size -> new MenuItemSizeDTO(size.id, size.size, size.price))
                 .collect(Collectors.toList()))
             .ingredients(menuItem.ingredients.stream()
-                .map(ingredient -> IngredientDTO.builder()
-                    .id(ingredient.id)
-                    .name(ingredient.name)
-                    .category(ingredient.category)
-                    .canBeDoubled(ingredient.canBeDoubled)
-                    .canBeRemoved(ingredient.canBeRemoved)
-                    .sizes(ingredient.sizes.stream()
-                        .map(size -> new IngredientSizeDTO(size.id, size.size, size.price))
-                        .collect(Collectors.toList()))
-                    .build())
+                .map(ingredient -> buildIngredientDTO(ingredient))
                 .collect(Collectors.toList()))
             .build();
     }

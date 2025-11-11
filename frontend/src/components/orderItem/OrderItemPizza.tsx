@@ -1,12 +1,8 @@
-import { OrderItem as OrderItemType } from "@/types/MenuItem";
-import { IngredientOption } from "./MenuItemIngredient";
+import { IngredientOption } from "../menu/MenuItemIngredient";
 import { useEffect, useState } from "react";
 import { getPizzaPortion, PIZZA_LEFT, PIZZA_RIGHT, PIZZA_WHOLE } from "@/misc/helper";
 import OrderItemPizzaPortion from "./OrderItemPizzaPortion";
-
-export interface OrderItemProps {
-  orderItem: OrderItemType;
-}
+import { OrderItemProps } from "./OrderItem";
 
 export default function OrderItemPizza({ orderItem }: OrderItemProps) {
   const [pizzaPortions, setPizzaPortions] = useState<Map<String, IngredientOption[]>>(new Map());

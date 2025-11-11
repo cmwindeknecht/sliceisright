@@ -1,16 +1,9 @@
-import { OrderItem as OrderItemType } from "@/types/MenuItem";
-import OverlayImageWithFadeIn from "./OverlayImageWithFadeIn";
-import clsx from "clsx";
-import OrderItemPizza from "./OrderItemPizza";
 import {
   getIngredientOptionPreface,
   getPriceOfIngredientOption,
   showPriceOfIngredient,
 } from "@/misc/helper";
-
-export interface OrderItemProps {
-  orderItem: OrderItemType;
-}
+import { OrderItemProps } from "./OrderItem";
 
 export default function OrderItemSub({ orderItem }: OrderItemProps) {
   return (

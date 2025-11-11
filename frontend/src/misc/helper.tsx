@@ -1,4 +1,4 @@
-import { IngredientOption } from "@/components/MenuItemIngredient";
+import { IngredientOption } from "@/components/menu/MenuItemIngredient";
 import { Ingredient, IngredientSize } from "@/types/Ingredient";
 import { MenuItem, MenuItemSize, OrderItem } from "@/types/MenuItem";
 
@@ -148,4 +148,16 @@ export const doesMenuItemHaveIngredient = (menuItem: MenuItem, ingredient: Ingre
     menuItem.ingredients.find((menuItemIngredient) => menuItemIngredient.name == ingredient.name) !=
     null
   );
+};
+
+export const createNewOrderItem = (menuItem: MenuItem, selectedSize?: MenuItemSize) => {
+  return {
+    ...menuItem,
+    orderItemId: Math.random(),
+    ingredientOptions: [],
+    chosenSize: selectedSize ?? menuItem.sizes[0],
+    quantity: 0,
+    notes: "",
+    price: selectedSize?.price ?? menuItem.sizes[0].price,
+  };
 };

@@ -1,30 +1,15 @@
 import { OrderItem as OrderItemType } from "@/types/MenuItem";
-import OverlayImageWithFadeIn from "./OverlayImageWithFadeIn";
-import { IngredientOption } from "./MenuItemIngredient";
-import { useEffect, useState } from "react";
-import {
-  CircleArrowDown,
-  CircleArrowLeft,
-  CircleArrowRight,
-  CircleDot,
-  CircleX,
-  Pencil,
-} from "lucide-react";
-import {
-  getIngredientOptionPreface,
-  getPizzaPortion,
-  getPriceOfIngredientOption,
-  showPriceOfIngredient,
-} from "@/misc/helper";
+import OverlayImageWithFadeIn from "../OverlayImageWithFadeIn";
+import { CircleX, Pencil } from "lucide-react";
 import clsx from "clsx";
-import { useMenu } from "./context/Menu";
+import { useMenu } from "../context/Menu";
 import OrderItemPizza from "./OrderItemPizza";
 import OrderItemAppetizer from "./OrderItemAppetizer";
-import PlusMinus from "./PlusMinus";
-import OrderItemSub from "./OrderItemSub";
+import PlusMinus from "../PlusMinus";
 import OrderItemBeverage from "./OrderItemBeverage";
 import OrderItemDessert from "./OrderItemDessert";
 import OrderItemDeal from "./OrderItemDeal";
+import OrderItemSub from "./OrderItemSub";
 
 export interface OrderItemProps {
   orderItem: OrderItemType;
@@ -68,9 +53,12 @@ export default function OrderItemComplex({ orderItem }: OrderItemProps) {
           <div className="flex flex-row justify-between font-bold bg-red-600">
             <div>
               {orderItem.name}{" "}
-              {orderItem.chosenSize.size != "NONE" && <span>({orderItem.chosenSize.size})</span>}
+              {orderItem.chosenSize.size != "NONE" && <span>({orderItem.chosenSize.size})</span>}{" "}
+              --- ${orderItem.price.toFixed(2)} each
             </div>
-            <div>${orderItem.price.toFixed(2)}</div>
+            <div>
+              Qty: {orderItem.quantity} | Total ${(orderItem.price * orderItem.quantity).toFixed(2)}
+            </div>
           </div>
 
           {getOrderItemSubComponent()}

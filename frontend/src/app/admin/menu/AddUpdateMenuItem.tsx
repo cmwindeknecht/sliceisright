@@ -7,7 +7,7 @@ import { UpdateMenuProps } from "./page";
 import { useMenu } from "@/components/context/Menu";
 import ItemSelector from "@/components/ItemSelector";
 import CategorySelector from "@/components/CategorySelector";
-import AdminSizeSelector from "@/components/AdminSizeSelector";
+import AdminSizeSelector from "@/components/adminMenu/AdminSizeSelector";
 
 export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }: UpdateMenuProps) {
   const { createMenuItem, updateMenuItem, deleteMenuItem } = useMenu();
@@ -209,7 +209,7 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
         <label className="block mb-1 font-medium">Image URL</label>
         <input
           type="text"
-          placeholder="https://example.com/image.jpg"
+          placeholder="https://..."
           className="border p-2 rounded w-full"
           value={imageUrl}
           onChange={(e) => setImageUrl(e.target.value)}
@@ -225,7 +225,6 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
 
       <AdminSizeSelector sizes={sizes} setSizes={setSizes} sizeOptions={sizeOptions} />
 
-      {/* Ingredients */}
       {ingredients && (
         <div>
           <div className="flex items-center justify-between gap-2 mb-2 font-medium">

@@ -4,15 +4,17 @@ import { useEffect, useState } from "react";
 import { MenuItemSize, MenuItem as MenuItemType, OrderItem } from "@/types/MenuItem";
 import { Ingredient } from "@/types/Ingredient";
 import clsx from "clsx";
-import OverlayImageWithFadeIn from "./OverlayImageWithFadeIn";
+import OverlayImageWithFadeIn from "../OverlayImageWithFadeIn";
 import MenuItemIngredient, { IngredientOption } from "./MenuItemIngredient";
 import {
+  createNewOrderItem as createOrderItem,
   getPriceOfIngredientOption,
   showPriceOfIngredient,
   sortIngredientsByCategory,
   sortMenuSize,
 } from "@/misc/helper";
-import { useMenu } from "./context/Menu";
+import { useMenu } from "../context/Menu";
+import PlusMinus from "../PlusMinus";
 
 export interface MenuItemProps {
   menuItem: MenuItemType;
@@ -20,8 +22,8 @@ export interface MenuItemProps {
   returnToMenu: (item: MenuItemType | null) => void;
 }
 
-export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuItemProps) {
-  const { addOrderItem } = useMenu();
+export default function MenuItemCustomize({ menuItem, ingredients, returnToMenu }: MenuItemProps) {
+  const { addOrderItem, updateOrderItem, deleteOrderItem } = useMenu();
 
   const initialSize = sortMenuSize(menuItem.sizes)[0];
   if (!initialSize) {
@@ -40,6 +42,7 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
   const [categorizedIngredients, setCategorizedIngredients] = useState<Map<string, Ingredient[]>>(
     new Map()
   );
+  const [orderItem, setOrderItem] = useState<OrderItem | null>(null);
 
   useEffect(() => {
     categorizeIngredients();
@@ -57,6 +60,10 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
 
   useEffect(() => {
     calculatePrice();
+
+    if (orderItem == null) {
+      setOrderItem(createOrderItem(menuItem, selectedSize));
+    }
   }, [ingredientOptions, selectedSize]);
 
   const calculatePrice = () => {
@@ -76,11 +83,10 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
 
     for (const ingredient of ingredients) {
       if (ingredient.menuItemCategory != menuItem.category) {
-        return;
+        continue;
       }
-
       const ingredientSelectedSize = ingredient.sizes.find(
-        (ingredientSize) => ingredientSize.size != selectedSize.size
+        (ingredientSize) => ingredientSize.size == selectedSize.size
       );
       if (!ingredientSelectedSize) {
         console.warn(
@@ -161,22 +167,43 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
     );
   };
 
-  const addToOrder = () => {
-    const orderItem: OrderItem = {
-      ...menuItem,
-      orderItemId: Math.random(),
+  const incrementQuantity = () => {
+    const newQuantity = (orderItem?.quantity ?? 0) + 1;
+
+    const updatedOrderItem = {
+      ...(orderItem ?? createOrderItem(menuItem, selectedSize)),
       ingredientOptions: Array.from(ingredientOptions.values()),
       chosenSize: selectedSize,
-      quantity: 1,
+      quantity: newQuantity,
       notes,
       price: currentPrice,
     };
-    addOrderItem(orderItem);
-    returnToMenu(null);
+
+    if (updatedOrderItem.quantity == 1) {
+      addOrderItem(updatedOrderItem);
+    } else {
+      updateOrderItem(updatedOrderItem);
+    }
+    setOrderItem(updatedOrderItem);
+  };
+
+  const decrementQuantity = () => {
+    if (orderItem == null) {
+      throw new Error("Cannot decrement ");
+    }
+
+    const updatedOrderItem = { ...orderItem };
+    updatedOrderItem.quantity -= 1;
+
+    if (updatedOrderItem.quantity == 0) {
+      deleteOrderItem(updatedOrderItem);
+    } else {
+      updateOrderItem(updatedOrderItem);
+    }
+    setOrderItem(updatedOrderItem);
   };
 
   const handleNoteUpdate = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    // Enforce max 100 characters
     if (e.target.value.length <= 100) {
       setNotes(e.target.value);
     }
@@ -189,7 +216,6 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
           "flex flex-col w-[95vw] justify-center items-center outline-1 outline-orange-600 bg-yellow-100 px-2 mb-30"
         )}
       >
-        {/* Image / Name & Description */}
         <div className="flex flex-row items-stretch w-[95vw]">
           <OverlayImageWithFadeIn
             itemName={menuItem.name}
@@ -204,9 +230,8 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
           </div>
         </div>
 
-        {/* Sizes */}
         <div className="flex flex-row w-full justify-start gap-2">
-          <span className="text-2xl">{menuItem.sizes.length > 1 ? "Sizes" : "Size"}: </span>
+          <span className="text-2xl">{menuItem.sizes.length > 1 ? "Sizes" : "Each"}: </span>
           {sortMenuSize(menuItem.sizes).map((menuItemSize) => (
             <button
               key={menuItem.id + menuItemSize.size}
@@ -229,7 +254,7 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
 
         {/* Toppings */}
         <div className="flex flex-col w-full gap-4">
-          {Array.from(sortIngredientsByCategory(categorizedIngredients).entries()).map(
+          {/* {Array.from(sortIngredientsByCategory(categorizedIngredients).entries()).map(
             ([category, ingredientList]) => (
               <div key={category} className="flex flex-col w-full">
                 <div className="text-2xl">{category} TOPPINGS</div>
@@ -247,11 +272,33 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
                 </div>
               </div>
             )
-          )}
+          )} */}
+          {(() => {
+            debugger;
+            return Array.from(sortIngredientsByCategory(categorizedIngredients).entries()).map(
+              ([category, ingredientList]) => (
+                <div key={category} className="flex flex-col w-full">
+                  <div className="text-2xl">{category} TOPPINGS</div>
+                  <div className="flex flex-col w-full justify-start items-start gap-2">
+                    {ingredientList.map((ingredient) => (
+                      <MenuItemIngredient
+                        key={ingredient.id}
+                        ingredient={ingredient}
+                        selectedSize={selectedSize}
+                        canBeRemoved={doesMenuItemHaveIngredient(ingredient)}
+                        updateIngredientOptions={updateIngredientOptions}
+                        removeIngredientOption={removeIngredientOption}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )
+            );
+          })()}
         </div>
 
         {/* Footer */}
-        <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-lg z-50 h-30">
+        <div className="fixed bottom-0 left-0 w-full bg-red-600 border-t border-gray-300 shadow-lg z-50 h-30">
           <div className="flex flex-row justify-around items-center w-full max-w-4xl mx-auto p-4 gap-5">
             <div className="flex flex-col w-full max-w-md">
               <label htmlFor="notes" className="mb-1 font-medium text-gray-700">
@@ -271,7 +318,25 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
 
             <div className="font-semibold text-lg">Price ${currentPrice.toFixed(2)}</div>
 
-            <button
+            {orderItem == null || orderItem.quantity <= 0 ? (
+              <button
+                onClick={() => incrementQuantity()}
+                className={clsx(
+                  "bg-orange-600 hover:bg-orange-700 text-white",
+                  "flex items-center justify-center w-1/2 h-6 outline-1 outline-black rounded disabled:opacity-50 px-1"
+                )}
+              >
+                Add to Cart
+              </button>
+            ) : (
+              <PlusMinus
+                plusFunction={incrementQuantity}
+                minusFunction={decrementQuantity}
+                orderItem={orderItem}
+              />
+            )}
+
+            {/* <button
               onClick={() => addToOrder()}
               className={clsx(
                 "bg-red-600 hover:bg-orange-700 text-white",
@@ -279,7 +344,7 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
               )}
             >
               Add to Cart
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

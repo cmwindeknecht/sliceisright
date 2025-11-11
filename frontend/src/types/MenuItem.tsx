@@ -1,4 +1,4 @@
-import { IngredientOption } from "@/components/MenuItemIngredient";
+import { IngredientOption } from "@/components/menu/MenuItemIngredient";
 import { Ingredient } from "./Ingredient";
 
 export interface MenuItem {
