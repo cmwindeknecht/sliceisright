@@ -1,17 +1,15 @@
 import { Ingredient } from "@/types/Ingredient";
-import OverlayImageWithFadeIn from "./OverlayImageWithFadeIn";
+import OverlayImageWithFadeIn from "../OverlayImageWithFadeIn";
 import { useState } from "react";
 import {
   CircleArrowLeft,
   CircleArrowRight,
   CircleCheck,
   CircleDot,
-  CircleFadingPlus,
   PlusCircle,
   SignalHigh,
   SignalLow,
   SignalMedium,
-  XCircle,
 } from "lucide-react";
 import clsx from "clsx";
 import { MenuItemSize } from "@/types/MenuItem";

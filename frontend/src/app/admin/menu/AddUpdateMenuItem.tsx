@@ -7,7 +7,7 @@ import { UpdateMenuProps } from "./page";
 import { useMenu } from "@/components/context/Menu";
 import ItemSelector from "@/components/ItemSelector";
 import CategorySelector from "@/components/CategorySelector";
-import AdminSizeSelector from "@/components/AdminSizeSelector";
+import AdminSizeSelector from "@/components/adminMenu/AdminSizeSelector";
 
 export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }: UpdateMenuProps) {
   const { createMenuItem, updateMenuItem, deleteMenuItem } = useMenu();

@@ -1,14 +1,12 @@
 "use client";
 
 import { useMenu } from "@/components/context/Menu";
-import MenuItemOverviewSize from "@/components/MenuItemOverviewSize";
-import MenuItemOverviewSimple from "@/components/MenuItemOverviewSimple";
 import { sortMenuItemsByCategory } from "@/misc/helper";
 import { MenuItem as MenuItemType } from "@/types/MenuItem";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
-import MenuItemOverviewCustom from "@/components/MenuItemOverviewCustom";
-import MenuItem from "@/components/MenuItem";
+import MenuItem from "@/components/menu/MenuItem";
+import MenuItemOverview from "@/components/menu/MenuItemOverview";
 
 export default function MenuPage() {
   const { menuItems, ingredients, getMenuItems, getIngredients } = useMenu();
@@ -52,24 +50,6 @@ export default function MenuPage() {
     setCategorizedMenu(categorized);
   };
 
-  const getOverviewComponent = (menuItem: MenuItemType) => {
-    if (menuItem.isCustomizable) {
-      return (
-        <MenuItemOverviewCustom
-          key={menuItem.name + menuItem.id}
-          menuItem={menuItem}
-          setMenuItemToCustomize={setMenuItemToCustomize}
-        />
-      );
-    }
-
-    if (menuItem.sizes.length > 1) {
-      return <MenuItemOverviewSize key={menuItem.name + menuItem.id} menuItem={menuItem} />;
-    }
-
-    return <MenuItemOverviewSimple key={menuItem.name + menuItem.id} menuItem={menuItem} />;
-  };
-
   return (
     <div className="m-3">
       {menuItemToCustomize ? (
@@ -95,15 +75,20 @@ export default function MenuPage() {
                 <div className="text-center text-3xl m-3">{categories.get(category)}</div>
                 <div
                   className={clsx(
-                    category == "BEVERAGES" || category == "DESSERTS"
-                      ? "grid-cols-8 sm:grid-cols-5 md:grid-cols-6 xl:grid-cols-7"
-                      : "grid-cols-6 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5",
-                    "grid gap-4 "
+                    // "flex flex-wrap justify-between items-stretch",
+                    // "after:content-[''] after:flex-auto",
+                    "grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4"
                   )}
                 >
                   {sortMenuItemsByCategory(menuItems)
                     .filter((menuItem) => menuItem.isAvailable)
-                    .map((menuItem) => getOverviewComponent(menuItem))}
+                    .map((menuItem) => (
+                      <MenuItemOverview
+                        key={menuItem.id}
+                        setMenuItemToCustomize={setMenuItemToCustomize}
+                        menuItem={menuItem}
+                      />
+                    ))}
                 </div>
               </div>
             ))}

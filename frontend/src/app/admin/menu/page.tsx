@@ -7,8 +7,8 @@ import { MenuItem } from "@/types/MenuItem";
 import { useEffect, useState } from "react";
 import AddUpdateMenuItem from "./AddUpdateMenuItem";
 import AddUpdateIngredient from "./AddUpdateIngredient";
-import MenuItemAdmin from "@/components/MenuItemAdmin";
-import IngredientAdmin from "@/components/IngredientAdmin";
+import MenuItemAdmin from "@/components/adminMenu/MenuItemAdmin";
+import IngredientAdmin from "@/components/adminMenu/IngredientAdmin";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 export interface UpdateMenuProps {

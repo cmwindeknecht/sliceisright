@@ -1,7 +1,7 @@
 "use client";
 
 import { useMenu } from "@/components/context/Menu";
-import OrderItem from "@/components/OrderItem";
+import OrderItem from "@/components/orderItem/OrderItem";
 import { sortOrderItemsByCategory } from "@/misc/helper";
 import clsx from "clsx";
 

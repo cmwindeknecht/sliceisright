@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { MenuItemSize, MenuItem as MenuItemType, OrderItem } from "@/types/MenuItem";
 import { Ingredient } from "@/types/Ingredient";
 import clsx from "clsx";
-import OverlayImageWithFadeIn from "./OverlayImageWithFadeIn";
+import OverlayImageWithFadeIn from "../OverlayImageWithFadeIn";
 import MenuItemIngredient, { IngredientOption } from "./MenuItemIngredient";
 import {
   getPriceOfIngredientOption,
@@ -12,7 +12,7 @@ import {
   sortIngredientsByCategory,
   sortMenuSize,
 } from "@/misc/helper";
-import { useMenu } from "./context/Menu";
+import { useMenu } from "../context/Menu";
 
 export interface MenuItemProps {
   menuItem: MenuItemType;
