@@ -73,6 +73,7 @@ public class Helper {
                 .canBeHalved(ingredient.canBeHalved)
                 .canBeLight(ingredient.canBeLight)
                 .category(ingredient.category)
+                .menuItemCategory(ingredient.menuItemCategory)
                 .sizes(
                     ingredient.sizes.stream()
                         .map(size -> new IngredientSizeDTO(size.id, size.size, size.price))

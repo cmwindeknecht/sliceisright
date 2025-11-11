@@ -10,7 +10,7 @@ export interface MenuItem {
   isCustomizable: boolean;
   ingredients: Ingredient[];
   sizes: MenuItemSize[];
-  category: "PIZZA" | "ITEMS" | "DESSERTS" | "BEVERAGES" | "DEALS";
+  category: "PIZZAS" | "SUBS" | "APPETIZERS" | "DESSERTS" | "BEVERAGES" | "DEALS";
 }
 
 export interface MenuItemSize {
@@ -24,6 +24,7 @@ export interface OrderItem extends MenuItem {
   chosenSize: MenuItemSize;
   quantity: number;
   notes: string | null;
+  price: number;
 }
 
 export interface Order {

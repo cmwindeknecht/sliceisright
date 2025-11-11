@@ -30,8 +30,9 @@ public class Constants {
     }
 
     public enum MenuItemCategory {
-        PIZZA("Signature Pizza"),
-        ITEMS("Specialty Items"),
+        PIZZAS("Pizzas"),
+        SUBS("Subs"),
+        APPETIZERS("Appetizers"),
         DESSERTS("Desserts"),
         BEVERAGES("Beverages"),
         DEALS("Deals");

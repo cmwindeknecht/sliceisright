@@ -11,9 +11,6 @@ export interface MenuItemOverviewSimpleProps {
   menuItem: MenuItemType;
 }
 
-// TODO this only works with non customizable menu items.  So rethink these components.
-//    Basically I need to either have a single component that handles sizes/customizations/etc
-//    OR I need multiple components - customizable, sized, customizable & sized, or simple (like this one)
 export default function MenuItemOverviewSimple({ menuItem }: MenuItemOverviewSimpleProps) {
   const { addOrderItem, updateOrderItem, deleteOrderItem, currentOrder } = useMenu();
 
@@ -39,6 +36,7 @@ export default function MenuItemOverviewSimple({ menuItem }: MenuItemOverviewSim
         chosenSize: menuItem.sizes[0],
         quantity: 1,
         notes: "",
+        price: menuItem.sizes[0].price,
       };
       addOrderItem(orderItem);
     } else {

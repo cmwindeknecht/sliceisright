@@ -44,6 +44,7 @@ export const MenuProvider = ({ children, setToastMessage }: MenuProviderProps) =
     if (stored) {
       setCurrentOrder(JSON.parse(stored));
     }
+    // localStorage.removeItem("currentOrder");
   }, []);
 
   useEffect(() => {
@@ -240,7 +241,15 @@ export const MenuProvider = ({ children, setToastMessage }: MenuProviderProps) =
 
   const addOrderItem = (orderItem: OrderItem) => {
     try {
-      setCurrentOrder((prev) => (prev ? [...prev, orderItem] : [orderItem]));
+      const nextId =
+        currentOrder.length === 0
+          ? 1
+          : Math.max(...currentOrder.map((item) => item.orderItemId ?? 0)) + 1;
+
+      setCurrentOrder((prevOrderItems) => [
+        ...prevOrderItems,
+        { ...orderItem, orderItemId: nextId },
+      ]);
       setToastMessage(
         `Added ${orderItem.name} ${orderItem.chosenSize.size == "NONE" ? "" : `(${orderItem.chosenSize.size})`} to cart`
       );
@@ -253,7 +262,9 @@ export const MenuProvider = ({ children, setToastMessage }: MenuProviderProps) =
   const updateOrderItem = (orderItem: OrderItem) => {
     try {
       setCurrentOrder((prev) =>
-        prev.map((item) => (item.orderItemId === orderItem.orderItemId ? { ...orderItem } : item))
+        prev.map((prevOrderItem) =>
+          prevOrderItem.orderItemId === orderItem.orderItemId ? { ...orderItem } : prevOrderItem
+        )
       );
       setToastMessage(
         `Updated ${orderItem.name} ${orderItem.chosenSize.size == "NONE" ? "" : `(${orderItem.chosenSize.size})`} in cart`
@@ -266,7 +277,11 @@ export const MenuProvider = ({ children, setToastMessage }: MenuProviderProps) =
 
   const deleteOrderItem = (orderItem: OrderItem) => {
     try {
-      setCurrentOrder((prev) => prev.filter((item) => item.orderItemId !== orderItem.orderItemId));
+      setCurrentOrder((prevOrderItems) =>
+        prevOrderItems.filter(
+          (prevOrderItem) => prevOrderItem.orderItemId !== orderItem.orderItemId
+        )
+      );
       setToastMessage(
         `Removed ${orderItem.name} ${orderItem.chosenSize.size == "NONE" ? "" : `(${orderItem.chosenSize.size})`} from cart`
       );

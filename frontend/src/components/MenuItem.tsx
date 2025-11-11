@@ -43,7 +43,7 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
 
   useEffect(() => {
     categorizeIngredients();
-  }, [ingredients]);
+  }, []);
 
   useEffect(() => {
     if (error) {
@@ -75,6 +75,10 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
     const ingredientMap = new Map<string, Ingredient[]>();
 
     for (const ingredient of ingredients) {
+      if (ingredient.menuItemCategory != menuItem.category) {
+        return;
+      }
+
       const ingredientSelectedSize = ingredient.sizes.find(
         (ingredientSize) => ingredientSize.size != selectedSize.size
       );
@@ -89,11 +93,12 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
         continue;
       }
 
-      let key;
-      if (doesMenuItemHaveIngredient(ingredient)) {
-        key = "INCLUDED";
+      let menuItemHasIngredient = doesMenuItemHaveIngredient(ingredient);
+      let key = menuItemHasIngredient ? "INCLUDED" : ingredient.category;
+      if (menuItemHasIngredient) {
         updateIngredientOptions({
           ingredientId: ingredient.id,
+          name: ingredient.name,
           basePrice: ingredientSelectedSize.price,
           isRemoved: false,
           isLight: false,
@@ -104,8 +109,6 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
           isWholeItem: ingredient.canBeHalved,
           isIncluded: true,
         });
-      } else {
-        key = ingredient.category;
       }
 
       const ingredientList = ingredientMap.get(key) ?? [];
@@ -166,6 +169,7 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
       chosenSize: selectedSize,
       quantity: 1,
       notes,
+      price: currentPrice,
     };
     addOrderItem(orderItem);
     returnToMenu(null);
@@ -201,28 +205,26 @@ export default function MenuItem({ menuItem, ingredients, returnToMenu }: MenuIt
         </div>
 
         {/* Sizes */}
-        <div className="flex flex-col w-full justify-start items-start gap-2">
-          <div className="text-2xl">Sizes</div>
-          <div className="flex flex-row w-full justify-start items-start gap-2">
-            {sortMenuSize(menuItem.sizes).map((menuItemSize) => (
-              <button
-                key={menuItem.id + menuItemSize.size}
-                onClick={() => setSelectedSize(menuItemSize)}
-                className={clsx(
-                  selectedSize && selectedSize.size == "NONE"
-                    ? "bg-red-600 hover:bg-red-700"
-                    : selectedSize.size == menuItemSize.size
-                      ? "bg-red-600 hover:bg-red-700 outline-4 outline-black"
-                      : "bg-gray-600 hover:bg-orange-700",
-                  "outline-1 outline-black text-white px-1 rounded"
-                )}
-              >
-                {menuItemSize.size === "NONE"
-                  ? `$${menuItemSize.price.toFixed(2)}`
-                  : `${menuItemSize.size} - $${menuItemSize.price.toFixed(2)}`}
-              </button>
-            ))}
-          </div>
+        <div className="flex flex-row w-full justify-start gap-2">
+          <span className="text-2xl">{menuItem.sizes.length > 1 ? "Sizes" : "Size"}: </span>
+          {sortMenuSize(menuItem.sizes).map((menuItemSize) => (
+            <button
+              key={menuItem.id + menuItemSize.size}
+              onClick={() => setSelectedSize(menuItemSize)}
+              className={clsx(
+                selectedSize && selectedSize.size == "NONE"
+                  ? "bg-red-600 hover:bg-red-700"
+                  : selectedSize.size == menuItemSize.size
+                    ? "bg-red-600 hover:bg-red-700 outline-4 outline-black"
+                    : "bg-gray-600 hover:bg-orange-700",
+                "outline-1 outline-black text-white px-1 rounded"
+              )}
+            >
+              {menuItemSize.size === "NONE"
+                ? `$${menuItemSize.price.toFixed(2)}`
+                : `${menuItemSize.size} - $${menuItemSize.price.toFixed(2)}`}
+            </button>
+          ))}
         </div>
 
         {/* Toppings */}

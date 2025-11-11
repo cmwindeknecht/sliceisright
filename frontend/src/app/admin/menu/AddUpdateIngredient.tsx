@@ -12,7 +12,7 @@ import AdminSizeSelector from "@/components/AdminSizeSelector";
 export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMenuProps) {
   const { createIngredient, updateIngredient, deleteIngredient } = useMenu();
 
-  const [selectedIngredientName, setSelectedIngredientName] = useState<string>("");
+  const [selectedIngredientId, setSelectedIngredientId] = useState<number | null>(null);
 
   const [selected, setSelected] = useState<Ingredient | null>(null);
   const [id, setId] = useState<number | null>(null);
@@ -20,53 +20,62 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
   const [imageUrl, setImageUrl] = useState<string>("");
   const [sizes, setSizes] = useState<IngredientSize[]>([]);
   const [category, setCategory] = useState<Ingredient["category"]>("MEAT");
+  const [menuItemCategory, setMenuItemCategory] =
+    useState<Ingredient["menuItemCategory"]>("PIZZAS");
   const [canBeRemoved, setCanBeRemoved] = useState<boolean>(false);
   const [canBeDoubled, setCanBeDoubled] = useState<boolean>(false);
   const [canBeHalved, setCanBeHalved] = useState<boolean>(false);
   const [canBeLight, setCanBeLight] = useState<boolean>(false);
 
+  const [isUpdateMode, setIsUpdateMode] = useState<boolean | null>(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean | null>(null);
   const [success, setSuccess] = useState(false);
 
   const categoryOptions: Ingredient["category"][] = ["MEAT", "VEGETABLE", "FRUIT", "OTHER"];
+  const menuItemCategoryOptions: Ingredient["menuItemCategory"][] = [
+    "PIZZAS",
+    "SUBS",
+    "APPETIZERS",
+    "DESSERTS",
+    "BEVERAGES",
+    "DEALS",
+  ];
   const sizeOptions: IngredientSize["size"][] = ["NONE", "S", "M", "L", "XL"];
-  const isUpdateMode = selectedIngredientName !== "";
 
-  // Load selected ingredient data when dropdown changes
-
-  // TODO add image URL, canBeHalved (cheese, sauce can't really be on half), canBeLight (sauce, cheese)
   useEffect(() => {
-    if (selectedIngredientName) {
-      const ingredient = ingredients.find(
-        (item) => item.name?.toString() === selectedIngredientName
-      );
+    if (selectedIngredientId) {
+      const ingredient = ingredients.find((ingredient) => ingredient.id == selectedIngredientId);
 
       setSelected(ingredient ?? null);
       setId(ingredient ? ingredient.id : null);
       setName(ingredient ? ingredient.name : "");
       setSizes(ingredient ? ingredient.sizes : []);
       setCategory(ingredient ? ingredient.category : "MEAT");
+      setMenuItemCategory(ingredient ? ingredient.menuItemCategory : "PIZZAS");
       setCanBeDoubled(ingredient ? ingredient.canBeDoubled : false);
       setCanBeRemoved(ingredient ? ingredient.canBeRemoved : false);
       setCanBeHalved(ingredient ? ingredient.canBeHalved : false);
       setCanBeLight(ingredient ? ingredient.canBeLight : false);
+      setIsUpdateMode(ingredient != null);
     }
-  }, [selectedIngredientName, ingredients]);
+  }, [selectedIngredientId, ingredients]);
 
   const resetOnSuccess = () => {
     setName("");
     setImageUrl("");
     setSizes([]);
     setCategory("MEAT");
+    setMenuItemCategory("PIZZAS");
     setCanBeDoubled(false);
     setCanBeRemoved(false);
     setCanBeHalved(false);
     setCanBeLight(false);
-    setSelectedIngredientName("");
+    setSelectedIngredientId(null);
     setSuccess(true);
     setReload(true);
     setSelected(null);
+    setIsUpdateMode(false);
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -86,6 +95,7 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
         imageUrl,
         sizes,
         category,
+        menuItemCategory,
         canBeDoubled,
         canBeRemoved,
         canBeHalved,
@@ -148,10 +158,16 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
   };
 
   const validateNonExistingOnCreate = (ingredient: Ingredient) => {
-    const exists = ingredients.some((item) => item.name.toLowerCase() === name.toLowerCase());
+    const exists = ingredients.some(
+      (item) =>
+        item.name.toLowerCase() === name.toLowerCase() &&
+        item.menuItemCategory == ingredient.menuItemCategory
+    );
 
     if (exists) {
-      throw new Error(`Name ${ingredient.name} already exists!`);
+      throw new Error(
+        `Name ${ingredient.name} and category ${ingredient.menuItemCategory} already exists!`
+      );
     }
   };
 
@@ -164,8 +180,8 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
 
       <ItemSelector
         label="Select Ingredient (optional)"
-        value={selectedIngredientName}
-        onChange={(e) => setSelectedIngredientName(e.target.value)}
+        value={selectedIngredientId?.toString() || ""}
+        onChange={(e) => setSelectedIngredientId(Number(e.target.value))}
         items={ingredients}
         defaultText="-- Create New Ingredient --"
       />
@@ -193,9 +209,17 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
       </div>
 
       <CategorySelector
+        title="Ingredient Category"
         value={category}
         onChange={(e) => setCategory(e.target.value as Ingredient["category"])}
         categoryOptions={categoryOptions}
+      />
+
+      <CategorySelector
+        title="Menu Item Category"
+        value={menuItemCategory}
+        onChange={(e) => setMenuItemCategory(e.target.value as Ingredient["menuItemCategory"])}
+        categoryOptions={menuItemCategoryOptions}
       />
 
       <AdminSizeSelector sizes={sizes} setSizes={setSizes} sizeOptions={sizeOptions} />
@@ -236,7 +260,6 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
         <div className="pl-1">Can be light? </div>
       </div>
 
-      {/* Submit and Delete Buttons */}
       <div className="flex justify-between gap-2">
         <button
           type="submit"
@@ -262,7 +285,6 @@ export default function AddUpdateIngredient({ ingredients, setReload }: UpdateMe
         )}
       </div>
 
-      {/* Feedback Messages */}
       {error && <p className="text-red-500 text-sm text-center">{error}</p>}
       {success && (
         <p className="text-green-500 text-sm text-center">

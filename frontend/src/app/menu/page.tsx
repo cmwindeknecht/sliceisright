@@ -18,12 +18,14 @@ export default function MenuPage() {
   const [menuItemToCustomize, setMenuItemToCustomize] = useState<MenuItemType | null>(null);
 
   const categories = new Map<MenuItemType["category"], string>([
-    ["PIZZA", "Signature Pizzas"],
-    ["ITEMS", "Specialty Items"],
+    ["DEALS", "Current Deals"],
+    ["APPETIZERS", "Tasty Appetizers"],
+    ["PIZZAS", "Signature Pizzas"],
+    ["SUBS", "Specialty Subs"],
     ["DESSERTS", "Sweet Treats"],
     ["BEVERAGES", "Cool Drinks"],
-    ["DEALS", "Current Deals"],
   ]);
+  const categoryOrder = Array.from(categories.keys());
 
   useEffect(() => {
     getMenuItems();
@@ -86,23 +88,25 @@ export default function MenuPage() {
         </div>
       ) : (
         <div>
-          {[...categorizedMenu.entries()].map(([category, menuItems]) => (
-            <div key={category}>
-              <div className="text-center text-3xl m-3">{categories.get(category)}</div>
-              <div
-                className={clsx(
-                  category == "BEVERAGES" || category == "DESSERTS"
-                    ? "grid-cols-8 sm:grid-cols-5 md:grid-cols-6 xl:grid-cols-7"
-                    : "grid-cols-6 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5",
-                  "grid gap-4 "
-                )}
-              >
-                {sortMenuItemsByCategory(menuItems)
-                  .filter((menuItem) => menuItem.isAvailable)
-                  .map((menuItem) => getOverviewComponent(menuItem))}
+          {[...categorizedMenu.entries()]
+            .sort(([a], [b]) => categoryOrder.indexOf(a) - categoryOrder.indexOf(b))
+            .map(([category, menuItems]) => (
+              <div key={category}>
+                <div className="text-center text-3xl m-3">{categories.get(category)}</div>
+                <div
+                  className={clsx(
+                    category == "BEVERAGES" || category == "DESSERTS"
+                      ? "grid-cols-8 sm:grid-cols-5 md:grid-cols-6 xl:grid-cols-7"
+                      : "grid-cols-6 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5",
+                    "grid gap-4 "
+                  )}
+                >
+                  {sortMenuItemsByCategory(menuItems)
+                    .filter((menuItem) => menuItem.isAvailable)
+                    .map((menuItem) => getOverviewComponent(menuItem))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       )}
     </div>

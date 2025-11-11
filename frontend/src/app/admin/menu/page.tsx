@@ -9,6 +9,7 @@ import AddUpdateMenuItem from "./AddUpdateMenuItem";
 import AddUpdateIngredient from "./AddUpdateIngredient";
 import MenuItemAdmin from "@/components/MenuItemAdmin";
 import IngredientAdmin from "@/components/IngredientAdmin";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 export interface UpdateMenuProps {
   ingredients: Ingredient[];
@@ -20,6 +21,8 @@ export default function AdminMenuPage() {
   const { user, validateAdminPriveleges } = useAuth();
   const { getMenuItems, getIngredients, menuItems, ingredients } = useMenu();
   const [reload, setReload] = useState<boolean>(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showIngredients, setShowIngredients] = useState(false);
 
   useEffect(() => {
     validateAdminPriveleges();
@@ -57,25 +60,53 @@ export default function AdminMenuPage() {
               setReload={setReload}
             />
           </div>
-          {/* Menu Items */}
-          {menuItems && menuItems.length > 0 && (
-            <div className="flex flex-col justify-center items-center">
-              <h1 className="text-2xl font-bold text-center mb-4">Menu Items</h1>
-              <div className="flex flex-wrap justify-between gap-4">
-                {menuItems.map((menuItem) => (
-                  <MenuItemAdmin key={menuItem.id} menuItem={menuItem} />
-                ))}
-              </div>
+
+          {menuItems?.length > 0 && (
+            <div className="flex flex-col items-center">
+              <button
+                onClick={() => setShowMenu((prev) => !prev)}
+                className="flex items-center gap-2 text-2xl font-bold mb-4 focus:outline-none"
+              >
+                <span>Menu Items</span>
+                {showMenu ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
+              </button>
+
+              {showMenu && (
+                <div className="flex flex-wrap justify-between gap-4">
+                  {menuItems
+                    .sort((a, b) => a.name.localeCompare(b.name))
+
+                    .map((menuItem) => (
+                      <MenuItemAdmin key={menuItem.id} menuItem={menuItem} />
+                    ))}
+                </div>
+              )}
             </div>
           )}
-          {ingredients && ingredients.length > 0 && (
-            <div className="flex flex-col justify-between">
-              <h1 className="text-2xl font-bold text-center mb-4">Ingredients</h1>
-              <div className="flex flex-wrap gap-4">
-                {ingredients.map((ingredient) => (
-                  <IngredientAdmin key={ingredient.id} ingredient={ingredient} />
-                ))}
-              </div>
+
+          {ingredients?.length > 0 && (
+            <div className="flex flex-col items-center">
+              <button
+                onClick={() => setShowIngredients((prev) => !prev)}
+                className="flex items-center gap-2 text-2xl font-bold mb-4 focus:outline-none"
+              >
+                <span>Ingredients</span>
+                {showIngredients ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
+              </button>
+
+              {showIngredients && (
+                <div className="flex flex-wrap justify-center gap-4">
+                  {ingredients
+                    .sort((a, b) => {
+                      const nameCompare = a.name.localeCompare(b.name);
+                      if (nameCompare !== 0) return nameCompare;
+                      return a.menuItemCategory.localeCompare(b.menuItemCategory);
+                    })
+                    .map((ingredient) => (
+                      <IngredientAdmin key={ingredient.id} ingredient={ingredient} />
+                    ))}
+                </div>
+              )}
             </div>
           )}
         </div>

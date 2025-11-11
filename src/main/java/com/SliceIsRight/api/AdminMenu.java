@@ -190,9 +190,28 @@ public class AdminMenu {
     @RolesAllowed("Admin")
     public Response createIngredient(IngredientDTO request) {
         try {
-            Optional.ofNullable(Ingredient.find("name", request.name)
+            System.out.println("Searching for: name=" + request.name + ", category=" + request.menuItemCategory);
+
+            Ingredient existing = Ingredient.find("name = ?1 and menuItemCategory = ?2", 
+                request.name, request.menuItemCategory)
+                .firstResult();
+
+            System.out.println("Found: " + existing);
+            if (existing != null) {
+                System.out.println("Existing category: " + existing.menuItemCategory);
+                System.out.println("Request category: " + request.menuItemCategory);
+                System.out.println("Are they equal? " + existing.menuItemCategory.equals(request.menuItemCategory));
+            }
+
+            if (existing != null) {
+                throw new WebApplicationException(
+                    String.format("Ingredient with name %s already exists", request.name), 
+                    Response.Status.BAD_REQUEST);
+            }
+
+            Optional.ofNullable(Ingredient.find("name = ?1 and menuItemCategory = ?2", request.name, request.menuItemCategory)
                 .firstResult())
-                .ifPresent(existing -> {
+                .ifPresent(existingIngredient -> {
                     throw new WebApplicationException(String.format("Ingredient with name %s already exists", request.name), Response.Status.BAD_REQUEST);
                 });
             Ingredient ingredient = new Ingredient();
@@ -202,7 +221,7 @@ public class AdminMenu {
             broadcaster.broadcast("refreshIngredients");
             return ResponseFactory.GetCreatedResponse(helper.buildIngredientDTO(ingredient), "Successfully created Ingredient");
         } catch (Exception exception) {
-            System.out.println(String.format("Failed to create MenuItem due to exception %s for request %s", exception.getMessage(), request.toString()));
+            System.out.println(String.format("Failed to create Ingredient due to exception %s for request %s", exception.getMessage(), request.toString()));
             return ResponseFactory.GetBadRequestResponse(exception, "Failed to create ingredient");
         }
     }
@@ -259,6 +278,7 @@ public class AdminMenu {
         toUpdate.name = request.name;
         toUpdate.imageUrl = request.imageUrl;
         toUpdate.category = request.category;
+        toUpdate.menuItemCategory = request.menuItemCategory;
         toUpdate.canBeDoubled = request.canBeDoubled;
         toUpdate.canBeRemoved = request.canBeRemoved;
         toUpdate.canBeHalved = request.canBeHalved;

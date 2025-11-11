@@ -12,9 +12,9 @@ import AdminSizeSelector from "@/components/AdminSizeSelector";
 export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }: UpdateMenuProps) {
   const { createMenuItem, updateMenuItem, deleteMenuItem } = useMenu();
 
-  const [selectedMenuItemName, setSelectedMenuItemName] = useState<string>("");
+  const [selectedMenuItemId, setSelectedMenuItemId] = useState<number | null>(null);
 
-  const [selected, setSelected] = useState<MenuItem | null>(null);
+  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null);
   const [id, setId] = useState<number | null>(null);
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -23,15 +23,17 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const [isCustomizable, setIsCustomizable] = useState<boolean>(false);
   const [menuItemIngredients, setMenuItemIngredients] = useState<Ingredient[]>([]);
-  const [category, setCategory] = useState<MenuItem["category"]>("PIZZA");
+  const [category, setCategory] = useState<MenuItem["category"]>("PIZZAS");
 
+  const [isUpdateMode, setIsUpdateMode] = useState<boolean | null>(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean | null>(null);
   const [success, setSuccess] = useState(false);
 
   const categoryOptions: MenuItem["category"][] = [
-    "PIZZA",
-    "ITEMS",
+    "PIZZAS",
+    "SUBS",
+    "APPETIZERS",
     "DESSERTS",
     "BEVERAGES",
     "DEALS",
@@ -39,26 +41,25 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
   const sizeOptions: MenuItemSize["size"][] = ["NONE", "S", "M", "L", "XL"];
   const defaultSelectorText = "-- Create New Menu Item --";
 
-  const isUpdateMode = selectedMenuItemName !== "";
-
   // Load selected menu item data when dropdown changes
   useEffect(() => {
     let menuItem = null;
-    if (selectedMenuItemName) {
-      menuItem = menuItems.find((item) => item.name?.toString() === selectedMenuItemName);
+    if (selectedMenuItemId) {
+      menuItem = menuItems.find((menuItem) => menuItem.id === selectedMenuItemId);
     }
-    setSelectedMenuItemName(menuItem ? menuItem.name : "");
-    setSelected(menuItem ?? null);
+
+    setSelectedMenuItem(menuItem ?? null);
     setId(menuItem ? menuItem.id : null);
     setName(menuItem ? menuItem.name : "");
     setDescription(menuItem ? menuItem.description : "");
     setSizes(menuItem ? menuItem.sizes : []);
     setImageUrl(menuItem ? menuItem.imageUrl : "");
-    setCategory(menuItem ? menuItem.category : "PIZZA");
+    setCategory(menuItem ? menuItem.category : "PIZZAS");
     setIsCustomizable(menuItem ? menuItem.isCustomizable : false);
     setIsAvailable(menuItem ? menuItem.isAvailable : false);
     setMenuItemIngredients(menuItem ? menuItem.ingredients : []);
-  }, [selectedMenuItemName, menuItems]);
+    setIsUpdateMode(menuItem != null);
+  }, [selectedMenuItemId, menuItems]);
 
   const resetOnSuccess = () => {
     setSuccess(true);
@@ -68,9 +69,9 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
     setImageUrl("");
     setIsCustomizable(false);
     setMenuItemIngredients([]);
-    setSelectedMenuItemName("");
+    setSelectedMenuItemId(null);
     setReload(true);
-    setSelected(null);
+    setSelectedMenuItem(null);
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -89,7 +90,7 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
         name,
         description,
         imageUrl,
-        isAvailable: selected ? selected.isAvailable : false,
+        isAvailable: selectedMenuItem ? selectedMenuItem.isAvailable : false,
         isCustomizable,
         ingredients: menuItemIngredients,
         sizes,
@@ -176,16 +177,10 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
 
       <ItemSelector
         label="Select Menu Item (optional)"
-        value={selectedMenuItemName}
-        onChange={(e) => {
-          if (e.target.value == defaultSelectorText) {
-            setSelectedMenuItemName("");
-          } else {
-            setSelectedMenuItemName(e.target.value);
-          }
-        }}
+        value={selectedMenuItemId?.toString() || ""}
+        onChange={(e) => setSelectedMenuItemId(Number(e.target.value))}
         items={menuItems}
-        defaultText={defaultSelectorText}
+        defaultText="-- Create New Menu Item --"
       />
 
       <div>
@@ -222,6 +217,7 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
       </div>
 
       <CategorySelector
+        title="Menu Item Category"
         value={category}
         onChange={(e) => setCategory(e.target.value as MenuItem["category"])}
         categoryOptions={categoryOptions}
@@ -245,30 +241,32 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {ingredients.map((ingredient) => {
-              const isSelected = menuItemIngredients.some((i) => i.name === ingredient.name);
+            {ingredients
+              .filter((ingredient) => ingredient.menuItemCategory === category)
+              .map((ingredient) => {
+                const isSelected = menuItemIngredients.some((i) => i.name === ingredient.name);
 
-              return (
-                <button
-                  key={ingredient.name}
-                  type="button"
-                  onClick={() => {
-                    if (isSelected) {
-                      setMenuItemIngredients(
-                        menuItemIngredients.filter((i) => i.name !== ingredient.name)
-                      );
-                    } else {
-                      setMenuItemIngredients([...menuItemIngredients, ingredient]);
-                    }
-                  }}
-                  className={`px-3 py-1 rounded border ${
-                    isSelected ? "bg-orange-600 text-white" : "bg-white text-gray-700"
-                  }`}
-                >
-                  {ingredient.name}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={ingredient.id}
+                    type="button"
+                    onClick={() => {
+                      if (isSelected) {
+                        setMenuItemIngredients(
+                          menuItemIngredients.filter((i) => i.name !== ingredient.name)
+                        );
+                      } else {
+                        setMenuItemIngredients([...menuItemIngredients, ingredient]);
+                      }
+                    }}
+                    className={`px-3 py-1 rounded border ${
+                      isSelected ? "bg-orange-600 text-white" : "bg-white text-gray-700"
+                    }`}
+                  >
+                    {ingredient.name}
+                  </button>
+                );
+              })}
           </div>
         </div>
       )}
@@ -283,13 +281,13 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
           {loading ? "Saving..." : isUpdateMode ? "Update Menu Item" : "Create Menu Item"}
         </button>
 
-        {isUpdateMode && selected != null && (
+        {isUpdateMode && selectedMenuItem != null && (
           <>
             <button
               type="button"
               onClick={() => {
                 if (confirm("Are you sure you want to delete this menu item?")) {
-                  handleDelete(selected);
+                  handleDelete(selectedMenuItem);
                 }
               }}
               disabled={loading ?? false}
@@ -302,16 +300,16 @@ export default function AddUpdateMenuItem({ ingredients, menuItems, setReload }:
               onClick={() => {
                 if (
                   confirm(
-                    `Are you sure you want to make this menu item ${selected.isAvailable ? "unavailable" : "available"}?`
+                    `Are you sure you want to make this menu item ${selectedMenuItem.isAvailable ? "unavailable" : "available"}?`
                   )
                 ) {
-                  handleMakeAvailable(selected);
+                  handleMakeAvailable(selectedMenuItem);
                 }
               }}
               disabled={loading ?? false}
               className="w-1/3 bg-orange-600 text-white py-2 rounded hover:bg-orange-700 disabled:opacity-50"
             >
-              Make {selected.isAvailable ? "Unavailable" : "Available"} On Menu
+              Make {selectedMenuItem.isAvailable ? "Unavailable" : "Available"} On Menu
             </button>
           </>
         )}
