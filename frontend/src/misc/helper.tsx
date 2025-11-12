@@ -1,4 +1,4 @@
-import { IngredientOption } from "@/components/menu/MenuItemIngredient";
+import { IngredientOption } from "@/app/menu/MenuItemIngredient";
 import { Ingredient, IngredientSize } from "@/types/Ingredient";
 import { MenuItem, MenuItemSize, OrderItem } from "@/types/MenuItem";
 

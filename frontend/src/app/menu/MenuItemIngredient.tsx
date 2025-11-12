@@ -1,5 +1,5 @@
 import { Ingredient } from "@/types/Ingredient";
-import OverlayImageWithFadeIn from "../OverlayImageWithFadeIn";
+import OverlayImageWithFadeIn from "../../components/OverlayImageWithFadeIn";
 import { useState } from "react";
 import {
   CircleArrowLeft,

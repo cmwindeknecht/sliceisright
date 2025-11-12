@@ -5,8 +5,8 @@ import { sortMenuItemsByCategory } from "@/misc/helper";
 import { MenuItem as MenuItemType } from "@/types/MenuItem";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
-import MenuItemCustomize from "@/components/menu/MenuItemCustomize";
-import MenuItemOverview from "@/components/menu/MenuItemOverview";
+import MenuItemCustomize from "@/app/menu/MenuItemCustomize";
+import MenuItemOverview from "@/app/menu/MenuItemOverview";
 
 export default function MenuPage() {
   const { menuItems, ingredients, getMenuItems, getIngredients } = useMenu();

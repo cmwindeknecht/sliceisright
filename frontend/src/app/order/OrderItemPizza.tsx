@@ -20,7 +20,7 @@ export default function OrderItemPizza({ orderItem }: OrderItemProps) {
   }, [orderItem]);
 
   return (
-    <div className="flex flex-col w-full border-y border-black">
+    <div className="flex flex-col w-full">
       <div className="flex flex-col w-full h-full ">
         {pizzaPortions.has(PIZZA_LEFT) && (
           <div className="flex flex-col flex-wrap  min-h-10">

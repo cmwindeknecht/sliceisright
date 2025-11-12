@@ -2,6 +2,7 @@ package com.SliceIsRight.api;
 
 import java.util.List;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.RestStreamElementType;
 
 import jakarta.inject.Inject;
@@ -28,15 +29,17 @@ public class Menu {
 
     @Inject
     MenuUpdates broadcaster;
+
+    @ConfigProperty(name = "quarkus.http.cors.origins")
+    String origins;
     
     @GET
     @Path("/updates")
     @Produces(MediaType.SERVER_SENT_EVENTS)
     @RestStreamElementType(MediaType.TEXT_PLAIN)
     public Multi<String> streamUpdates(@Context HttpServerResponse response) {
-        response.putHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+        response.putHeader("Access-Control-Allow-Origin", origins);
         response.putHeader("Access-Control-Allow-Credentials", "true");
-        System.out.println("Added CORS headers directly for SSE");
         return broadcaster.subscribe();
     }
 

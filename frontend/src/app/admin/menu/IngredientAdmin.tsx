@@ -1,6 +1,6 @@
 import { Ingredient as IngredientType } from "@/types/Ingredient";
 import { useState } from "react";
-import OverlayImageWithFadeIn from "../OverlayImageWithFadeIn";
+import OverlayImageWithFadeIn from "../../../components/OverlayImageWithFadeIn";
 import { sortIngredientSize } from "@/misc/helper";
 
 export interface IngredientAdminProps {

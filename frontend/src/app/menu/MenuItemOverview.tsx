@@ -2,7 +2,7 @@
 
 import { MenuItemSize, MenuItem as MenuItemType } from "@/types/MenuItem";
 import clsx from "clsx";
-import OverlayImageWithFadeIn from "../OverlayImageWithFadeIn";
+import OverlayImageWithFadeIn from "../../components/OverlayImageWithFadeIn";
 import MenuItemOverviewSizes from "./MenuItemOverviewSizes";
 import MenuItemOverviewAddToCart from "./MenuItemOverviewAddToCart";
 import MenuItemOverviewCustomize from "./MenuItemOverviewCustomize";
