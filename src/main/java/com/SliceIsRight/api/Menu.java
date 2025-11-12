@@ -20,7 +20,6 @@ import io.smallrye.mutiny.Multi;
 import io.vertx.core.http.HttpServerResponse;
 
 import com.SliceIsRight.api.responses.ResponseFactory;
-import com.SliceIsRight.MenuUpdates;
 import com.SliceIsRight.api.model.IngredientDTO;
 import com.SliceIsRight.api.model.MenuItemDTO;
 
@@ -28,7 +27,7 @@ import com.SliceIsRight.api.model.MenuItemDTO;
 public class Menu {
 
     @Inject
-    MenuUpdates broadcaster;
+    SseBroadcaster broadcaster;
 
     @ConfigProperty(name = "quarkus.http.cors.origins")
     String origins;
@@ -51,7 +50,7 @@ public class Menu {
             List<MenuItemDTO> menuItemDTOs = MenuItemRepository.INSTANCE.getAllMenuItems();
             return ResponseFactory.GetOkResponse(menuItemDTOs, "Successfully retrieved menu items");
         } catch (Exception e) {
-            return ResponseFactory.GetBadRequestResponse(e, "Failed to retrieved menu items");
+            return ResponseFactory.GetBadRequestResponse(e, "Failed to retrieve menu items");
         }
     }
 
@@ -63,7 +62,7 @@ public class Menu {
             List<IngredientDTO> ingredients = IngredientRepository.INSTANCE.getAllIngredients();
             return ResponseFactory.GetOkResponse(ingredients, "Successfully retrieved ingredients");
         } catch (Exception e) {
-            return ResponseFactory.GetBadRequestResponse(e, "Failed to retrieved ingredients");
+            return ResponseFactory.GetBadRequestResponse(e, "Failed to retrieve ingredients");
         }
     }
 }

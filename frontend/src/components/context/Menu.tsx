@@ -1,12 +1,9 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect, useMemo } from "react";
-import { jwtDecode } from "jwt-decode";
-import { User, UserResponse } from "@/types/User";
-import { useRouter } from "next/navigation";
-import { MenuItem, OrderItem } from "@/types/MenuItem";
+import { MenuItem } from "@/types/MenuItem";
 import { Ingredient } from "@/types/Ingredient";
-import { get } from "http";
+import { OrderItem } from "@/types/Order";
 
 export const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 

@@ -10,7 +10,6 @@ import com.SliceIsRight.database.entities.MenuItem;
 
 public class MenuItemRepository {
     public static final MenuItemRepository INSTANCE = new MenuItemRepository();
-    private final Helper helper = new Helper();
 
     public List<MenuItemDTO> getAllMenuItems() {
         List<MenuItem> menuItems = MenuItem.find(
@@ -46,7 +45,7 @@ public class MenuItemRepository {
 
     private List<MenuItemDTO> buildMenuItemDTOs(List<MenuItem> menuItems) {    
         return menuItems.stream()
-            .map(menuItem -> helper.buildMenuItemDTO(menuItem))
+            .map(menuItem -> Helper.buildMenuItemDTO(menuItem))
             .collect(Collectors.toList());
     }
 }

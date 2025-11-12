@@ -3,24 +3,34 @@ package com.SliceIsRight;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.jwt.Claims;
 
 import com.SliceIsRight.api.model.IngredientDTO;
+import com.SliceIsRight.api.model.IngredientOptionDTO;
 import com.SliceIsRight.api.model.IngredientSizeDTO;
 import com.SliceIsRight.api.model.MenuItemDTO;
 import com.SliceIsRight.api.model.MenuItemSizeDTO;
+import com.SliceIsRight.api.model.OrderDTO;
+import com.SliceIsRight.api.model.OrderItemDTO;
+import com.SliceIsRight.api.model.UserDTO;
 import com.SliceIsRight.database.entities.Ingredient;
+import com.SliceIsRight.database.entities.IngredientOption;
 import com.SliceIsRight.database.entities.MenuItem;
+import com.SliceIsRight.database.entities.MenuItemSize;
+import com.SliceIsRight.database.entities.Order;
+import com.SliceIsRight.database.entities.OrderItem;
 import com.SliceIsRight.database.entities.UserAccount;
 
 import io.smallrye.jwt.build.Jwt;
-import jakarta.enterprise.context.ApplicationScoped;
+import lombok.NoArgsConstructor;
 
-@ApplicationScoped
-public class Helper {
-    public String getJwtToken(UserAccount user) {
+@NoArgsConstructor
+public final class Helper {
+
+    public static String getJwtToken(UserAccount user) {
         Set<String> privileges = new HashSet<>(Set.of(Constants.USER_PRIVILEGES));
         Duration duration = Duration.ofMinutes(Constants.USER_TOKEN_DURATION);
         if (user.adminPriveleges) {
@@ -32,11 +42,11 @@ public class Helper {
               .upn(user.email)
               .expiresIn(duration)
               .groups(privileges)
-              .claim(Claims.birthdate.name(), "2001-07-13") 
+              .claim(Claims.birthdate.name(), "2001-07-13")
               .sign();
     }
 
-    public MenuItemDTO buildMenuItemDTO(MenuItem menuItem) {    
+    public static MenuItemDTO buildMenuItemDTO(MenuItem menuItem) {    
         return MenuItemDTO.builder()
             .id(menuItem.id)
             .name(menuItem.name)
@@ -49,12 +59,12 @@ public class Helper {
                 .map(size -> new MenuItemSizeDTO(size.id, size.size, size.price))
                 .collect(Collectors.toList()))
             .ingredients(menuItem.ingredients.stream()
-                .map(ingredient -> buildIngredientDTO(ingredient))
+                .map(Helper::buildIngredientDTO)
                 .collect(Collectors.toList()))
             .build();
     }
 
-    public IngredientDTO buildIngredientDTO(Ingredient ingredient) {    
+    public static IngredientDTO buildIngredientDTO(Ingredient ingredient) {    
         return IngredientDTO.builder()
                 .id(ingredient.id)
                 .name(ingredient.name)
@@ -71,5 +81,58 @@ public class Helper {
                         .collect(Collectors.toList())
                 )
                 .build();
+    }
+
+    public static OrderDTO buildOrderDTO(Order order) {
+        return OrderDTO.builder()
+            .id(order.id)
+            .orderItems(
+                order.orderItems.stream()
+                    .map(orderItem -> Helper.buildOrderItemDTO(orderItem))
+                    .collect(Collectors.toList()))
+            .orderStatus(order.orderStatus)
+            .pickedUpDateTime(order.pickedUpDateTime)
+            .placedDateTime(order.placedDateTime)
+            .requestedPickupTime(order.requestedPickupTime)
+            .userEmail(order.user.email)
+            .build();
+    }
+
+    public static OrderItemDTO buildOrderItemDTO(OrderItem orderItem) {
+        return OrderItemDTO.builder()
+            .id(orderItem.id)
+            .chosenSize(Helper.buildMenuItemSizeDTO(orderItem.chosenSize))
+            .ingredientOptions(
+                orderItem.ingredientOptions.stream()
+                    .map(ingredientOption -> Helper.buildIngredientOptionDTO(ingredientOption))
+                    .collect(Collectors.toSet()))
+            .menuItem(buildMenuItemDTO(orderItem.menuItem))
+            .notes(orderItem.notes)
+            .price(orderItem.price)
+            .quantity(orderItem.quantity)
+            .build();
+    }
+
+    public static IngredientOptionDTO buildIngredientOptionDTO(IngredientOption ingredientOption) {
+        return IngredientOptionDTO.builder()
+            .id(ingredientOption.id)
+            .ingredient(Helper.buildIngredientDTO(ingredientOption.ingredient))
+            .isDouble(ingredientOption.isDouble)
+            .isIncluded(ingredientOption.isIncluded)
+            .isLeftHalf(ingredientOption.isLeftHalf)
+            .isRightHalf(ingredientOption.isRightHalf)
+            .isWholeItem(ingredientOption.isWholeItem)
+            .isRemoved(ingredientOption.isRemoved)
+            .isLight(ingredientOption.isLight)
+            .isDouble(ingredientOption.isDouble)
+            .build();
+    }
+
+    public static MenuItemSizeDTO buildMenuItemSizeDTO(MenuItemSize menuItemSize) {
+        return MenuItemSizeDTO.builder()
+            .id(menuItemSize.id)
+            .size(menuItemSize.size)
+            .price(menuItemSize.price)
+            .build();
     }
 }

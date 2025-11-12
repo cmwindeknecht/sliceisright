@@ -64,4 +64,31 @@ public class Constants {
             return value;
         }
     }
+
+    public enum OrderStatus {
+        PLACED("Placed"),
+        IN_PROGRESS("In Progress"),
+        READY("Ready"),
+        PICKED_UP("Picked up");
+        
+        private final String value;
+        
+        OrderStatus(String value) {
+            this.value = value;
+        }
+        
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public enum DayOfWeek {
+        MONDAY,
+        TUESDAY,
+        WEDNESDAY,
+        THURSDAY,
+        FRIDAY,
+        SATURDAY,
+        SUNDAY
+    }
 }

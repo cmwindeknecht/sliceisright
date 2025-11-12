@@ -31,7 +31,6 @@ import com.SliceIsRight.database.repositories.MenuItemRepository;
 import com.SliceIsRight.api.responses.ResponseFactory;
 import com.SliceIsRight.Constants.Size;
 import com.SliceIsRight.Helper;
-import com.SliceIsRight.MenuUpdates;
 import com.SliceIsRight.api.model.IngredientDTO;
 import com.SliceIsRight.api.model.IngredientSizeDTO;
 import com.SliceIsRight.api.model.MenuItemDTO;
@@ -39,13 +38,11 @@ import com.SliceIsRight.api.model.MenuItemSizeDTO;
 
 @Path("/admin/menu")
 public class AdminMenu {
-    private final Helper helper = new Helper();
-
     @Inject
     JsonWebToken jwt; 
 
     @Inject
-    MenuUpdates broadcaster;
+    SseBroadcaster broadcaster;
 
     @Path("/menuItem")
     @POST
@@ -66,7 +63,7 @@ public class AdminMenu {
             MenuItem.persist(menuItem);
 
             broadcaster.broadcast("refreshMenuItems");
-            return ResponseFactory.GetCreatedResponse(helper.buildMenuItemDTO(menuItem), "Successfully created MenuItem");
+            return ResponseFactory.GetCreatedResponse(Helper.buildMenuItemDTO(menuItem), "Successfully created MenuItem");
         } catch (Exception exception) {
             System.out.println(String.format("Failed to create MenuItem due to exception %s for request %s", exception.getMessage(), request.toString()));
             return ResponseFactory.GetBadRequestResponse(exception, "Failed to create MenuItem");
@@ -91,7 +88,7 @@ public class AdminMenu {
             updateMenuItemFromRequest(existingMenuItem, request);
 
             broadcaster.broadcast("refreshMenuItems");
-            return ResponseFactory.GetCreatedResponse(helper.buildMenuItemDTO(existingMenuItem), "Successfully created MenuItem");
+            return ResponseFactory.GetCreatedResponse(Helper.buildMenuItemDTO(existingMenuItem), "Successfully created MenuItem");
         } catch (Exception exception) {
             System.out.println(String.format("Failed to update MenuItem due to exception %s for request %s", exception.getMessage(), request.toString()));
             return ResponseFactory.GetBadRequestResponse(exception, "Failed to update MenuItem");
@@ -112,7 +109,7 @@ public class AdminMenu {
             existingMenuItem.delete();
 
             broadcaster.broadcast("refreshMenuItems");
-            return ResponseFactory.GetCreatedResponse(helper.buildMenuItemDTO(existingMenuItem), "Successfully deleted MenuItem");
+            return ResponseFactory.GetCreatedResponse(Helper.buildMenuItemDTO(existingMenuItem), "Successfully deleted MenuItem");
         } catch (Exception exception) {
             System.out.println(String.format("Failed to delete MenuItem due to exception %s for requested id %s", exception.getMessage(), menuItemId));
             return ResponseFactory.GetBadRequestResponse(exception, "Failed to delete MenuItem");
@@ -219,7 +216,7 @@ public class AdminMenu {
             Ingredient.persist(ingredient);
 
             broadcaster.broadcast("refreshIngredients");
-            return ResponseFactory.GetCreatedResponse(helper.buildIngredientDTO(ingredient), "Successfully created Ingredient");
+            return ResponseFactory.GetCreatedResponse(Helper.buildIngredientDTO(ingredient), "Successfully created Ingredient");
         } catch (Exception exception) {
             System.out.println(String.format("Failed to create Ingredient due to exception %s for request %s", exception.getMessage(), request.toString()));
             return ResponseFactory.GetBadRequestResponse(exception, "Failed to create ingredient");
@@ -241,7 +238,7 @@ public class AdminMenu {
             updateIngredientFromRequest(existingIngredient, request);
 
             broadcaster.broadcast("refreshIngredients");
-            return ResponseFactory.GetCreatedResponse(helper.buildIngredientDTO(existingIngredient), "Successfully updated Ingredient");
+            return ResponseFactory.GetCreatedResponse(Helper.buildIngredientDTO(existingIngredient), "Successfully updated Ingredient");
         } catch (Exception exception) {
             System.out.println(String.format("Failed to update Ingredient due to exception %s for request %s", exception.getMessage(), request.toString()));
             return ResponseFactory.GetBadRequestResponse(exception, "Failed to update Ingredient");
@@ -267,7 +264,7 @@ public class AdminMenu {
             existingIngredient.delete();
 
             broadcaster.broadcast("refreshIngredients");
-            return ResponseFactory.GetCreatedResponse(helper.buildIngredientDTO(existingIngredient), "Successfully deleted Ingredient");
+            return ResponseFactory.GetCreatedResponse(Helper.buildIngredientDTO(existingIngredient), "Successfully deleted Ingredient");
         } catch (Exception exception) {
             System.out.println(String.format("Failed to delete Ingredient due to exception %s for requested id %s", exception.getMessage(), ingredientId));
             return ResponseFactory.GetBadRequestResponse(exception, "Failed to delete Ingredient");

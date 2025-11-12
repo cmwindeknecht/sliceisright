@@ -1,5 +1,7 @@
 package com.SliceIsRight.api.model;
 
+import com.SliceIsRight.database.entities.Order;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -11,5 +13,5 @@ public class UserDTO {
     public String email;
     public String jwtToken;
     public boolean isAdmin;
-    // TODO add previous orders and whatever else makes sense
+    public Order[] previousOrders;
 }

@@ -1,6 +1,20 @@
-import { MenuItem } from "./MenuItem";
+import { User } from "next-auth";
+import { IngredientOption } from "./Ingredient";
+import { MenuItem, MenuItemSize } from "./MenuItem";
+
+export interface OrderItem extends MenuItem {
+  orderItemId: number | null;
+  ingredientOptions: IngredientOption[];
+  chosenSize: MenuItemSize;
+  quantity: number;
+  notes: string | null;
+  price: number;
+}
 
 export interface Order {
-  date: string;
-  menuItems: MenuItem[];
+  user: User;
+  orderId: number | null;
+  orderItems: OrderItem[];
+  price: number;
+  requestedPickupTime: string;
 }

@@ -10,7 +10,7 @@ export default function AdminOrdersPage() {
       {user == null || !user.isAdmin ? (
         <h1> Forbidden</h1>
       ) : (
-        <h1 className="text-3xl font-bold">Admin Orders</h1>
+        <h1 className="text-3xl font-bold">Admin Phone/Walk In Order Form</h1>
       )}
     </div>
   );

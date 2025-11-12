@@ -22,22 +22,20 @@ import io.smallrye.mutiny.Multi;
 import io.vertx.core.http.HttpServerResponse;
 
 import com.SliceIsRight.api.responses.ResponseFactory;
-import com.SliceIsRight.MenuUpdates;
 
 @Path("/order")
 @ApplicationScoped
+// TODO need an OrderService - probably should have an Admin Service and whatever else too...
 public class Order {
 
     @Inject
     JsonWebToken jwt; 
 
-    // TODO make an AdminOrdersUpdates
     @Inject
-    MenuUpdates adminOrderBroadcaster; 
+    SseBroadcaster adminOrderBroadcaster; 
 
-    // TODO make an available order times updates
     @Inject
-    MenuUpdates orderTimeBroadcaster; 
+    SseBroadcaster orderTimeBroadcaster; 
 
     @ConfigProperty(name = "quarkus.http.cors.origins")
     String origins;

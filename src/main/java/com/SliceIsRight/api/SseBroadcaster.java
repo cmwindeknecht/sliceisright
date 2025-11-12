@@ -1,4 +1,4 @@
-package com.SliceIsRight;
+package com.SliceIsRight.api;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -8,7 +8,7 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
 
 @ApplicationScoped
-public class MenuUpdates {
+public class SseBroadcaster {
 
     private final BroadcastProcessor<String> processor = BroadcastProcessor.create();
 
