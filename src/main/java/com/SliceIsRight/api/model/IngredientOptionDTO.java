@@ -8,16 +8,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class IngredientOptionDTO {
-    private Long id;
-    private IngredientDTO ingredient;
-    private boolean isRemoved;
-    private boolean isLight;
-    private boolean isRegular;
-    private boolean isDouble;
-    private boolean isLeftHalf;
-    private boolean isRightHalf;
-    private boolean isWholeItem;
+    public Long id;
+    public IngredientDTO ingredient;
+    public boolean isRemoved;
+    public boolean isLight;
+    public boolean isRegular;
+    public boolean isDouble;
+    public boolean isLeftHalf;
+    public boolean isRightHalf;
+    public boolean isWholeItem;
 
     // Use this to check against the menu item to ensure the price is correct
-    private boolean isIncluded;
+    public boolean isIncluded;
 }

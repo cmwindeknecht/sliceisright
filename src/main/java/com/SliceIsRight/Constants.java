@@ -35,7 +35,7 @@ public class Constants {
         APPETIZERS("Appetizers"),
         DESSERTS("Desserts"),
         BEVERAGES("Beverages"),
-        DEALS("Deals");
+        DEALS("Deals"); // TODO remove this - just make a isDeal button / column / etc.  Fucks up orderTime calculation
 
         private final String value;
         

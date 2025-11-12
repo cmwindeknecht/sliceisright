@@ -11,11 +11,11 @@ import com.SliceIsRight.Constants.OrderStatus;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderDTO {
-    private Long id;
-    private String userEmail;
-    private OffsetDateTime placedDateTime;
-    private OffsetDateTime requestedPickupTime;
-    private OffsetDateTime pickedUpDateTime;
-    private OrderStatus orderStatus;
-    private List<OrderItemDTO> orderItems;
+    public Long id;
+    public String userEmail;
+    public OffsetDateTime placedDateTime;
+    public OffsetDateTime requestedPickupTime;
+    public OffsetDateTime pickedUpDateTime;
+    public OrderStatus orderStatus;
+    public List<OrderItemDTO> orderItems;
 }

@@ -25,7 +25,6 @@ import com.SliceIsRight.api.responses.ResponseFactory;
 
 @Path("/order")
 @ApplicationScoped
-// TODO need an OrderService - probably should have an Admin Service and whatever else too...
 public class Order {
 
     @Inject

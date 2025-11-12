@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderItemDTO {
-    private Long id;
-    private MenuItemDTO menuItem;
-    private MenuItemSizeDTO chosenSize;
-    private Integer quantity;
-    private String notes;
-    private BigDecimal price;
-    private Set<IngredientOptionDTO> ingredientOptions;
+    public Long id;
+    public MenuItemDTO menuItem;
+    public MenuItemSizeDTO chosenSize;
+    public Integer quantity;
+    public String notes;
+    public BigDecimal price;
+    public Set<IngredientOptionDTO> ingredientOptions;
 }
