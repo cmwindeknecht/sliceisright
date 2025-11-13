@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @AllArgsConstructor
@@ -22,15 +23,19 @@ public class StoreHours extends PanacheEntity {
     @Column(nullable = false, unique = true)
     public DayOfWeek day;
 
+    // When the store opens
     @Column(nullable = false)
-    public LocalTime open;
+    public OffsetDateTime open;
 
+    // First order time of the day allowed
     @Column(nullable = false)
-    public LocalTime openOrder;
+    public OffsetDateTime openOrder;
 
+    // When the store closes
     @Column(nullable = false)
-    public LocalTime close;
+    public OffsetDateTime close;
 
+    // Last order time of the day allowed
     @Column(nullable = false)
-    public LocalTime closeOrder;  
+    public OffsetDateTime closeOrder;  
 }

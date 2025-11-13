@@ -14,5 +14,8 @@ public class AvailableOrderTime {
     public DayOfWeek day;
     public OffsetDateTime time; 
     public boolean isAvailable;
-    public float currentOrderAmount; 
+    // how many credits are used of the time interval
+    public float intervalAmount; 
+    // max amount of credits available per time interval
+    public float maxIntervalAmount;
 }

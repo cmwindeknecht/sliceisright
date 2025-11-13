@@ -6,15 +6,18 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.SliceIsRight.Constants.MenuItemCategory;
 import com.SliceIsRight.api.model.AvailableOrderTime;
 import com.SliceIsRight.api.model.OrderDTO;
 import com.SliceIsRight.api.model.OrderItemDTO;
+import com.SliceIsRight.database.entities.OrderItem;
 import com.SliceIsRight.database.entities.StoreHours;
 import com.SliceIsRight.database.repositories.OrderRepository;
 
@@ -33,93 +36,99 @@ public class OrderService {
      * @param end
      * @return
      */
-    public List<AvailableOrderTime> getAvailableOrderTimes(OffsetDateTime start, OffsetDateTime end) throws Exception {
-        Map<OffsetDateTime, AvailableOrderTime> availableTimes = new HashMap<>();
-        OffsetDateTime current = start;
-        DayOfWeek day = current.getDayOfWeek();
+    public List<AvailableOrderTime> getAvailableOrderTimes(DayOfWeek day) throws Exception {
+        StoreHours storeHours = StoreHours.find("day", day).firstResult();
+        if (storeHours == null) {
+            throw new Exception(String.format("Storehours not found for date %s", day));
+        }
 
-        while (!current.isAfter(end)) {
+        Map<OffsetDateTime, AvailableOrderTime> availableTimes = new HashMap<>();
+        OffsetDateTime current = storeHours.openOrder;
+
+        while (!current.isAfter(storeHours.closeOrder)) {
             availableTimes.put(
                 current,
                 AvailableOrderTime.builder()
                     .day(day)
                     .time(current)
                     .isAvailable(true)
-                    .currentOrderAmount(0)
+                    .intervalAmount(0)
+                    .maxIntervalAmount(MAX_INTERVAL_TIME)
                     .build()
             );
             current = current.plusMinutes(15);
         }
 
-        List<OrderDTO> todaysOrders = getOrdersByDate(Optional.of(start), Optional.of(end));
-
-        // TODO I added time to AvailableTimes (needed by frontend anyways)
-        //   update all of this, no need for reservations map now
-        Map<OffsetDateTime, Float> orderReservations = new HashMap<>();
+        List<OrderDTO> todaysOrders = getOrdersByDate(Optional.of(storeHours.openOrder), Optional.of(storeHours.closeOrder));
 
         for (OrderDTO order : todaysOrders) {
             for (OrderItemDTO orderItem : order.orderItems) {
                 
-                float orderItemIntervalAmount = 0;
-                switch (orderItem.menuItem.category) {
-                    case MenuItemCategory.PIZZAS:
-                        orderItemIntervalAmount = PIZZA_INTERVAL_TIME * orderItem.quantity;
-                        break;
-                    case MenuItemCategory.APPETIZERS:
-                        orderItemIntervalAmount = APPETIZER_INTERVAL_TIME * orderItem.quantity;
-                        break;
-                    case MenuItemCategory.DESSERTS:
-                        orderItemIntervalAmount = DESSERT_INTERVAL_TIME * orderItem.quantity;
-                        break;
-                    case MenuItemCategory.SUBS:
-                        orderItemIntervalAmount = SUBS_INTERVAL_TIME;
-                        break;
-                    case MenuItemCategory.BEVERAGES:
-                        continue;
-                    default:
-                        continue;
+                float orderItemIntervalAmount = getIntervalAmount(orderItem);
+                if (orderItemIntervalAmount == 0) {
+                    continue;
                 }
 
                 AvailableOrderTime currentAvailableOrderTime = availableTimes.get(order.requestedPickupTime);
-                OffsetDateTime currentIntervalTime = order.requestedPickupTime;
-                float tempIntervalTime = orderReservations.getOrDefault(currentIntervalTime, 0f) + orderItemIntervalAmount;
+                float tempIntervalTime = currentAvailableOrderTime.intervalAmount + orderItemIntervalAmount;
 
                 do {
                     if (currentAvailableOrderTime == null) {
                         throw new Exception("Somehow an order exists that is outside of store hours");
                     }
 
-
-                    if (tempIntervalTime > MAX_INTERVAL_TIME) {
-                        orderReservations.put(currentIntervalTime, MAX_INTERVAL_TIME);
-                        currentAvailableOrderTime.isAvailable = false;
-                    } else {
-                        orderReservations.put(currentIntervalTime, tempIntervalTime);
-                        currentAvailableOrderTime.isAvailable = !(tempIntervalTime == MAX_INTERVAL_TIME);
+                    if (!currentAvailableOrderTime.isAvailable) {
+                        currentAvailableOrderTime = availableTimes.get(currentAvailableOrderTime.time.plusMinutes(15));
+                        continue;
                     }
 
+                    if (tempIntervalTime > MAX_INTERVAL_TIME) {
+                        currentAvailableOrderTime.intervalAmount = MAX_INTERVAL_TIME;
+                    } else {
+                        currentAvailableOrderTime.intervalAmount = tempIntervalTime;
+                    }
+                    currentAvailableOrderTime.isAvailable = currentAvailableOrderTime.intervalAmount < currentAvailableOrderTime.maxIntervalAmount;
                     tempIntervalTime -= MAX_INTERVAL_TIME;
 
-                    availableTimes.put(currentIntervalTime, currentAvailableOrderTime);
+                    OffsetDateTime nextIntervalTime = currentAvailableOrderTime.time.plusMinutes(15);
+                    if (nextIntervalTime.isAfter(storeHours.closeOrder)) {
+                        break;
+                    }
 
-                    currentIntervalTime = currentIntervalTime.plusMinutes(15);
-                    currentAvailableOrderTime = availableTimes.get(currentIntervalTime);
+                    currentAvailableOrderTime = availableTimes.get(nextIntervalTime);
                 } while (tempIntervalTime > 0);
             }
         };
 
-        return List.of();
+        return availableTimes.values().stream()
+            .sorted(Comparator.comparing(a -> a.time))
+            .collect(Collectors.toList());
+    }
+
+    private float getIntervalAmount(OrderItemDTO orderItem) {
+        return switch (orderItem.menuItem.category) {
+            case PIZZAS -> PIZZA_INTERVAL_TIME * orderItem.quantity;
+            case APPETIZERS -> APPETIZER_INTERVAL_TIME * orderItem.quantity;
+            case DESSERTS -> DESSERT_INTERVAL_TIME * orderItem.quantity;
+            case SUBS -> SUBS_INTERVAL_TIME * orderItem.quantity;
+            case BEVERAGES -> 0;
+            default -> 0;
+        };
     }
 
     public List<OrderDTO> getOrdersByDate(Optional<OffsetDateTime> startMaybe, Optional<OffsetDateTime> endMaybe) {
         OffsetDateTime start, end;
-        if (!startMaybe.isPresent() || !endMaybe.isPresent()) {
-            DayOfWeek currentDay = DayOfWeek.valueOf(LocalDate.now().getDayOfWeek().name());
-            StoreHours currentDayStoreHours = StoreHours.find("day", currentDay).firstResult();
-            LocalDate today = LocalDate.now();
 
-            start = LocalDateTime.of(today, currentDayStoreHours.openOrder).atOffset(ZoneOffset.UTC);
-            end = LocalDateTime.of(today, currentDayStoreHours.closeOrder).atOffset(ZoneOffset.UTC);
+        if (startMaybe.isEmpty() || endMaybe.isEmpty()) {
+            DayOfWeek currentDay = LocalDate.now().getDayOfWeek();
+            StoreHours currentDayStoreHours = StoreHours.find("day", currentDay).firstResult();
+
+            if (currentDayStoreHours == null) {
+                throw new IllegalStateException("Store hours not found for " + currentDay);
+            }
+
+            start = currentDayStoreHours.openOrder;
+            end = currentDayStoreHours.closeOrder;
         } else {
             start = startMaybe.get();
             end = endMaybe.get();

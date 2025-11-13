@@ -24,8 +24,13 @@ services:
       FRONTEND_ORIGINS: http://localhost:3000
       ADMIN_SETUP_TOKEN: "admintoken"
       JWT_SIGNING_KEY: 7K9mP2xVwQ8nJ5tL3zR6yH4bN1fS0gC8vM7qA9dE6uW=
+      QUARKUS_LOG_HANDLER_GELF_HOST: udp:graylog
+      QUARKUS_LOG_HANDLER_GELF_PORT: 12201
     depends_on:
       - db
+      - graylog
+    networks:
+      - graylog
 
   frontend:
     build:
@@ -37,6 +42,53 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+      - graylog
+    networks:
+      - graylog
+
+  mongo:
+    image: mongo:6.0
+    volumes:
+      - mongo_data:/data/db
+
+  graylog:
+    image: graylog/graylog:5.2
+    environment:
+      GRAYLOG_PASSWORD_SECRET: sliceisrightgraylog
+      GRAYLOG_ROOT_PASSWORD_SHA2: 11a12836f8a523a6edb7f9d7204ca84f4102697b466ccaf25822f27b7f96296a
+      GRAYLOG_HTTP_EXTERNAL_URI: http://localhost:9000/
+      GRAYLOG_MONGODB_URI: mongodb://mongo:27017/graylog
+    depends_on:
+      - mongo
+    ports:
+      - "9000:9000"
+      - "12201:12201/udp"
+      - "1514:1514"
+      - "1514:1514/udp"
+
+  graylog-datanode:
+    image: graylog/graylog-datanode:5.2
+    hostname: datanode
+    environment:
+      GRAYLOG_DATANODE_NODE_ID_FILE: /var/lib/graylog-datanode/node-id
+      GRAYLOG_DATANODE_PASSWORD_SECRET: sliceisrightgraylog
+      GRAYLOG_DATANODE_ROOT_PASSWORD_SHA2: 11a12836f8a523a6edb7f9d7204ca84f4102697b466ccaf25822f27b7f96296a
+      GRAYLOG_DATANODE_MONGODB_URI: mongodb://mongo:27017/graylog
+    depends_on:
+      - mongo
+    volumes:
+      - graylog-datanode:/var/lib/graylog-datanode
+    ports:
+      - "8999:8999"
+      - "9200:9200"
+      - "9300:9300"
+    restart: on-failure
 
 volumes:
+  mongo_data:
+  graylog-datanode:
   db_data:
+
+networks:
+  graylog:
+    driver: bridge
