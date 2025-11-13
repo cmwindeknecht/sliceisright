@@ -1,6 +1,9 @@
-import { IngredientOption } from "@/app/menu/MenuItemIngredient";
-import { Ingredient, IngredientSize } from "@/types/Ingredient";
-import { MenuItem, MenuItemSize, OrderItem } from "@/types/MenuItem";
+import { Ingredient, IngredientOption, IngredientSize } from "@/types/Ingredient";
+import { MenuItem, MenuItemSize } from "@/types/MenuItem";
+import { OrderItem } from "@/types/Order";
+
+export const STORAGE_CURRENT_ORDER = "NO_USER_CURRENT_ORDER";
+export const STORAGE_CURRENT_USER_ORDER = "USER_CURRENT_ORDER";
 
 export const sortMenuSize = (sizes: MenuItemSize[]) => {
   const order = ["None", "S", "M", "L", "XL"];
@@ -87,30 +90,37 @@ export const getIngredientOptionPreface = (ingredientOption: IngredientOption) =
   }
 };
 
+export const isTimestampExpired = (timestamp: number, hours: number): boolean => {
+  return Date.now() - timestamp > hours * 60 * 60 * 1000;
+};
+
 export const PIZZA_LEFT = "LEFT";
 export const PIZZA_RIGHT = "RIGHT";
 export const PIZZA_WHOLE = "WHOLE";
 export const getPizzaPortion = (orderItem: OrderItem) => {
-  return orderItem.ingredientOptions.reduce((memo, ingredientOption) => {
-    if (ingredientOption.isLeftHalf) {
-      if (!memo.has(PIZZA_LEFT)) {
-        memo.set(PIZZA_LEFT, []);
+  return orderItem.ingredientOptions.reduce(
+    (memo: Map<string, IngredientOption[]>, ingredientOption: IngredientOption) => {
+      if (ingredientOption.isLeftHalf) {
+        if (!memo.has(PIZZA_LEFT)) {
+          memo.set(PIZZA_LEFT, []);
+        }
+        memo.get(PIZZA_LEFT)!.push(ingredientOption);
+      } else if (ingredientOption.isRightHalf) {
+        if (!memo.has(PIZZA_RIGHT)) {
+          memo.set(PIZZA_RIGHT, []);
+        }
+        memo.get(PIZZA_RIGHT)!.push(ingredientOption);
+      } else {
+        if (!memo.has(PIZZA_WHOLE)) {
+          memo.set(PIZZA_WHOLE, []);
+        }
+        memo.get(PIZZA_WHOLE)!.push(ingredientOption);
       }
-      memo.get(PIZZA_LEFT)!.push(ingredientOption);
-    } else if (ingredientOption.isRightHalf) {
-      if (!memo.has(PIZZA_RIGHT)) {
-        memo.set(PIZZA_RIGHT, []);
-      }
-      memo.get(PIZZA_RIGHT)!.push(ingredientOption);
-    } else {
-      if (!memo.has(PIZZA_WHOLE)) {
-        memo.set(PIZZA_WHOLE, []);
-      }
-      memo.get(PIZZA_WHOLE)!.push(ingredientOption);
-    }
 
-    return memo;
-  }, new Map<string, IngredientOption[]>());
+      return memo;
+    },
+    new Map<string, IngredientOption[]>()
+  );
 };
 
 export const getDefaultIngredientOptions = (menuItem: MenuItem, selectedSize: MenuItemSize) => {

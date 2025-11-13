@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:16
+    hostname: slice-db
     environment:
       POSTGRES_USER: pizza
       POSTGRES_PASSWORD: secret
@@ -13,6 +14,7 @@ services:
       - graylog
 
   backend:
+    hostname: slice-backend
     build:
       context: .
       dockerfile: src/main/docker/Dockerfile.builder
@@ -35,6 +37,7 @@ services:
       - graylog
 
   frontend:
+    hostname: slice-frontend
     build:
       context: ./frontend
       dockerfile: docker/Dockerfile
@@ -64,15 +67,13 @@ services:
       GRAYLOG_HTTP_EXTERNAL_URI: http://localhost:9000/
       GRAYLOG_MONGODB_URI: mongodb://mongo:27017/graylog
       GRAYLOG_HTTP_BIND_ADDRESS: 0.0.0.0:9000
-      GRAYLOG_DATANODE_URI: http://graylog-datanode:8999
     depends_on:
       - mongo
       - graylog-datanode
     ports:
-      - "9000:9000"
-      - "12201:12201/udp"
-      - "1514:1514"
-      - "1514:1514/udp"
+      - "9000:9000" # Web UI
+      - "12201:12201/udp" # Quarkus logging
+      - "12202:12202" # Frontend logging
     networks:
       - graylog
 

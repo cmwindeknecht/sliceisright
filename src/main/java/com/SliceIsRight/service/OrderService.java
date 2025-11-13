@@ -2,10 +2,7 @@ package com.SliceIsRight.service;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -13,13 +10,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.SliceIsRight.Constants.MenuItemCategory;
 import com.SliceIsRight.api.model.AvailableOrderTime;
 import com.SliceIsRight.api.model.OrderDTO;
 import com.SliceIsRight.api.model.OrderItemDTO;
-import com.SliceIsRight.database.entities.OrderItem;
 import com.SliceIsRight.database.entities.StoreHours;
 import com.SliceIsRight.database.repositories.OrderRepository;
+
+import io.quarkus.logging.Log;
 
 public class OrderService {
     // TODO make this an entity / DB thing that can be updated by the owner
@@ -39,6 +36,7 @@ public class OrderService {
     public List<AvailableOrderTime> getAvailableOrderTimes(DayOfWeek day) throws Exception {
         StoreHours storeHours = StoreHours.find("day", day).firstResult();
         if (storeHours == null) {
+            Log.info("Test log message from backend");
             throw new Exception(String.format("Storehours not found for date %s", day));
         }
 
