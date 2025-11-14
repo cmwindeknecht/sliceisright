@@ -47,7 +47,7 @@ export default function AdminMenuPage() {
         <h1> Forbidden</h1>
       ) : (
         <div>
-          <h1 className="text-3xl font-bold text-center m-5">Admin Menu</h1>
+          <div className="text-3xl font-bold text-center m-5">Admin Menu</div>
           <div className="flex flex-row justify-between">
             <AddUpdateMenuItem
               ingredients={ingredients}

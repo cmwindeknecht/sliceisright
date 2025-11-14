@@ -13,12 +13,26 @@ export default function ItemSelector({
   items,
   defaultText,
 }: SelectorProps) {
+  const getSafeItems = () => {
+    return items.map((item, index) => {
+      if (typeof item === "object" && item !== null && "name" in item) {
+        return item;
+      }
+
+      return {
+        id: index,
+        name: String(item),
+        menuItemCategory: undefined,
+      };
+    });
+  };
+
   return (
     <div>
       <label className="block mb-1 font-medium">{label}</label>
       <select value={value} onChange={onChange} className="border p-2 rounded w-full">
         <option value={defaultText}>{defaultText}</option>
-        {items
+        {getSafeItems()
           .sort((a, b) => a.name.localeCompare(b.name))
           .map((item) => (
             <option key={item.id} value={item.id.toString()}>

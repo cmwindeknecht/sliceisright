@@ -28,6 +28,7 @@ import com.SliceIsRight.database.repositories.OrderRepository;
 import io.quarkus.logging.Log;
 import jakarta.transaction.Transactional;
 
+// TODO this service is kind of terrible - measure latency and see how terrible it is
 public class OrderService {
 
     @Transactional

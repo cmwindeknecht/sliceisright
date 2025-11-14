@@ -18,3 +18,12 @@ export interface Order {
   price: number;
   requestedPickupTime: string;
 }
+
+export enum OrderIntervalCategory {
+  PIZZAS,
+  SUBS,
+  APPETIZERS,
+  DESSERTS,
+  BEVERAGES,
+  MAX_PER_INTERVAL,
+}
