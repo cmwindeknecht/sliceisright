@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.SliceIsRight.Helper;
-import com.SliceIsRight.api.model.UserDTO;
+import com.SliceIsRight.api.models.UserDTO;
 import com.SliceIsRight.api.responses.ResponseFactory;
 import com.SliceIsRight.database.entities.UserAccount;
 

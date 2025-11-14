@@ -1,6 +1,6 @@
-package com.SliceIsRight.api.model;
+package com.SliceIsRight.api.models;
 
-import com.SliceIsRight.database.entities.Order;
+import com.SliceIsRight.database.entities.CustomerOrder;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,5 +13,5 @@ public class UserDTO {
     public String email;
     public String jwtToken;
     public boolean isAdmin;
-    public Order[] previousOrders;
+    public CustomerOrder[] previousOrders;
 }

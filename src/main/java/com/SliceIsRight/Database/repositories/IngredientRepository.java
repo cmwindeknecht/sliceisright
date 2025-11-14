@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.SliceIsRight.Helper;
-import com.SliceIsRight.api.model.IngredientDTO;
+import com.SliceIsRight.api.models.IngredientDTO;
 import com.SliceIsRight.database.entities.Ingredient;
 
 public class IngredientRepository {

@@ -19,9 +19,9 @@ import com.SliceIsRight.database.repositories.MenuItemRepository;
 import io.smallrye.mutiny.Multi;
 import io.vertx.core.http.HttpServerResponse;
 
+import com.SliceIsRight.api.models.IngredientDTO;
+import com.SliceIsRight.api.models.MenuItemDTO;
 import com.SliceIsRight.api.responses.ResponseFactory;
-import com.SliceIsRight.api.model.IngredientDTO;
-import com.SliceIsRight.api.model.MenuItemDTO;
 
 @Path("/menu")
 public class Menu {

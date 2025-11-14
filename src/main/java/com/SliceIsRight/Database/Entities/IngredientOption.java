@@ -29,5 +29,5 @@ public class IngredientOption extends PanacheEntity {
     public boolean isLeftHalf;
     public boolean isRightHalf; 
     public boolean isWholeItem; 
-    public boolean isIncluded; // use to check against menu item to ensure accuracy
+    public boolean isIncluded;
 }

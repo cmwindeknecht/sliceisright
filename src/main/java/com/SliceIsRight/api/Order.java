@@ -17,15 +17,22 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
+import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Multi;
 import io.vertx.core.http.HttpServerResponse;
 
+import com.SliceIsRight.Helper;
+import com.SliceIsRight.api.models.OrderDTO;
+import com.SliceIsRight.api.models.UserDTO;
 import com.SliceIsRight.api.responses.ResponseFactory;
+import com.SliceIsRight.database.entities.CustomerOrder;
+import com.SliceIsRight.service.OrderService;
 
 @Path("/order")
 @ApplicationScoped
 public class Order {
+
+    OrderService orderService = new OrderService();
 
     @Inject
     JsonWebToken jwt; 
@@ -87,8 +94,9 @@ public class Order {
     public Response getCustomerOrders() {
         try {
             return ResponseFactory.GetOkResponse(Map.of(), "Successfully retrieved customer orders");
-        } catch (Exception e) {
-            return ResponseFactory.GetBadRequestResponse(e, "Failed to retrieve customer orders");
+        } catch (Exception exception) {
+            Log.errorf(String.format("Failed to retrieve customer orders"), exception);
+            return ResponseFactory.GetBadRequestResponse(exception, "Failed to retrieve customer orders");
         }
     }
 
@@ -101,11 +109,13 @@ public class Order {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("User")
-    public Response getPastOrders() {
+    public Response getUserOrders(UserDTO request) {
         try {
+            // OrderService.getOrdersByUser();
             return ResponseFactory.GetOkResponse(Map.of(), "Successfully retrieved customer orders");
-        } catch (Exception e) {
-            return ResponseFactory.GetBadRequestResponse(e, "Failed to retrieve customer orders");
+        } catch (Exception exception) {
+            Log.errorf(String.format("Failed to retrieve customer orders for user %s", request.email), exception);
+            return ResponseFactory.GetBadRequestResponse(exception, "Failed to retrieve customer orders");
         }
     }
 
@@ -114,12 +124,13 @@ public class Order {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("User")
-    public Response submitOrder() {
-        // TODO need to make validation rules on if an order time is still available
+    public Response submitOrder(OrderDTO request) {
         try {
-            return ResponseFactory.GetOkResponse(Map.of(), "Successfully submitted order");
-        } catch (Exception e) {
-            return ResponseFactory.GetBadRequestResponse(e, "Failed to submit order");
+            CustomerOrder order = orderService.placeOrder(request);
+            return ResponseFactory.GetOkResponse(Helper.buildOrderDTO(order), "Successfully submitted order");
+        } catch (Exception exception) {
+            Log.errorf(String.format("Failed to submit order for user %s", request.userEmail), exception);
+            return ResponseFactory.GetBadRequestResponse(exception, "Failed to submit order");
         }
     }
 }

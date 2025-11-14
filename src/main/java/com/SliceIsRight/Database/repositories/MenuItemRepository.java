@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.SliceIsRight.Helper;
-import com.SliceIsRight.api.model.MenuItemDTO;
+import com.SliceIsRight.api.models.MenuItemDTO;
 import com.SliceIsRight.database.entities.Ingredient;
 import com.SliceIsRight.database.entities.MenuItem;
 

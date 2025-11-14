@@ -28,13 +28,13 @@ import com.SliceIsRight.database.entities.IngredientSize;
 import com.SliceIsRight.database.entities.MenuItem;
 import com.SliceIsRight.database.entities.MenuItemSize;
 import com.SliceIsRight.database.repositories.MenuItemRepository;
+import com.SliceIsRight.api.models.IngredientDTO;
+import com.SliceIsRight.api.models.IngredientSizeDTO;
+import com.SliceIsRight.api.models.MenuItemDTO;
+import com.SliceIsRight.api.models.MenuItemSizeDTO;
 import com.SliceIsRight.api.responses.ResponseFactory;
 import com.SliceIsRight.Constants.Size;
 import com.SliceIsRight.Helper;
-import com.SliceIsRight.api.model.IngredientDTO;
-import com.SliceIsRight.api.model.IngredientSizeDTO;
-import com.SliceIsRight.api.model.MenuItemDTO;
-import com.SliceIsRight.api.model.MenuItemSizeDTO;
 
 @Path("/admin/menu")
 public class AdminMenu {

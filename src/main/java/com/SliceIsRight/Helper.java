@@ -8,19 +8,19 @@ import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.jwt.Claims;
 
-import com.SliceIsRight.api.model.IngredientDTO;
-import com.SliceIsRight.api.model.IngredientOptionDTO;
-import com.SliceIsRight.api.model.IngredientSizeDTO;
-import com.SliceIsRight.api.model.MenuItemDTO;
-import com.SliceIsRight.api.model.MenuItemSizeDTO;
-import com.SliceIsRight.api.model.OrderDTO;
-import com.SliceIsRight.api.model.OrderItemDTO;
-import com.SliceIsRight.api.model.UserDTO;
+import com.SliceIsRight.api.models.IngredientDTO;
+import com.SliceIsRight.api.models.IngredientOptionDTO;
+import com.SliceIsRight.api.models.IngredientSizeDTO;
+import com.SliceIsRight.api.models.MenuItemDTO;
+import com.SliceIsRight.api.models.MenuItemSizeDTO;
+import com.SliceIsRight.api.models.OrderDTO;
+import com.SliceIsRight.api.models.OrderItemDTO;
+import com.SliceIsRight.api.models.UserDTO;
 import com.SliceIsRight.database.entities.Ingredient;
 import com.SliceIsRight.database.entities.IngredientOption;
 import com.SliceIsRight.database.entities.MenuItem;
 import com.SliceIsRight.database.entities.MenuItemSize;
-import com.SliceIsRight.database.entities.Order;
+import com.SliceIsRight.database.entities.CustomerOrder;
 import com.SliceIsRight.database.entities.OrderItem;
 import com.SliceIsRight.database.entities.UserAccount;
 
@@ -83,7 +83,7 @@ public final class Helper {
                 .build();
     }
 
-    public static OrderDTO buildOrderDTO(Order order) {
+    public static OrderDTO buildOrderDTO(CustomerOrder order) {
         return OrderDTO.builder()
             .id(order.id)
             .orderItems(

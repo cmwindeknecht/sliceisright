@@ -13,6 +13,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -24,8 +25,13 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor   
 @NoArgsConstructor 
-@Table(name = "t_order")
-public class Order extends PanacheEntity {
+@Table(
+    name = "t_customer_order",
+    indexes = {
+        @Index(name = "IX_requestedPickupTime", columnList = "requestedPickupTime")
+    }
+)
+public class CustomerOrder extends PanacheEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     public UserAccount user;

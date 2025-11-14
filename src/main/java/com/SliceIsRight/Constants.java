@@ -29,6 +29,19 @@ public class Constants {
         }
     }
 
+    public enum IntervalCategory {
+        PIZZAS,
+        SUBS,
+        APPETIZERS,
+        DESSERTS,
+        BEVERAGES,
+        MAX_PER_INTERVAL;
+
+        public static IntervalCategory getMenuItemEquivalent(MenuItemCategory menuItemCategory) throws IllegalArgumentException {
+            return IntervalCategory.valueOf(menuItemCategory.name());
+        }
+    }
+
     public enum MenuItemCategory {
         PIZZAS("Pizzas"),
         SUBS("Subs"),
@@ -80,15 +93,5 @@ public class Constants {
         public String getValue() {
             return value;
         }
-    }
-
-    public enum DayOfWeek {
-        MONDAY,
-        TUESDAY,
-        WEDNESDAY,
-        THURSDAY,
-        FRIDAY,
-        SATURDAY,
-        SUNDAY
     }
 }

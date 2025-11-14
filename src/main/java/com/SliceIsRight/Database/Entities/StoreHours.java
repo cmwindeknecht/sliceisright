@@ -5,18 +5,23 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 import java.time.DayOfWeek;
-import java.time.LocalTime;
 import java.time.OffsetDateTime;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "t_store_hour")
+@Table(
+    name = "t_store_hours",
+    indexes = {
+        @Index(name = "IX_day", columnList = "day")
+    }
+)
 public class StoreHours extends PanacheEntity {
 
     @Enumerated(EnumType.STRING)
