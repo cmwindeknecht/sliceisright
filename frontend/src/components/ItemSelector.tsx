@@ -3,7 +3,7 @@ export interface SelectorProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   items: any[];
-  defaultText: string;
+  defaultText: string | null;
 }
 
 export default function ItemSelector({
@@ -31,7 +31,7 @@ export default function ItemSelector({
     <div>
       <label className="block mb-1 font-medium">{label}</label>
       <select value={value} onChange={onChange} className="border p-2 rounded w-full">
-        <option value={defaultText}>{defaultText}</option>
+        {defaultText && <option value={defaultText}>{defaultText}</option>}
         {getSafeItems()
           .sort((a, b) => a.name.localeCompare(b.name))
           .map((item) => (

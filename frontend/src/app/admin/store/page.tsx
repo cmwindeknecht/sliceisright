@@ -3,13 +3,15 @@
 import { useAuth } from "@/components/context/Auth";
 import ItemSelector from "@/components/ItemSelector";
 import { logger } from "@/misc/logger";
-import { OrderIntervalCategory } from "@/types/Order";
+import { OrderIntervalCategory, OrderIntervalDay } from "@/types/Order";
 import { useEffect, useState } from "react";
 
 export default function AdminStorePage() {
   const { user } = useAuth();
 
   const [maxPointsPerInterval, setMaxPointsPerInterval] = useState<number>(0);
+  const [minutesPerInterval, setMinutesPerInterval] = useState<number>(0);
+  const [dayOfInterval, setDayOfInterval] = useState<OrderIntervalDay>(OrderIntervalDay.ALL_DAYS);
   // TODO on mount, hit endpoint to get previous settings
   const [pointsByCategory, setPointsByCategory] = useState<Map<OrderIntervalCategory, number>>(
     new Map()
@@ -46,8 +48,26 @@ export default function AdminStorePage() {
       .filter((orderIntervalCategory) => typeof orderIntervalCategory === "string")
       .filter(
         (orderIntervalCategory) =>
-          orderIntervalCategory !== orderIntervalCategory[OrderIntervalCategory.MAX_PER_INTERVAL]
+          orderIntervalCategory !== OrderIntervalCategory[OrderIntervalCategory.MAX_PER_INTERVAL]
       );
+  };
+
+  const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    try {
+      const value = Number(e.target.value as unknown as OrderIntervalDay);
+      const hasValue = Object.values(OrderIntervalDay).includes(value);
+      if (hasValue) {
+        setDayOfInterval(value);
+      }
+    } catch (exception: any) {
+      logger.error("Failed to handle category change", { value: e.target.value, exception });
+    }
+  };
+
+  const getIntervalDays = () => {
+    return Object.values(OrderIntervalDay).filter(
+      (orderIntervalCategory) => typeof orderIntervalCategory === "string"
+    );
   };
 
   const handleSubmit = () => {
@@ -102,16 +122,33 @@ export default function AdminStorePage() {
                   onChange={(e) => setMaxPointsPerInterval(Number(e.target.value))}
                 />
               </div>
+              <div>
+                <label className="block mb-1 font-medium">Minutes Per Interval</label>
+                <input
+                  type="text"
+                  placeholder="Name"
+                  className="border p-2 rounded w-full"
+                  value={maxPointsPerInterval}
+                  onChange={(e) => setMaxPointsPerInterval(Number(e.target.value))}
+                />
+              </div>
               <ItemSelector
-                label="Select Interval Category (optional)"
+                label="Select Interval Day"
+                value={selectedCategory?.toString() || ""}
+                onChange={handleCategoryChange}
+                items={getIntervalDays()}
+                defaultText={null}
+              />
+              <ItemSelector
+                label="Select Interval Category"
                 value={selectedCategory?.toString() || ""}
                 onChange={handleCategoryChange}
                 items={getIntervalCategories()}
-                defaultText="-- Create New Interval --"
+                defaultText={null}
               />
               <div>
                 <div>
-                  <label className="block mb-1 font-medium">Category: {selectedCategory}</label>
+                  <label className="block mb-1 font-medium">Interval Points</label>
                   <input
                     type="text"
                     placeholder="Name"
