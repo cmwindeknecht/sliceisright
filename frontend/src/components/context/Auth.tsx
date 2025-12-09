@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (savedToken) {
       validateAndUpdateToken(savedToken);
     }
-  }, []);
+  }, [jwtToken]);
 
   const register = async (email: string, password: string) => {
     setLoading(true);
@@ -122,6 +122,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } else {
         // Token is valid, set it
         console.log("Resetting user/token in useEffect");
+        if (token != jwtToken) {
+          setJwtToken(token);
+          localStorage.setItem("token", token);
+        }
+
         if (user == null) {
           const userFromToken: User = {
             email: decoded.upn,
@@ -130,9 +135,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           };
           setUser(userFromToken);
         }
-
-        setJwtToken(token);
-        localStorage.setItem("token", token);
       }
     } catch (e) {
       console.error("Invalid token:", e);

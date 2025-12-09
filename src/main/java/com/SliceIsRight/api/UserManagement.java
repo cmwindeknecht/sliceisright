@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.SliceIsRight.Helper;
-import com.SliceIsRight.api.model.UserDTO;
+import com.SliceIsRight.api.models.UserDTO;
 import com.SliceIsRight.api.responses.ResponseFactory;
 import com.SliceIsRight.database.entities.UserAccount;
 
@@ -22,7 +22,6 @@ import jakarta.ws.rs.core.Response;
 public class UserManagement {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    private final Helper helper = new Helper();
     
     public static class UserDataRequest {
         public String email;
@@ -46,7 +45,7 @@ public class UserManagement {
             user.hashedPassword = passwordEncoder.encode(request.password);
             user.persist();
 
-            String token = helper.getJwtToken(user);
+            String token = Helper.getJwtToken(user);
             System.out.println(String.format("Token created from helper function %s", token));
             UserDTO userDTO = UserDTO.builder()
                 .email(user.email)
@@ -79,7 +78,7 @@ public class UserManagement {
 
             UserDTO userDTO = UserDTO.builder()
                 .email(user.email)
-                .jwtToken(helper.getJwtToken(user))
+                .jwtToken(Helper.getJwtToken(user))
                 .isAdmin(user.adminPriveleges)
                 .build();
 

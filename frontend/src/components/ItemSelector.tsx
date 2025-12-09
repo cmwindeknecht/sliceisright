@@ -3,7 +3,8 @@ export interface SelectorProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   items: any[];
-  defaultText: string;
+  defaultText: string | null;
+  shouldSort?: boolean;
 }
 
 export default function ItemSelector({
@@ -12,14 +13,29 @@ export default function ItemSelector({
   onChange,
   items,
   defaultText,
+  shouldSort = true,
 }: SelectorProps) {
+  const getSafeItems = () => {
+    return items.map((item, index) => {
+      if (typeof item === "object" && item !== null && "name" in item) {
+        return item;
+      }
+
+      return {
+        id: index,
+        name: String(item),
+        menuItemCategory: undefined,
+      };
+    });
+  };
+
   return (
     <div>
       <label className="block mb-1 font-medium">{label}</label>
       <select value={value} onChange={onChange} className="border p-2 rounded w-full">
-        <option value={defaultText}>{defaultText}</option>
-        {items
-          .sort((a, b) => a.name.localeCompare(b.name))
+        {defaultText && <option value={defaultText}>{defaultText}</option>}
+        {getSafeItems()
+          .sort((a, b) => (shouldSort ? a.name.localeCompare(b.name) : 0))
           .map((item) => (
             <option key={item.id} value={item.id.toString()}>
               {item.name}

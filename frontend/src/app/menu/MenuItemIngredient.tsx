@@ -1,5 +1,5 @@
-import { Ingredient } from "@/types/Ingredient";
-import OverlayImageWithFadeIn from "../OverlayImageWithFadeIn";
+import { Ingredient, IngredientOption } from "@/types/Ingredient";
+import OverlayImageWithFadeIn from "../../components/OverlayImageWithFadeIn";
 import { useState } from "react";
 import {
   CircleArrowLeft,
@@ -21,20 +21,6 @@ export interface MenuItemIngredientProps {
   canBeRemoved: boolean;
   updateIngredientOptions: (ingredientOption: IngredientOption) => boolean;
   removeIngredientOption: (ingredientOption: IngredientOption) => void;
-}
-
-export interface IngredientOption {
-  name: string;
-  ingredientId: number;
-  basePrice: number;
-  isRemoved: boolean;
-  isLight: boolean;
-  isRegular: boolean;
-  isDoubled: boolean;
-  isLeftHalf: boolean;
-  isRightHalf: boolean;
-  isWholeItem: boolean;
-  isIncluded: boolean;
 }
 
 export default function MenuItemIngredient({

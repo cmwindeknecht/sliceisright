@@ -4,13 +4,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.SliceIsRight.Helper;
-import com.SliceIsRight.api.model.MenuItemDTO;
+import com.SliceIsRight.api.models.MenuItemDTO;
 import com.SliceIsRight.database.entities.Ingredient;
 import com.SliceIsRight.database.entities.MenuItem;
 
 public class MenuItemRepository {
     public static final MenuItemRepository INSTANCE = new MenuItemRepository();
-    private final Helper helper = new Helper();
 
     public List<MenuItemDTO> getAllMenuItems() {
         List<MenuItem> menuItems = MenuItem.find(
@@ -46,7 +45,7 @@ public class MenuItemRepository {
 
     private List<MenuItemDTO> buildMenuItemDTOs(List<MenuItem> menuItems) {    
         return menuItems.stream()
-            .map(menuItem -> helper.buildMenuItemDTO(menuItem))
+            .map(menuItem -> Helper.buildMenuItemDTO(menuItem))
             .collect(Collectors.toList());
     }
 }

@@ -29,13 +29,26 @@ public class Constants {
         }
     }
 
+    public enum IntervalCategory {
+        PIZZAS,
+        SUBS,
+        APPETIZERS,
+        DESSERTS,
+        BEVERAGES,
+        MAX_PER_INTERVAL;
+
+        public static IntervalCategory getMenuItemEquivalent(MenuItemCategory menuItemCategory) throws IllegalArgumentException {
+            return IntervalCategory.valueOf(menuItemCategory.name());
+        }
+    }
+
     public enum MenuItemCategory {
         PIZZAS("Pizzas"),
         SUBS("Subs"),
         APPETIZERS("Appetizers"),
         DESSERTS("Desserts"),
         BEVERAGES("Beverages"),
-        DEALS("Deals");
+        DEALS("Deals"); // TODO remove this - just make a isDeal button / column / etc.  Fucks up orderTime calculation
 
         private final String value;
         
@@ -57,6 +70,23 @@ public class Constants {
         private final String value;
         
         IngredientCategory(String value) {
+            this.value = value;
+        }
+        
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public enum OrderStatus {
+        PLACED("Placed"),
+        IN_PROGRESS("In Progress"),
+        READY("Ready"),
+        PICKED_UP("Picked up");
+        
+        private final String value;
+        
+        OrderStatus(String value) {
             this.value = value;
         }
         

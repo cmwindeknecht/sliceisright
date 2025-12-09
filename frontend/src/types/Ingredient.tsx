@@ -16,7 +16,16 @@ export interface IngredientSize {
   price: number;
 }
 
-export interface OrderIngredient extends Ingredient {
+export interface IngredientOption {
+  name: string;
+  ingredientId: number;
+  basePrice: number;
   isRemoved: boolean;
+  isLight: boolean;
+  isRegular: boolean;
   isDoubled: boolean;
+  isLeftHalf: boolean;
+  isRightHalf: boolean;
+  isWholeItem: boolean;
+  isIncluded: boolean;
 }

@@ -90,6 +90,12 @@
             <artifactId>quarkus-smallrye-jwt</artifactId>
         </dependency>
 
+        <!-- Logging-->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-logging-gelf</artifactId>
+        </dependency>
+
         <!-- Testing -->
         <dependency>
             <groupId>io.quarkus</groupId>

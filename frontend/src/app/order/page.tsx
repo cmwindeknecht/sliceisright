@@ -1,7 +1,7 @@
 "use client";
 
 import { useMenu } from "@/components/context/Menu";
-import OrderItem from "@/components/orderItem/OrderItem";
+import OrderItem from "@/app/order/OrderItem";
 import { sortOrderItemsByCategory } from "@/misc/helper";
 import clsx from "clsx";
 import { useEffect, useState } from "react";

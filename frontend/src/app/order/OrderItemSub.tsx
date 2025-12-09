@@ -7,7 +7,7 @@ import { OrderItemProps } from "./OrderItem";
 
 export default function OrderItemSub({ orderItem }: OrderItemProps) {
   return (
-    <div className="flex flex-col w-full border-y border-black">
+    <div className="flex flex-col w-full">
       <div className="flex flex-row h-full items-center text-white text-sm pl-1">
         {orderItem.ingredientOptions.map((ingredientOption, index) => (
           <span key={ingredientOption.ingredientId}>

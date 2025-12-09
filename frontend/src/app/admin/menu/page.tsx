@@ -7,8 +7,8 @@ import { MenuItem } from "@/types/MenuItem";
 import { useEffect, useState } from "react";
 import AddUpdateMenuItem from "./AddUpdateMenuItem";
 import AddUpdateIngredient from "./AddUpdateIngredient";
-import MenuItemAdmin from "@/components/adminMenu/MenuItemAdmin";
-import IngredientAdmin from "@/components/adminMenu/IngredientAdmin";
+import MenuItemAdmin from "@/app/admin/menu/MenuItemAdmin";
+import IngredientAdmin from "@/app/admin/menu/IngredientAdmin";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 export interface UpdateMenuProps {
@@ -47,7 +47,7 @@ export default function AdminMenuPage() {
         <h1> Forbidden</h1>
       ) : (
         <div>
-          <h1 className="text-3xl font-bold text-center m-5">Admin Menu</h1>
+          <div className="text-3xl font-bold text-center m-5">Admin Menu</div>
           <div className="flex flex-row justify-between">
             <AddUpdateMenuItem
               ingredients={ingredients}
@@ -75,7 +75,6 @@ export default function AdminMenuPage() {
                 <div className="flex flex-wrap justify-between gap-4">
                   {menuItems
                     .sort((a, b) => a.name.localeCompare(b.name))
-
                     .map((menuItem) => (
                       <MenuItemAdmin key={menuItem.id} menuItem={menuItem} />
                     ))}

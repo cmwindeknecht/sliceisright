@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:16
+    hostname: slice-db
     environment:
       POSTGRES_USER: pizza
       POSTGRES_PASSWORD: secret
@@ -9,8 +10,11 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    networks:
+      - graylog
 
   backend:
+    hostname: slice-backend
     build:
       context: .
       dockerfile: src/main/docker/Dockerfile.builder
@@ -24,10 +28,16 @@ services:
       FRONTEND_ORIGINS: http://localhost:3000
       ADMIN_SETUP_TOKEN: "admintoken"
       JWT_SIGNING_KEY: 7K9mP2xVwQ8nJ5tL3zR6yH4bN1fS0gC8vM7qA9dE6uW=
+      QUARKUS_LOG_HANDLER_GELF_HOST: udp:graylog
+      QUARKUS_LOG_HANDLER_GELF_PORT: 12201
     depends_on:
       - db
+      - graylog
+    networks:
+      - graylog
 
   frontend:
+    hostname: slice-frontend
     build:
       context: ./frontend
       dockerfile: docker/Dockerfile
@@ -37,6 +47,62 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+      - graylog
+    networks:
+      - graylog
+
+  mongo:
+    image: mongo:6.0
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - graylog
+
+  graylog:
+    image: graylog/graylog:5.2
+    hostname: graylog
+    environment:
+      GRAYLOG_PASSWORD_SECRET: sliceisrightgraylogabcdef1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ0987654321xyzabc
+      GRAYLOG_ROOT_PASSWORD_SHA2: 303e8a4af0a35686896875214e56bc1f91f398a2282083209aecaa04afc9a4ff
+      GRAYLOG_HTTP_EXTERNAL_URI: http://localhost:9000/
+      GRAYLOG_MONGODB_URI: mongodb://mongo:27017/graylog
+      GRAYLOG_HTTP_BIND_ADDRESS: 0.0.0.0:9000
+    depends_on:
+      - mongo
+      - graylog-datanode
+    ports:
+      - "9000:9000" # Web UI
+      - "12201:12201/udp" # Quarkus logging
+      - "12202:12202" # Frontend logging
+    networks:
+      - graylog
+
+  graylog-datanode:
+    image: graylog/graylog-datanode:5.2
+    hostname: graylog-datanode
+    environment:
+      GRAYLOG_DATANODE_NODE_ID_FILE: /var/lib/graylog-datanode/node-id
+      GRAYLOG_DATANODE_PASSWORD_SECRET: sliceisrightgraylogabcdef1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ0987654321xyzabc
+      GRAYLOG_DATANODE_ROOT_PASSWORD_SHA2: 303e8a4af0a35686896875214e56bc1f91f398a2282083209aecaa04afc9a4ff
+      GRAYLOG_DATANODE_MONGODB_URI: mongodb://mongo:27017/graylog
+      GRAYLOG_DATANODE_HOSTNAME: graylog-datanode
+      GRAYLOG_DATANODE_HTTP_BIND_ADDRESS: 0.0.0.0:8999
+    depends_on:
+      - mongo
+    volumes:
+      - graylog-datanode:/var/lib/graylog-datanode
+    ports:
+      - "8999:8999"
+      - "9200:9200"
+    networks:
+      - graylog
+    restart: on-failure
 
 volumes:
+  mongo_data:
+  graylog-datanode:
   db_data:
+
+networks:
+  graylog:
+    driver: bridge

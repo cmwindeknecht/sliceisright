@@ -1,16 +1,16 @@
-import { Order } from './Order';
+import { Order } from "./Order";
 
 export interface User {
-  orders: Order[];
   email: string;
   isAdmin: boolean;
+  orders: Order[];
 }
 
 export interface UserResponse {
-    entity: { 
-      email: string; 
-      jwtToken: string;
-      isAdmin: boolean;
-    };
-    response: string;
+  entity: {
+    email: string;
+    jwtToken: string;
+    isAdmin: boolean;
+  };
+  response: string;
 }

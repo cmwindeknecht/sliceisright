@@ -8,38 +8,58 @@ import { useMenu } from "./context/Menu";
 
 export default function Header() {
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
   const { user, logout } = useAuth();
   const { currentOrder } = useMenu();
 
   return (
-    <header className="fixed top-0 left-0 w-full h-[10vh] z-50 bg-gradient-to-r from-orange-600 from-50% to-red-600 to-50% text-white p-4 flex justify-center items-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] [text-shadow:_0_0_3px_black,_0_0_5px_black]">
+    <header className="fixed top-0 left-0 w-full min-h-[10vh] max-h-[10vh] z-50 bg-gradient-to-r from-orange-600 from-50% to-red-600 to-50% text-white p-4 flex justify-center items-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] [text-shadow:_0_0_3px_black,_0_0_5px_black]">
       <div className="absolute left-4">Slice is Right Pizzeria</div>
-      <div className="flex gap-4">
-        <Link
-          href="/"
-          className={`hover:font-bold ${mounted && pathname === "/" ? "underline" : ""}`}
-        >
-          Home
-        </Link>
-        <Link
-          href="/menu"
-          className={`hover:font-bold ${mounted && pathname === "/menu" ? "underline" : ""}`}
-        >
-          Menu
-        </Link>
-        <Link
-          href="/contact"
-          className={`hover:font-bold ${mounted && pathname === "/contact" ? "underline" : ""}`}
-        >
-          Contact
-        </Link>
-        <Link
-          href="/order"
-          className={`hover:font-bold ${mounted && pathname === "/order" ? "underline" : ""}`}
-        >
-          🛒 Order ({currentOrder.reduce((memo, orderItem) => memo + orderItem.quantity, 0)})
-        </Link>
+      <div className="flex flex-col w-[50vw] justify-center items-center">
+        <div className="flex gap-4">
+          <Link href="/" className={`hover:font-bold ${pathname === "/" ? "underline" : ""}`}>
+            Home
+          </Link>
+          <Link
+            href="/menu"
+            className={`hover:font-bold ${pathname === "/menu" ? "underline" : ""}`}
+          >
+            Menu
+          </Link>
+          <Link
+            href="/contact"
+            className={`hover:font-bold ${pathname === "/contact" ? "underline" : ""}`}
+          >
+            Contact
+          </Link>
+          <Link
+            href="/order"
+            className={`hover:font-bold ${pathname === "/order" ? "underline" : ""}`}
+          >
+            🛒 Order ({currentOrder.reduce((memo, orderItem) => memo + orderItem.quantity, 0)})
+          </Link>
+        </div>
+        {user && user.isAdmin && (
+          <div className="flex gap-4">
+            <Link
+              href="/admin/store"
+              className={`hover:font-bold ${pathname === "/admin/store" ? "underline" : ""}`}
+            >
+              Admin Store Configuration
+            </Link>
+            <Link
+              href="/admin/order"
+              className={`hover:font-bold ${pathname === "/admin/order" ? "underline" : ""}`}
+            >
+              Admin Orders
+            </Link>
+            <Link
+              href="/admin/menu"
+              className={`hover:font-bold ${pathname === "/admin/menu" ? "underline" : ""}`}
+            >
+              Admin Menu
+            </Link>
+          </div>
+        )}
       </div>
       <div className="flex items-center gap-4 absolute right-4">
         {!user ? (
@@ -51,23 +71,6 @@ export default function Header() {
           </Link>
         ) : (
           <>
-            {user.isAdmin && (
-              <>
-                <Link
-                  href="/admin/order"
-                  className={`hover:font-bold ${mounted && pathname === "/admin/order" ? "underline" : ""}`}
-                >
-                  Admin Orders
-                </Link>
-                <Link
-                  href="/admin/menu"
-                  className={`hover:font-bold ${mounted && pathname === "/admin/order" ? "underline" : ""}`}
-                >
-                  Admin Menu
-                </Link>
-              </>
-            )}
-
             <Link href="/account" className="hover:outline-1">
               <div className="flex flex-col items-center">
                 <div className="text-3xl">🍕</div>

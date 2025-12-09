@@ -1,4 +1,4 @@
-package com.SliceIsRight.api.model;
+package com.SliceIsRight.api.models;
 
 import java.util.List;
 

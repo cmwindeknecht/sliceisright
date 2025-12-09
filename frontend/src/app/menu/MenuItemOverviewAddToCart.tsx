@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { MenuItemSize, MenuItem as MenuItemType, OrderItem } from "@/types/MenuItem";
 import clsx from "clsx";
-import { useMenu } from "../context/Menu";
-import PlusMinus from "../PlusMinus";
+import { useMenu } from "../../components/context/Menu";
+import PlusMinus from "../../components/PlusMinus";
 import { createNewOrderItem } from "@/misc/helper";
 
 export interface MenuItemOverviewAddToCartProps {

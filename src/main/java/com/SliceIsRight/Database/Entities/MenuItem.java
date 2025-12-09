@@ -35,6 +35,7 @@ public class MenuItem extends PanacheEntity {
     public String imageUrl;
     public String description;
 
+    // TODO make this something that can be created from the UI
     @Enumerated(EnumType.STRING)
     public MenuItemCategory category;
 

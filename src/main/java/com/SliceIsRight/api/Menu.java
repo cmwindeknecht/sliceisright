@@ -2,6 +2,7 @@ package com.SliceIsRight.api;
 
 import java.util.List;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.RestStreamElementType;
 
 import jakarta.inject.Inject;
@@ -18,25 +19,26 @@ import com.SliceIsRight.database.repositories.MenuItemRepository;
 import io.smallrye.mutiny.Multi;
 import io.vertx.core.http.HttpServerResponse;
 
+import com.SliceIsRight.api.models.IngredientDTO;
+import com.SliceIsRight.api.models.MenuItemDTO;
 import com.SliceIsRight.api.responses.ResponseFactory;
-import com.SliceIsRight.MenuUpdates;
-import com.SliceIsRight.api.model.IngredientDTO;
-import com.SliceIsRight.api.model.MenuItemDTO;
 
 @Path("/menu")
 public class Menu {
 
     @Inject
-    MenuUpdates broadcaster;
+    SseBroadcaster broadcaster;
+
+    @ConfigProperty(name = "quarkus.http.cors.origins")
+    String origins;
     
     @GET
     @Path("/updates")
     @Produces(MediaType.SERVER_SENT_EVENTS)
     @RestStreamElementType(MediaType.TEXT_PLAIN)
     public Multi<String> streamUpdates(@Context HttpServerResponse response) {
-        response.putHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+        response.putHeader("Access-Control-Allow-Origin", origins);
         response.putHeader("Access-Control-Allow-Credentials", "true");
-        System.out.println("Added CORS headers directly for SSE");
         return broadcaster.subscribe();
     }
 
@@ -48,7 +50,7 @@ public class Menu {
             List<MenuItemDTO> menuItemDTOs = MenuItemRepository.INSTANCE.getAllMenuItems();
             return ResponseFactory.GetOkResponse(menuItemDTOs, "Successfully retrieved menu items");
         } catch (Exception e) {
-            return ResponseFactory.GetBadRequestResponse(e, "Failed to retrieved menu items");
+            return ResponseFactory.GetBadRequestResponse(e, "Failed to retrieve menu items");
         }
     }
 
@@ -60,7 +62,7 @@ public class Menu {
             List<IngredientDTO> ingredients = IngredientRepository.INSTANCE.getAllIngredients();
             return ResponseFactory.GetOkResponse(ingredients, "Successfully retrieved ingredients");
         } catch (Exception e) {
-            return ResponseFactory.GetBadRequestResponse(e, "Failed to retrieved ingredients");
+            return ResponseFactory.GetBadRequestResponse(e, "Failed to retrieve ingredients");
         }
     }
 }
