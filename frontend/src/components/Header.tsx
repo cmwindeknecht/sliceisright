@@ -12,7 +12,7 @@ export default function Header() {
   const { currentOrder } = useMenu();
 
   return (
-    <header className="fixed top-0 left-0 w-full h-[10vh] z-50 bg-gradient-to-r from-orange-600 from-50% to-red-600 to-50% text-white p-4 flex justify-center items-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] [text-shadow:_0_0_3px_black,_0_0_5px_black]">
+    <header className="fixed top-0 left-0 w-full min-h-[10vh] max-h-[10vh] z-50 bg-gradient-to-r from-orange-600 from-50% to-red-600 to-50% text-white p-4 flex justify-center items-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] [text-shadow:_0_0_3px_black,_0_0_5px_black]">
       <div className="absolute left-4">Slice is Right Pizzeria</div>
       <div className="flex flex-col w-[50vw] justify-center items-center">
         <div className="flex gap-4">

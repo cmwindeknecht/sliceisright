@@ -4,6 +4,7 @@ export interface SelectorProps {
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   items: any[];
   defaultText: string | null;
+  shouldSort?: boolean;
 }
 
 export default function ItemSelector({
@@ -12,6 +13,7 @@ export default function ItemSelector({
   onChange,
   items,
   defaultText,
+  shouldSort = true,
 }: SelectorProps) {
   const getSafeItems = () => {
     return items.map((item, index) => {
@@ -33,7 +35,7 @@ export default function ItemSelector({
       <select value={value} onChange={onChange} className="border p-2 rounded w-full">
         {defaultText && <option value={defaultText}>{defaultText}</option>}
         {getSafeItems()
-          .sort((a, b) => a.name.localeCompare(b.name))
+          .sort((a, b) => (shouldSort ? a.name.localeCompare(b.name) : 0))
           .map((item) => (
             <option key={item.id} value={item.id.toString()}>
               {item.name}

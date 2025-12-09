@@ -171,3 +171,33 @@ export const createNewOrderItem = (menuItem: MenuItem, selectedSize?: MenuItemSi
     price: selectedSize?.price ?? menuItem.sizes[0].price,
   };
 };
+
+export const convertLocalTimeToUTC = (timeString: string): string => {
+  if (!timeString) return "";
+
+  const today = new Date();
+  const [hours, minutes] = timeString.split(":");
+  today.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+  return today.toISOString();
+};
+
+export const convertUTCToLocalTime = (utcString: string): string => {
+  if (!utcString) return "";
+
+  const date = new Date(utcString);
+  return date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
+
+export const getInputTimeFromUTC = (utcString: string): string => {
+  if (!utcString) return "";
+
+  const date = new Date(utcString);
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  return `${hours}:${minutes}`;
+};

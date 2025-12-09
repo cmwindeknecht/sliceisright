@@ -75,7 +75,6 @@ export default function AdminMenuPage() {
                 <div className="flex flex-wrap justify-between gap-4">
                   {menuItems
                     .sort((a, b) => a.name.localeCompare(b.name))
-
                     .map((menuItem) => (
                       <MenuItemAdmin key={menuItem.id} menuItem={menuItem} />
                     ))}
